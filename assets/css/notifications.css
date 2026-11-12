@@ -1,0 +1,319 @@
+/* ============================================================
+   Leula Events — Liquid Glass Notification & Action Dialog System
+   Orange and White Branding with Semantic State Highlights
+   ============================================================ */
+
+/* Toast Container */
+.leula-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  max-width: 400px;
+  width: calc(100vw - 40px);
+}
+
+@media (max-width: 640px) {
+  .leula-toast-container {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+  }
+}
+
+/* Individual Toast */
+.leula-toast {
+  position: relative;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  overflow: hidden;
+  animation: leulaToastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.leula-toast.hiding {
+  animation: leulaToastOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Left Accent Indicator Bar */
+.leula-toast::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+}
+
+.leula-toast.success::before { background: #059669; }
+.leula-toast.error::before   { background: #DC2626; }
+.leula-toast.warning::before { background: #FF7A00; }
+.leula-toast.info::before    { background: #2563EB; }
+
+/* Icon Badge */
+.leula-toast-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.leula-toast.success .leula-toast-icon { background: rgba(5, 150, 105, 0.12); color: #059669; }
+.leula-toast.error .leula-toast-icon   { background: rgba(220, 38, 38, 0.12); color: #DC2626; }
+.leula-toast.warning .leula-toast-icon { background: rgba(255, 122, 0, 0.12); color: #FF7A00; }
+.leula-toast.info .leula-toast-icon    { background: rgba(37, 99, 235, 0.12); color: #2563EB; }
+
+.leula-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.leula-toast-title {
+  font-weight: 700;
+  font-size: 0.84rem;
+  color: #09090B;
+  margin: 0 0 2px;
+  line-height: 1.3;
+}
+
+.leula-toast-msg {
+  font-size: 0.78rem;
+  color: #52525B;
+  line-height: 1.4;
+  margin: 0;
+  word-break: break-word;
+}
+
+.leula-toast-close {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #A1A1AA;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.leula-toast-close:hover {
+  color: #09090B;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Animations */
+@keyframes leulaToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes leulaToastOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    max-height: 120px;
+    margin-bottom: 0;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(40px) scale(0.9);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: -10px;
+  }
+}
+
+/* ============================================================
+   Application-Level Reversible Confirmation Dialog
+   ============================================================ */
+.leula-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 9, 11, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: leulaFadeIn 0.2s ease forwards;
+}
+
+.leula-dialog-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+  max-width: 460px;
+  width: 100%;
+  overflow: hidden;
+  animation: leulaModalSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.leula-dialog-header {
+  padding: 18px 22px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.leula-dialog-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.leula-dialog-icon.warning { background: rgba(255, 122, 0, 0.12); color: #FF7A00; }
+.leula-dialog-icon.danger  { background: rgba(220, 38, 38, 0.12); color: #DC2626; }
+.leula-dialog-icon.primary { background: rgba(255, 122, 0, 0.12); color: #FF7A00; }
+.leula-dialog-icon.success { background: rgba(5, 150, 105, 0.12); color: #059669; }
+
+.leula-dialog-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #09090B;
+  letter-spacing: -0.3px;
+}
+
+.leula-dialog-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.74rem;
+  color: #71717A;
+}
+
+.leula-dialog-body {
+  padding: 18px 22px;
+  font-size: 0.85rem;
+  color: #3F3F46;
+  line-height: 1.5;
+}
+
+.leula-dialog-input-wrap {
+  margin-top: 14px;
+}
+
+.leula-dialog-input-label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #09090B;
+  margin-bottom: 6px;
+}
+
+.leula-dialog-input {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  font-size: 0.84rem;
+  color: #09090B;
+  background: #FAFAFA;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.leula-dialog-input:focus {
+  outline: none;
+  border-color: #FF7A00;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
+}
+
+.leula-dialog-footer {
+  padding: 14px 22px;
+  background: #F9FAFB;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.leula-dialog-btn {
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.leula-dialog-btn.cancel {
+  background: #FFFFFF;
+  color: #52525B;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+.leula-dialog-btn.cancel:hover {
+  background: #F4F4F5;
+  color: #09090B;
+}
+
+.leula-dialog-btn.confirm-primary {
+  background: linear-gradient(135deg, #FF7A00, #E96800);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.35);
+}
+.leula-dialog-btn.confirm-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 122, 0, 0.45);
+}
+
+.leula-dialog-btn.confirm-danger {
+  background: linear-gradient(135deg, #DC2626, #B91C1C);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+}
+.leula-dialog-btn.confirm-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.45);
+}
+
+@keyframes leulaFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes leulaModalSlide {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+

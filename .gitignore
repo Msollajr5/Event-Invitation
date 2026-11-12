@@ -1,0 +1,22 @@
+# PHP Sessions and Runtime Storage
+storage/sessions/*
+!storage/sessions/.gitkeep
+storage/*.sqlite
+
+# Local SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Temporary test runners and scratch scripts
+tmp_runner.php
+scratch_runner.php
+
+# Environment and sensitive credentials
+.env
+.env.local
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+Desktop.ini
