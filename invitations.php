@@ -4,8 +4,10 @@ $currentPage = 'invitations';
 require_once __DIR__ . '/config/db.php';
 require_role(2);
 
-$selectedEventId = (int)($_GET['event_id'] ?? 1);
-$allEvents = db_fetch_all("SELECT id, title FROM events ORDER BY start_date DESC");
+$userEvents = get_user_events();
+$selectedEventId = (int)($_GET['event_id'] ?? get_active_event_id() ?? 1);
+require_event_access($selectedEventId);
+$allEvents = $userEvents;
 
 $invitations = db_fetch_all("
     SELECT i.*, g.full_name as guest_name, g.phone, g.email,

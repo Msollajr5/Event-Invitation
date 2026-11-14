@@ -367,6 +367,20 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       <a href="index.php" class="btn btn-secondary">Return to Home</a>
     </div>
   <?php else: ?>
+    <!-- Language Switcher & Portal Topbar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:0 4px;">
+      <a href="index.php" style="display:inline-flex;align-items:center;gap:6px;font-size:0.84rem;font-weight:700;color:var(--text-secondary);text-decoration:none;">
+        <?= svgIcon('ticket', 15) ?> <span><?= APP_NAME ?></span>
+      </a>
+      <div style="display:inline-flex;background:#FFFFFF;border:1px solid rgba(0,0,0,0.1);border-radius:20px;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <button type="button" id="langBtnEn" onclick="setLanguage('en')" style="border:none;border-radius:16px;padding:4px 12px;font-size:0.75rem;font-weight:700;cursor:pointer;background:#FF7A00;color:#FFFFFF;transition:all 0.2s ease;">
+          English
+        </button>
+        <button type="button" id="langBtnSw" onclick="setLanguage('sw')" style="border:none;border-radius:16px;padding:4px 12px;font-size:0.75rem;font-weight:700;cursor:pointer;background:transparent;color:#4B5563;transition:all 0.2s ease;">
+          Kiswahili
+        </button>
+      </div>
+    </div>
     
     <!-- PASS CARD DISPLAY -->
     <?php if ($cardMode === 'canva' && !empty($canvaBgData)): ?>
@@ -462,12 +476,12 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
           <?php endif; ?>
 
           <?php if (!empty($quoteText)): ?>
-            <div style="font-size:0.76rem;font-style:italic;opacity:0.8;margin:4px 0 6px;">
+            <div id="cardQuoteText" style="font-size:0.76rem;font-style:italic;opacity:0.8;margin:4px 0 6px;">
               <?= htmlspecialchars($quoteText) ?>
             </div>
           <?php endif; ?>
 
-          <div style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;opacity:0.65;margin-bottom:2px;">
+          <div id="cardAdmitBearer" style="font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;opacity:0.65;margin-bottom:2px;">
             Admit Attendee Bearer
           </div>
 
@@ -485,9 +499,9 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
 
           <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">
             <?php if ($pass['is_checked_in']): ?>
-              <span class="badge badge-success"><?= svgIcon('check', 12) ?> CHECKED IN</span>
+              <span id="cardCheckinBadge" class="badge badge-success"><?= svgIcon('check', 12) ?> CHECKED IN</span>
             <?php else: ?>
-              <span class="badge badge-primary" style="background:<?= $accentColor ?>18;color:<?= $accentColor ?>;border:1px solid <?= $accentColor ?>44;">
+              <span id="cardActiveBadge" class="badge badge-primary" style="background:<?= $accentColor ?>18;color:<?= $accentColor ?>;border:1px solid <?= $accentColor ?>44;">
                 ACTIVE PASS &bull; <?= $pass['permitted_attendees'] ?> PERSON(S)
               </span>
             <?php endif; ?>
@@ -503,7 +517,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
           </div>
 
           <?php if (!empty($footerNote)): ?>
-            <div style="font-size:0.7rem;opacity:0.65;line-height:1.4;border-top:1px dashed rgba(0,0,0,0.12);padding-top:10px;margin-top:14px;">
+            <div id="cardFooterNote" style="font-size:0.7rem;opacity:0.65;line-height:1.4;border-top:1px dashed rgba(0,0,0,0.12);padding-top:10px;margin-top:14px;">
               <?= htmlspecialchars($footerNote) ?>
             </div>
           <?php endif; ?>
@@ -517,11 +531,11 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       <!-- Pass Status Pill -->
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">
         <?php if ($pass['is_checked_in']): ?>
-          <span class="badge badge-success" style="padding:6px 14px;font-size:0.82rem;">
+          <span id="passStatusPill" class="badge badge-success" style="padding:6px 14px;font-size:0.82rem;">
             <?= svgIcon('check', 14) ?> ADMITTED &bull; CHECKED IN AT GATE
           </span>
         <?php else: ?>
-          <span class="badge badge-primary" style="padding:6px 14px;font-size:0.82rem;background:rgba(255,122,0,0.12);color:#FF7A00;border:1px solid rgba(255,122,0,0.25);">
+          <span id="passStatusPill" class="badge badge-primary" style="padding:6px 14px;font-size:0.82rem;background:rgba(255,122,0,0.12);color:#FF7A00;border:1px solid rgba(255,122,0,0.25);">
             <?= svgIcon('ticket', 14) ?> VALID DIGITAL PASS &bull; <?= $pass['permitted_attendees'] ?> PERSON(S)
           </span>
         <?php endif; ?>
@@ -531,55 +545,24 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       <div id="rsvpSection" style="margin-bottom:16px;">
         <div id="rsvpCardContainer" style="background:var(--surface-3, #F7F7F8);border:1px solid var(--border, #E4E4E7);border-radius:14px;padding:14px 16px;transition:all 0.25s ease;">
           <div id="rsvpContent">
-            <?php if ($pass['rsvp_response'] === 'accepted'): ?>
-              <div style="display:flex;align-items:center;justify-content:center;gap:6px;color:#059669;font-weight:700;font-size:0.88rem;margin-bottom:6px;">
-                <?= svgIcon('check', 16) ?>
-                <span>You have accepted this invitation.</span>
-              </div>
-              <p style="font-size:0.75rem;color:var(--text-muted);margin:0 0 10px;">We look forward to welcoming you to the event.</p>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="handleRsvpChange('declined')" style="margin:0 auto;font-size:0.8rem;padding:6px 14px;border-color:rgba(220,38,38,0.25);color:var(--text-secondary);">
-                <?= svgIcon('x', 13) ?> Change to Declined
-              </button>
-            <?php elseif ($pass['rsvp_response'] === 'declined'): ?>
-              <div style="display:flex;align-items:center;justify-content:center;gap:6px;color:#DC2626;font-weight:700;font-size:0.88rem;margin-bottom:6px;">
-                <?= svgIcon('x', 16) ?>
-                <span>You have declined this invitation.</span>
-              </div>
-              <p style="font-size:0.75rem;color:var(--text-muted);margin:0 0 10px;">Plans changed? You can update your RSVP below.</p>
-              <button type="button" class="btn btn-primary btn-sm" onclick="handleRsvpChange('accepted')" style="margin:0 auto;font-size:0.8rem;padding:6px 14px;">
-                <?= svgIcon('check', 13) ?> Change to Accepted
-              </button>
-            <?php else: ?>
-              <div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);margin-bottom:4px;">
-                Please confirm your attendance
-              </div>
-              <p style="font-size:0.74rem;color:var(--text-muted);margin:0 0 10px;">Let the event host know if you will be attending.</p>
-              <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-                <button type="button" class="btn btn-success btn-sm" onclick="handleRsvpChange('accepted')" style="padding:7px 16px;font-size:0.82rem;">
-                  <?= svgIcon('check', 14) ?> Confirm Attending
-                </button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="handleRsvpChange('declined')" style="padding:7px 16px;font-size:0.82rem;">
-                  <?= svgIcon('x', 14) ?> Can't Make It
-                </button>
-              </div>
-            <?php endif; ?>
+            <!-- Dynamic via renderRsvpUI -->
           </div>
         </div>
       </div>
 
       <!-- Action Buttons: Download Card PNG + Add to Calendar + Print -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <button type="button" class="btn btn-primary btn-sm" onclick="downloadPassCard()" style="justify-content:center;font-size:0.8rem;">
-          <?= svgIcon('download', 14) ?> Download Card PNG
+        <button type="button" class="btn btn-primary btn-sm" id="btnDownloadPng" onclick="downloadPassCard()" style="justify-content:center;font-size:0.8rem;">
+          <?= svgIcon('download', 14) ?> <span>Download Card PNG</span>
         </button>
-        <a href="pass.php?token=<?= urlencode($pass['token']) ?>&download=ics" class="btn btn-secondary btn-sm" style="justify-content:center;font-size:0.8rem;">
-          <?= svgIcon('calendar', 14) ?> Add to Calendar (.ics)
+        <a href="pass.php?token=<?= urlencode($pass['token']) ?>&download=ics" class="btn btn-secondary btn-sm" id="btnAddCalendar" style="justify-content:center;font-size:0.8rem;">
+          <?= svgIcon('calendar', 14) ?> <span>Add to Calendar (.ics)</span>
         </a>
       </div>
 
       <div style="margin-top:10px;">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()" style="width:100%;justify-content:center;font-size:0.78rem;">
-          <?= svgIcon('eye', 13) ?> Print Physical Card
+        <button type="button" class="btn btn-secondary btn-sm" id="btnPrintCard" onclick="window.print()" style="width:100%;justify-content:center;font-size:0.78rem;">
+          <?= svgIcon('eye', 13) ?> <span>Print Physical Card</span>
         </button>
       </div>
     </div>
@@ -591,6 +574,113 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
 <?php if ($pass): ?>
 let currentRsvpState = <?= json_encode($pass['rsvp_response'] ?: 'pending') ?>;
 const passToken = <?= json_encode($pass['token']) ?>;
+let currentLang = localStorage.getItem('leula_pass_lang') || 'en';
+
+const I18N = {
+  en: {
+    cordially_invited: "<?= !empty($quoteText) ? addslashes(htmlspecialchars($quoteText)) : 'Honored to request the pleasure of your company' ?>",
+    admit_bearer: "Admit Attendee Bearer",
+    active_pass: "ACTIVE PASS &bull; <?= $pass['permitted_attendees'] ?> PERSON(S)",
+    checked_in: "CHECKED IN",
+    admitted_gate: "ADMITTED &bull; CHECKED IN AT GATE",
+    valid_digital_pass: "VALID DIGITAL PASS &bull; <?= $pass['permitted_attendees'] ?> PERSON(S)",
+    rsvp_accepted: "You have accepted this invitation.",
+    rsvp_accepted_sub: "We look forward to welcoming you to the event.",
+    rsvp_declined: "You have declined this invitation.",
+    rsvp_declined_sub: "Plans changed? You can update your RSVP below.",
+    rsvp_prompt: "Please confirm your attendance",
+    rsvp_prompt_sub: "Let the event host know if you will be attending.",
+    btn_confirm: "Confirm Attending",
+    btn_decline: "Can't Make It",
+    btn_change_accepted: "Change to Accepted",
+    btn_change_declined: "Change to Declined",
+    btn_download_png: "Download Card PNG",
+    btn_calendar: "Add to Calendar (.ics)",
+    btn_print: "Print Physical Card",
+    footer_note: "<?= !empty($footerNote) ? addslashes(htmlspecialchars($footerNote)) : 'Black Tie Required • Non-Transferable Digital QR Ticket' ?>"
+  },
+  sw: {
+    cordially_invited: "Umealikwa kwa heshima kubwa kuhudhuria hafla hii",
+    admit_bearer: "Mruhusu Mhudhuriaji Rasmi",
+    active_pass: "PASI HALISI &bull; WATU <?= $pass['permitted_attendees'] ?>",
+    checked_in: "UMESHAINGIA UKUMBINI",
+    admitted_gate: "UMERUHUSIWA &bull; UMEHAKIKIWA GETINI",
+    valid_digital_pass: "PASI HALISI YA KIDIJI TALI &bull; WATU <?= $pass['permitted_attendees'] ?>",
+    rsvp_accepted: "Umekubali mwaliko huu.",
+    rsvp_accepted_sub: "Tunatazamia kwa furaha kukukaribisha kwenye hafla hii.",
+    rsvp_declined: "Umekataa mwaliko huu.",
+    rsvp_declined_sub: "Mipango imebadilika? Unaweza kubadilisha majibu yako hapa chini.",
+    rsvp_prompt: "Tafadhali thibitisha mahudhurio yako",
+    rsvp_prompt_sub: "Mfahamishe mratibu wa hafla iwapo utaweza kuhudhuria.",
+    btn_confirm: "Thibitisha Kuhudhuria",
+    btn_decline: "Sitahudhuria",
+    btn_change_accepted: "Badilisha kuwa Umekubali",
+    btn_change_declined: "Badilisha kuwa Umekataa",
+    btn_download_png: "Pakua Kadi (PNG)",
+    btn_calendar: "Weka kwenye Kalenda (.ics)",
+    btn_print: "Chapa Kadi ya Mwaliko",
+    footer_note: "Mavazi Rasmi &bull; Kadi Halisi ya Kidijitali Isiyohamishika"
+  }
+};
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('leula_pass_lang', lang);
+
+  const btnEn = document.getElementById('langBtnEn');
+  const btnSw = document.getElementById('langBtnSw');
+  if (btnEn && btnSw) {
+    if (lang === 'sw') {
+      btnSw.style.background = '#FF7A00';
+      btnSw.style.color = '#FFFFFF';
+      btnEn.style.background = 'transparent';
+      btnEn.style.color = '#4B5563';
+    } else {
+      btnEn.style.background = '#FF7A00';
+      btnEn.style.color = '#FFFFFF';
+      btnSw.style.background = 'transparent';
+      btnSw.style.color = '#4B5563';
+    }
+  }
+
+  const t = I18N[lang] || I18N.en;
+
+  // Update Card labels
+  const quoteElem = document.getElementById('cardQuoteText');
+  if (quoteElem) quoteElem.textContent = t.cordially_invited;
+
+  const admitElem = document.getElementById('cardAdmitBearer');
+  if (admitElem) admitElem.textContent = t.admit_bearer;
+
+  const activeBadge = document.getElementById('cardActiveBadge');
+  if (activeBadge) activeBadge.innerHTML = t.active_pass;
+
+  const footerElem = document.getElementById('cardFooterNote');
+  if (footerElem) footerElem.innerHTML = t.footer_note;
+
+  // Update Status Pill
+  const statusPill = document.getElementById('passStatusPill');
+  if (statusPill) {
+    <?php if ($pass['is_checked_in']): ?>
+      statusPill.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${t.admitted_gate}`;
+    <?php else: ?>
+      statusPill.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><line x1="13" y1="5" x2="13" y2="19" stroke-dasharray="2"/></svg> ${t.valid_digital_pass}`;
+    <?php endif; ?>
+  }
+
+  // Update Action Buttons
+  const btnPng = document.getElementById('btnDownloadPng');
+  if (btnPng) btnPng.querySelector('span').textContent = t.btn_download_png;
+
+  const btnCal = document.getElementById('btnAddCalendar');
+  if (btnCal) btnCal.querySelector('span').textContent = t.btn_calendar;
+
+  const btnPrint = document.getElementById('btnPrintCard');
+  if (btnPrint) btnPrint.querySelector('span').textContent = t.btn_print;
+
+  // Re-render RSVP UI with new language
+  renderRsvpUI(currentRsvpState);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const targetCard = document.getElementById('targetPassCard');
@@ -612,49 +702,53 @@ document.addEventListener('DOMContentLoaded', () => {
     colorLight: lightColor,
     correctLevel: QRCode.CorrectLevel.H
   });
+
+  // Initialize selected language
+  setLanguage(currentLang);
 });
 
 function renderRsvpUI(state) {
   currentRsvpState = state;
   const content = document.getElementById('rsvpContent');
   if (!content) return;
+  const t = I18N[currentLang] || I18N.en;
 
   if (state === 'accepted') {
     content.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;gap:6px;color:#059669;font-weight:700;font-size:0.88rem;margin-bottom:6px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>You have accepted this invitation.</span>
+        <span>${t.rsvp_accepted}</span>
       </div>
-      <p style="font-size:0.75rem;color:var(--text-muted, #71717A);margin:0 0 10px;">We look forward to welcoming you to the event.</p>
+      <p style="font-size:0.75rem;color:var(--text-muted, #71717A);margin:0 0 10px;">${t.rsvp_accepted_sub}</p>
       <button type="button" class="btn btn-secondary btn-sm" onclick="handleRsvpChange('declined')" style="margin:0 auto;font-size:0.8rem;padding:6px 14px;border-color:rgba(220,38,38,0.25);color:var(--text-secondary, #52525B);">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        Change to Declined
+        ${t.btn_change_declined}
       </button>
     `;
   } else if (state === 'declined') {
     content.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;gap:6px;color:#DC2626;font-weight:700;font-size:0.88rem;margin-bottom:6px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        <span>You have declined this invitation.</span>
+        <span>${t.rsvp_declined}</span>
       </div>
-      <p style="font-size:0.75rem;color:var(--text-muted, #71717A);margin:0 0 10px;">Plans changed? You can update your RSVP below.</p>
+      <p style="font-size:0.75rem;color:var(--text-muted, #71717A);margin:0 0 10px;">${t.rsvp_declined_sub}</p>
       <button type="button" class="btn btn-primary btn-sm" onclick="handleRsvpChange('accepted')" style="margin:0 auto;font-size:0.8rem;padding:6px 14px;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Change to Accepted
+        ${t.btn_change_accepted}
       </button>
     `;
   } else {
     content.innerHTML = `
-      <div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);margin-bottom:4px;">
-        Please confirm your attendance
+      <div style="font-size:0.84rem;font-weight:700;color:var(--text-primary);margin-bottom:4px;">
+        ${t.rsvp_prompt}
       </div>
-      <p style="font-size:0.74rem;color:var(--text-muted, #71717A);margin:0 0 10px;">Let the event host know if you will be attending.</p>
+      <p style="font-size:0.75rem;color:var(--text-muted, #71717A);margin:0 0 10px;">${t.rsvp_prompt_sub}</p>
       <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
         <button type="button" class="btn btn-success btn-sm" onclick="handleRsvpChange('accepted')" style="padding:7px 16px;font-size:0.82rem;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Confirm Attending
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${t.btn_confirm}
         </button>
         <button type="button" class="btn btn-secondary btn-sm" onclick="handleRsvpChange('declined')" style="padding:7px 16px;font-size:0.82rem;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Can't Make It
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ${t.btn_decline}
         </button>
       </div>
     `;

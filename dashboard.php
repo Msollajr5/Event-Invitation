@@ -4,80 +4,113 @@ $currentPage = 'dashboard';
 require_once __DIR__ . '/config/db.php';
 require_role(2);
 
-// Fetch Core Metrics
-$totalEvents = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM events")['cnt'] ?? 0);
-$totalGuests = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM guests")['cnt'] ?? 0);
-$totalCheckedIn = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM check_ins")['cnt'] ?? 0);
-$totalAcceptedRsvp = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM rsvp_records WHERE response = 'accepted'")['cnt'] ?? 0);
+$userEvents = get_user_events();
+$selectedEventId = get_active_event_id() ?? 1;
+require_event_access($selectedEventId);
+
+$currentEvent = db_fetch_one("SELECT * FROM events WHERE id = ?", [$selectedEventId]);
+
+// 1. Event-Specific Guest & Category Metrics
+$totalGuests = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM guests WHERE event_id = :id AND deleted_at IS NULL", ['id' => $selectedEventId])['cnt'] ?? 0);
+
+$vvipGuests = (int)(db_fetch_one("
+    SELECT COUNT(*) as cnt FROM guests g 
+    JOIN guest_categories gc ON g.guest_category_id = gc.id 
+    WHERE g.event_id = :id AND gc.slug = 'vvip' AND g.deleted_at IS NULL
+", ['id' => $selectedEventId])['cnt'] ?? 0);
+
+$vipGuests = (int)(db_fetch_one("
+    SELECT COUNT(*) as cnt FROM guests g 
+    JOIN guest_categories gc ON g.guest_category_id = gc.id 
+    WHERE g.event_id = :id AND gc.slug = 'vip' AND g.deleted_at IS NULL
+", ['id' => $selectedEventId])['cnt'] ?? 0);
+
+$regularGuests = (int)(db_fetch_one("
+    SELECT COUNT(*) as cnt FROM guests g 
+    JOIN guest_categories gc ON g.guest_category_id = gc.id 
+    WHERE g.event_id = :id AND gc.slug = 'regular' AND g.deleted_at IS NULL
+", ['id' => $selectedEventId])['cnt'] ?? 0);
+
+$otherGuests = max(0, $totalGuests - ($vvipGuests + $vipGuests + $regularGuests));
+
+// 2. Invitations & Check-ins
+$totalInvitations = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM invitations WHERE event_id = :id", ['id' => $selectedEventId])['cnt'] ?? 0);
+$totalCheckedIn = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM check_ins WHERE event_id = :id", ['id' => $selectedEventId])['cnt'] ?? 0);
+$remainingGuests = max(0, $totalGuests - $totalCheckedIn);
+
+// 3. RSVP Breakdown
+$acceptedRsvp = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM rsvp_records WHERE event_id = :id AND response = 'accepted'", ['id' => $selectedEventId])['cnt'] ?? 0);
+$declinedRsvp = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM rsvp_records WHERE event_id = :id AND response = 'declined'", ['id' => $selectedEventId])['cnt'] ?? 0);
+$pendingRsvp = max(0, $totalGuests - ($acceptedRsvp + $declinedRsvp));
+
 $attendanceRate = $totalGuests > 0 ? round(($totalCheckedIn / $totalGuests) * 100, 1) : 0;
 
-// Upcoming Events
-$upcomingEvents = db_fetch_all("
-    SELECT e.*, 
-           (SELECT COUNT(*) FROM guests WHERE event_id = e.id) as guest_count,
-           (SELECT COUNT(*) FROM check_ins WHERE event_id = e.id) as checked_in_count
-    FROM events e 
-    ORDER BY e.start_date ASC 
-    LIMIT 5
-");
+// 4. Attendance Breakdown by Category
+$categoryBreakdown = db_fetch_all("
+    SELECT gc.name, gc.color, COUNT(g.id) as guest_count,
+           COUNT(c.id) as checkin_count
+    FROM guest_categories gc
+    JOIN guests g ON g.guest_category_id = gc.id AND g.event_id = :eid AND g.deleted_at IS NULL
+    LEFT JOIN check_ins c ON c.guest_id = g.id AND c.event_id = :eid2
+    GROUP BY gc.id, gc.name, gc.color
+    ORDER BY guest_count DESC
+", ['eid' => $selectedEventId, 'eid2' => $selectedEventId]);
 
-// Recent Gate Check-in Activities
+// 5. Recent Gate Check-in Activities for This Event
 $recentCheckins = db_fetch_all("
-    SELECT c.*, g.full_name as guest_name, gc.name as category_name, 
+    SELECT c.*, g.full_name as guest_name, gc.name as category_name, gc.color as category_color,
            e.title as event_title, gt.name as gate_name
     FROM check_ins c
     JOIN guests g ON c.guest_id = g.id
     LEFT JOIN guest_categories gc ON g.guest_category_id = gc.id
     JOIN events e ON c.event_id = e.id
     LEFT JOIN gates gt ON c.gate_id = gt.id
+    WHERE c.event_id = :id
     ORDER BY c.id DESC
-    LIMIT 7
-");
+    LIMIT 8
+", ['id' => $selectedEventId]);
 
 require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Page Header -->
-<div class="page-header">
+<div class="page-header" style="margin-bottom:20px;">
   <div>
-    <h1 class="page-title">Operational Overview</h1>
-    <p class="page-subtitle">Real-time gate verification telemetry and event pass metrics</p>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span class="badge badge-primary"><?= e($currentEvent['title'] ?? 'Event') ?></span>
+      <span style="font-size:0.8rem;color:var(--text-muted);">&bull; <?= date('M d, Y', strtotime($currentEvent['start_date'] ?? 'now')) ?> &bull; <?= e($currentEvent['venue_name'] ?? '') ?></span>
+    </div>
+    <h1 class="page-title">Event Operations &amp; Verification Telemetry</h1>
+    <p class="page-subtitle">Real-time attendance velocity, RSVP responses, and access tier breakdown</p>
   </div>
   <div class="page-actions">
-    <a href="scanner.php" class="btn btn-primary">
+    <a href="scanner.php?event_id=<?= $selectedEventId ?>" class="btn btn-primary">
       <?= svgIcon('qr', 16) ?> Launch Gate Scanner
     </a>
-    <a href="designer.php" class="btn btn-secondary">
+    <a href="designer.php?event_id=<?= $selectedEventId ?>" class="btn btn-secondary">
       <?= svgIcon('palette', 16) ?> Card Studio
     </a>
-    <a href="events.php" class="btn btn-secondary">
-      <?= svgIcon('plus', 16) ?> Create Event
+    <a href="guests.php?event_id=<?= $selectedEventId ?>" class="btn btn-secondary">
+      <?= svgIcon('users', 16) ?> Guest Directory
     </a>
-    <a href="guests.php" class="btn btn-secondary">
-      <?= svgIcon('users', 16) ?> Add Guests
+    <a href="reports.php?event_id=<?= $selectedEventId ?>" class="btn btn-secondary">
+      <?= svgIcon('chart', 16) ?> Detailed Reports
     </a>
   </div>
 </div>
 
-<!-- Key Stat Cards (Neilos Signature Grid) -->
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-icon orange">
-      <?= svgIcon('calendar', 22) ?>
-    </div>
-    <div class="stat-info">
-      <div class="stat-value"><?= number_format($totalEvents) ?></div>
-      <div class="stat-label">Active Events</div>
-    </div>
-  </div>
-
+<!-- Primary Stats Grid (Event Scoped) -->
+<div class="stats-grid" style="margin-bottom:20px;">
   <div class="stat-card">
     <div class="stat-icon blue">
       <?= svgIcon('users', 22) ?>
     </div>
     <div class="stat-info">
       <div class="stat-value"><?= number_format($totalGuests) ?></div>
-      <div class="stat-label">Total Registered Guests</div>
+      <div class="stat-label">Total Enrolled Guests</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">
+        VVIP: <strong><?= $vvipGuests ?></strong> &bull; VIP: <strong><?= $vipGuests ?></strong> &bull; Reg: <strong><?= $regularGuests ?></strong>
+      </div>
     </div>
   </div>
 
@@ -88,6 +121,9 @@ require_once __DIR__ . '/includes/header.php';
     <div class="stat-info">
       <div class="stat-value"><?= number_format($totalCheckedIn) ?></div>
       <div class="stat-label">Verified Check-ins</div>
+      <div style="font-size:0.75rem;color:var(--success);font-weight:700;margin-top:2px;">
+        <?= $attendanceRate ?>% Venue Turnout
+      </div>
     </div>
   </div>
 
@@ -96,109 +132,71 @@ require_once __DIR__ . '/includes/header.php';
       <?= svgIcon('message', 22) ?>
     </div>
     <div class="stat-info">
-      <div class="stat-value"><?= number_format($totalAcceptedRsvp) ?></div>
-      <div class="stat-label">Confirmed RSVPs</div>
+      <div class="stat-value"><?= number_format($acceptedRsvp) ?></div>
+      <div class="stat-label">Confirmed RSVP Attendance</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">
+        Declined: <strong><?= $declinedRsvp ?></strong> &bull; Pending: <strong><?= $pendingRsvp ?></strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon orange">
+      <?= svgIcon('ticket', 22) ?>
+    </div>
+    <div class="stat-info">
+      <div class="stat-value"><?= number_format($remainingGuests) ?></div>
+      <div class="stat-label">Remaining Expected</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">
+        Passes Issued: <strong><?= number_format($totalInvitations) ?></strong>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Visual Telemetry & Analytics Grid -->
+<!-- Category Breakdown & RSVP Telemetry Grid -->
 <div class="grid grid-dashboard" style="margin-bottom:24px;">
-  <!-- Hourly Attendance Curve -->
+  <!-- Attendance Breakdown by Category Table -->
   <div class="card" style="margin-bottom:0;">
-    <div class="card-header">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
       <div>
-        <h3 class="card-title">Gate Verification Velocity</h3>
-        <p class="card-subtitle">Real-time throughput curve across active gate checkpoints</p>
+        <h3 class="card-title">Category Ingress Telemetry</h3>
+        <p class="card-subtitle">Real-time attendance breakdown by security tier</p>
       </div>
-      <span class="badge badge-success">LIVE STREAM</span>
-    </div>
-    <div class="card-body">
-      <canvas id="checkinTrendChart" style="max-height: 250px;"></canvas>
-    </div>
-  </div>
-
-  <!-- RSVP Breakdown Donut -->
-  <div class="card" style="margin-bottom:0;">
-    <div class="card-header">
-      <div>
-        <h3 class="card-title">RSVP Distribution</h3>
-        <p class="card-subtitle">Current guest confirmation breakdown</p>
-      </div>
-    </div>
-    <div class="card-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <div style="width:100%;max-width:210px;">
-        <canvas id="rsvpDonutChart"></canvas>
-      </div>
-      <div style="display:flex;gap:16px;margin-top:16px;">
-        <span style="font-size:0.8rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#059669;display:inline-block"></span> Attending
-        </span>
-        <span style="font-size:0.8rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block"></span> Pending
-        </span>
-        <span style="font-size:0.8rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block"></span> Declined
-        </span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Tables Grid: Upcoming Events & Live Check-in Stream -->
-<div class="grid grid-dashboard">
-  <!-- Upcoming Events Table -->
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h3 class="card-title">Scheduled Events</h3>
-        <p class="card-subtitle">Calendar of published and upcoming events</p>
-      </div>
-      <a href="events.php" class="btn btn-secondary btn-sm">View All</a>
+      <span class="badge badge-success">ACTIVE EVENT</span>
     </div>
     <div class="table-responsive">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Event Details</th>
-            <th>Date & Time</th>
-            <th>Venue</th>
-            <th>Attendance</th>
-            <th>Action</th>
+            <th>Security Category</th>
+            <th>Invited</th>
+            <th>Admitted</th>
+            <th>Turnout Rate</th>
           </tr>
         </thead>
         <tbody>
-          <?php if (empty($upcomingEvents)): ?>
-            <tr class="empty-row"><td colspan="5">No upcoming events scheduled.</td></tr>
+          <?php if (empty($categoryBreakdown)): ?>
+            <tr class="empty-row"><td colspan="4">No categorized attendees recorded yet.</td></tr>
           <?php else: ?>
-            <?php foreach ($upcomingEvents as $evt): 
-              $pct = $evt['guest_capacity'] > 0 ? min(100, round(($evt['guest_count'] / $evt['guest_capacity']) * 100)) : 0;
+            <?php foreach ($categoryBreakdown as $cat): 
+              $rate = $cat['guest_count'] > 0 ? round(($cat['checkin_count'] / $cat['guest_count']) * 100, 1) : 0;
             ?>
               <tr>
                 <td>
-                  <a href="event-detail.php?id=<?= $evt['id'] ?>" style="font-weight:700;color:var(--text-primary);">
-                    <?= e($evt['title']) ?>
-                  </a>
-                  <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">
-                    Capacity: <?= number_format($evt['guest_capacity']) ?> guests
-                  </div>
+                  <span class="badge" style="background:<?= e($cat['color'] ?: '#3b82f6') ?>18;color:<?= e($cat['color'] ?: '#3b82f6') ?>;border:1px solid <?= e($cat['color'] ?: '#3b82f6') ?>40;font-weight:700;">
+                    <?= e($cat['name']) ?>
+                  </span>
                 </td>
-                <td style="white-space:nowrap;">
-                  <div style="font-weight:600;"><?= date('M d, Y', strtotime($evt['start_date'])) ?></div>
-                  <div style="font-size:0.75rem;color:var(--text-muted);"><?= e($evt['start_time']) ?></div>
-                </td>
-                <td>
-                  <div style="font-size:0.84rem;font-weight:500;"><?= e($evt['venue_name']) ?></div>
-                </td>
+                <td><strong><?= number_format($cat['guest_count']) ?></strong></td>
+                <td><strong style="color:var(--success);"><?= number_format($cat['checkin_count']) ?></strong></td>
                 <td>
                   <div style="display:flex;align-items:center;gap:8px;">
-                    <span class="badge badge-primary"><?= $evt['checked_in_count'] ?> / <?= $evt['guest_count'] ?></span>
+                    <div style="flex:1;max-width:90px;height:6px;background:var(--surface-3);border-radius:99px;overflow:hidden;">
+                      <div style="height:100%;background:<?= e($cat['color'] ?: '#FF7A00') ?>;width:<?= $rate ?>%;"></div>
+                    </div>
+                    <span style="font-size:0.8rem;font-weight:700;"><?= $rate ?>%</span>
                   </div>
-                </td>
-                <td>
-                  <a href="event-detail.php?id=<?= $evt['id'] ?>" class="btn btn-secondary btn-sm">
-                    Manage
-                  </a>
                 </td>
               </tr>
             <?php endforeach; ?>
@@ -208,91 +206,99 @@ require_once __DIR__ . '/includes/header.php';
     </div>
   </div>
 
-  <!-- Live Gate Check-ins Stream -->
-  <div class="card">
+  <!-- RSVP Breakdown Donut -->
+  <div class="card" style="margin-bottom:0;">
     <div class="card-header">
       <div>
-        <h3 class="card-title">Live Gate Feed</h3>
-        <p class="card-subtitle">Real-time verification log</p>
+        <h3 class="card-title">RSVP Distribution Ratio</h3>
+        <p class="card-subtitle">Confirmed vs Declined vs Pending for this event</p>
       </div>
-      <a href="attendance.php" class="btn btn-secondary btn-sm">Full Feed</a>
     </div>
-    <div class="card-body" style="padding:14px 18px;">
-      <?php if (empty($recentCheckins)): ?>
-        <p style="color:var(--text-muted);text-align:center;padding:30px 0;">No gate check-in activity recorded yet.</p>
-      <?php else: ?>
-        <div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="card-body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="width:100%;max-width:210px;">
+        <canvas id="rsvpDonutChart"></canvas>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;justify-content:center;">
+        <span style="font-size:0.8rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#059669;display:inline-block"></span> Attending (<?= $acceptedRsvp ?>)
+        </span>
+        <span style="font-size:0.8rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#D97706;display:inline-block"></span> Pending (<?= $pendingRsvp ?>)
+        </span>
+        <span style="font-size:0.8rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block"></span> Declined (<?= $declinedRsvp ?>)
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Live Check-in Stream for This Event -->
+<div class="card">
+  <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h3 class="card-title">Live Gate Admission Stream</h3>
+      <p class="card-subtitle">Real-time attendee arrivals for <?= e($currentEvent['title'] ?? 'this event') ?></p>
+    </div>
+    <a href="scanner.php?event_id=<?= $selectedEventId ?>" class="btn btn-secondary btn-sm">Open Scanner</a>
+  </div>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Guest Name</th>
+          <th>Access Tier</th>
+          <th>Admission Gate</th>
+          <th>Attendee Count</th>
+          <th>Verification Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (empty($recentCheckins)): ?>
+          <tr class="empty-row"><td colspan="6">No check-ins scanned for this event yet. Use the Gate Scanner to verify passes.</td></tr>
+        <?php else: ?>
           <?php foreach ($recentCheckins as $chk): ?>
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface-3);border-radius:var(--radius-sm);border:1px solid var(--border);">
-              <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:34px;height:34px;border-radius:50%;background:rgba(5,150,105,0.12);color:#059669;display:flex;align-items:center;justify-content:center;">
-                  <?= svgIcon('check', 16) ?>
-                </div>
-                <div>
-                  <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);"><?= e($chk['guest_name']) ?></div>
-                  <div style="font-size:0.75rem;color:var(--text-muted);"><?= e($chk['gate_name'] ?: 'Gate 1') ?> &bull; <?= e($chk['category_name'] ?: 'Guest') ?></div>
-                </div>
-              </div>
-              <span class="badge badge-success" style="font-size:0.7rem;">Verified</span>
-            </div>
+            <tr>
+              <td><strong><?= e($chk['guest_name']) ?></strong></td>
+              <td>
+                <span class="badge" style="background:<?= e($chk['category_color'] ?: '#3b82f6') ?>18;color:<?= e($chk['category_color'] ?: '#3b82f6') ?>;border:1px solid <?= e($chk['category_color'] ?: '#3b82f6') ?>40;font-weight:700;">
+                  <?= e($chk['category_name'] ?: 'Regular') ?>
+                </span>
+              </td>
+              <td><?= e($chk['gate_name'] ?: 'Main Gate') ?></td>
+              <td><span class="badge badge-secondary"><?= $chk['attendee_count'] ?> person(s)</span></td>
+              <td style="font-size:0.82rem;color:var(--text-secondary);"><?= date('M d, Y H:i:s', strtotime($chk['checked_in_at'])) ?></td>
+              <td><span class="badge badge-success"><?= svgIcon('check', 12) ?> Admitted</span></td>
+            </tr>
           <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-    </div>
+        <?php endif; ?>
+      </tbody>
+    </table>
   </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Chart 1: Verification Hourly Velocity
-  const ctxTrend = document.getElementById('checkinTrendChart')?.getContext('2d');
-  if (ctxTrend) {
-    new Chart(ctxTrend, {
-      type: 'line',
-      data: {
-        labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
-        datasets: [{
-          label: 'Check-ins / Hour',
-          data: [5, 18, 42, 65, 85, 140, 95, 30],
-          borderColor: '#FF7A00',
-          backgroundColor: 'rgba(255, 122, 0, 0.08)',
-          fill: true,
-          tension: 0.35,
-          pointRadius: 4,
-          pointBackgroundColor: '#FF7A00'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'Inter' } } },
-          x: { grid: { display: false }, ticks: { font: { family: 'Inter' } } }
-        }
-      }
-    });
-  }
-
-  // Chart 2: RSVP Donut
-  const ctxRsvp = document.getElementById('rsvpDonutChart')?.getContext('2d');
-  if (ctxRsvp) {
-    new Chart(ctxRsvp, {
+  // RSVP Donut Chart
+  const rsvpCtx = document.getElementById('rsvpDonutChart');
+  if (rsvpCtx) {
+    new Chart(rsvpCtx, {
       type: 'doughnut',
       data: {
         labels: ['Attending', 'Pending', 'Declined'],
         datasets: [{
-          data: [<?= max(1, $totalAcceptedRsvp) ?>, <?= max(1, $totalGuests - $totalAcceptedRsvp) ?>, 2],
+          data: [<?= $acceptedRsvp ?>, <?= $pendingRsvp ?>, <?= $declinedRsvp ?>],
           backgroundColor: ['#059669', '#D97706', '#DC2626'],
-          borderWidth: 2,
-          borderColor: '#FFFFFF'
+          borderWidth: 0
         }]
       },
       options: {
+        cutout: '72%',
         responsive: true,
-        maintainAspectRatio: true,
-        plugins: { legend: { display: false } },
-        cutout: '72%'
+        plugins: {
+          legend: { display: false }
+        }
       }
     });
   }

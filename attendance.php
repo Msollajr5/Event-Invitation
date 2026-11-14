@@ -4,8 +4,10 @@ $currentPage = 'attendance';
 require_once __DIR__ . '/config/db.php';
 require_auth();
 
-$eventId = (int)($_GET['event_id'] ?? 1);
-$allEvents = db_fetch_all("SELECT id, title FROM events ORDER BY start_date DESC");
+$userEvents = get_user_events();
+$eventId = (int)($_GET['event_id'] ?? get_active_event_id() ?? 1);
+require_event_access($eventId);
+$allEvents = $userEvents;
 
 // Metrics
 $totalGuests = (int)(db_fetch_one("SELECT COUNT(*) as cnt FROM guests WHERE event_id = :id", ['id' => $eventId])['cnt'] ?? 0);

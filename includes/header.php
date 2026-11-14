@@ -6,6 +6,9 @@ $user = auth_user();
 $roleId = (int)($user['role_id'] ?? 3);
 $flash = flash_get();
 $currentPage = $currentPage ?? basename($_SERVER['PHP_SELF'], '.php');
+$userEvents = get_user_events();
+$activeEventId = get_active_event_id();
+$activeEvent = get_active_event();
 
 // Master Navigation with Role-Based Visibility (1: Super Admin, 2: Event Director, 3: Gate Officer)
 $allNavSections = [
@@ -154,7 +157,26 @@ foreach ($allNavSections as $sec) {
     <button class="hamburger" id="sidebarToggle" aria-label="Toggle navigation">
       <span></span><span></span><span></span>
     </button>
-    <div class="topbar-title"><?= e($pageTitle ?? 'Dashboard') ?></div>
+    <div class="topbar-title-wrap" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div class="topbar-title"><?= e($pageTitle ?? 'Dashboard') ?></div>
+      <?php if (!empty($userEvents) && !in_array($currentPage, ['scanner', 'settings', 'users', 'organizations'])): ?>
+        <form method="GET" action="" id="topbarEventSelector" style="margin:0;display:inline-flex;align-items:center;">
+          <?php foreach ($_GET as $gk => $gv): if ($gk === 'event_id') continue; ?>
+            <input type="hidden" name="<?= e($gk) ?>" value="<?= e($gv) ?>">
+          <?php endforeach; ?>
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,122,0,0.08);border:1px solid rgba(255,122,0,0.25);border-radius:8px;padding:3px 10px;">
+            <span style="font-size:0.75rem;font-weight:700;color:var(--brand-primary);text-transform:uppercase;letter-spacing:0.04em;">Event:</span>
+            <select name="event_id" onchange="this.form.submit()" aria-label="Select Active Event" style="background:transparent;border:none;font-size:0.83rem;font-weight:600;color:var(--text-primary);cursor:pointer;outline:none;max-width:240px;text-overflow:ellipsis;">
+              <?php foreach ($userEvents as $ev): ?>
+                <option value="<?= $ev['id'] ?>" <?= ((int)$ev['id'] === (int)$activeEventId) ? 'selected' : '' ?>>
+                  <?= e($ev['title']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </form>
+      <?php endif; ?>
+    </div>
     <div class="topbar-actions">
       <?php if ($currentPage !== 'scanner'): ?>
         <a href="scanner.php" class="btn btn-primary btn-sm" style="box-shadow:none">

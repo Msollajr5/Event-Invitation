@@ -195,6 +195,7 @@ function init_sqlite_schema(PDO $pdo) {
         code TEXT NOT NULL,
         description TEXT,
         is_active INTEGER DEFAULT 1,
+        allowed_categories TEXT DEFAULT 'all',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -377,6 +378,107 @@ function flash_get(): ?array {
         return $msg;
     }
     return null;
+}
+
+/**
+ * Event Scoping and Isolation Helpers
+ * Ensures administrators and directors strictly only access events assigned to them.
+ */
+function get_user_events(?int $userId = null, ?int $roleId = null): array {
+    $u = auth_user();
+    $userId = $userId ?? ($u['id'] ?? 0);
+    $roleId = $roleId ?? ($u['role_id'] ?? 3);
+
+    $db = get_db();
+    try {
+        if ($roleId === 1) {
+            // Super Admin can access all active events
+            return db_fetch_all("SELECT * FROM events WHERE deleted_at IS NULL ORDER BY start_date DESC, id DESC");
+        } elseif ($roleId === 2) {
+            // Event Director can only access their created / assigned events
+            return db_fetch_all("SELECT * FROM events WHERE created_by = ? AND deleted_at IS NULL ORDER BY start_date DESC, id DESC", [$userId]);
+        } else {
+            // Gate Officer sees active published events
+            return db_fetch_all("SELECT * FROM events WHERE status = 'published' AND deleted_at IS NULL ORDER BY start_date DESC, id DESC");
+        }
+    } catch (Throwable $t) {
+        // Fallback if deleted_at column is missing on older sqlite schemas
+        if ($roleId === 1) {
+            return db_fetch_all("SELECT * FROM events ORDER BY start_date DESC, id DESC");
+        } elseif ($roleId === 2) {
+            return db_fetch_all("SELECT * FROM events WHERE created_by = ? ORDER BY start_date DESC, id DESC", [$userId]);
+        } else {
+            return db_fetch_all("SELECT * FROM events WHERE status = 'published' ORDER BY start_date DESC, id DESC");
+        }
+    }
+}
+
+function can_user_access_event(int $eventId, ?int $userId = null, ?int $roleId = null): bool {
+    $u = auth_user();
+    $userId = $userId ?? ($u['id'] ?? 0);
+    $roleId = $roleId ?? ($u['role_id'] ?? 3);
+
+    if ($roleId === 1) {
+        // Super Admin has universal access
+        $ev = db_fetch_one("SELECT id FROM events WHERE id = ?", [$eventId]);
+        return (bool)$ev;
+    } elseif ($roleId === 2) {
+        // Event Director must be owner of the event
+        $ev = db_fetch_one("SELECT id FROM events WHERE id = ? AND created_by = ?", [$eventId, $userId]);
+        return (bool)$ev;
+    } else {
+        // Gate Officer can access published events
+        $ev = db_fetch_one("SELECT id FROM events WHERE id = ? AND status = 'published'", [$eventId]);
+        return (bool)$ev;
+    }
+}
+
+function require_event_access(int $eventId) {
+    require_auth();
+    if (!can_user_access_event($eventId)) {
+        audit_log('SECURITY_VIOLATION', 'UNAUTHORIZED_EVENT_ACCESS_ATTEMPT', "User attempted to access unauthorized event ID {$eventId}");
+        flash_set('danger', 'Access Denied: You do not have permission to access or manage this specific event.');
+        header('Location: dashboard.php');
+        exit;
+    }
+}
+
+function get_active_event_id(): ?int {
+    $userEvents = get_user_events();
+    if (empty($userEvents)) {
+        return null;
+    }
+
+    $allowedIds = array_column($userEvents, 'id');
+
+    // Check if event requested via GET or POST
+    if (isset($_GET['event_id']) && is_numeric($_GET['event_id'])) {
+        $reqId = (int)$_GET['event_id'];
+        if (in_array($reqId, $allowedIds)) {
+            $_SESSION['active_event_id'] = $reqId;
+            return $reqId;
+        } else {
+            audit_log('SECURITY_VIOLATION', 'CROSS_EVENT_ACCESS_BLOCKED', "Attempted to access out-of-scope event ID {$reqId}");
+        }
+    }
+
+    // Check if session has a valid active event
+    if (isset($_SESSION['active_event_id']) && in_array((int)$_SESSION['active_event_id'], $allowedIds)) {
+        return (int)$_SESSION['active_event_id'];
+    }
+
+    // Default to the first available event
+    $firstId = (int)$userEvents[0]['id'];
+    $_SESSION['active_event_id'] = $firstId;
+    return $firstId;
+}
+
+function get_active_event(): ?array {
+    $id = get_active_event_id();
+    if (!$id) {
+        return null;
+    }
+    return db_fetch_one("SELECT * FROM events WHERE id = ?", [$id]);
 }
 
 /**

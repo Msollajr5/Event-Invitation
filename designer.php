@@ -4,13 +4,15 @@ $currentPage = 'designer';
 require_once __DIR__ . '/config/db.php';
 require_role(2);
 
-$selectedEventId = (int)($_GET['event_id'] ?? 1);
+$userEvents = get_user_events();
+$selectedEventId = (int)($_GET['event_id'] ?? get_active_event_id() ?? 1);
+require_event_access($selectedEventId);
 $event = db_fetch_one("SELECT * FROM events WHERE id = :id LIMIT 1", ['id' => $selectedEventId]);
 if (!$event) {
-    $event = db_fetch_one("SELECT * FROM events ORDER BY id ASC LIMIT 1");
+    $event = !empty($userEvents) ? $userEvents[0] : null;
     $selectedEventId = $event['id'] ?? 1;
 }
-$allEvents = db_fetch_all("SELECT id, title FROM events ORDER BY start_date DESC");
+$allEvents = $userEvents;
 
 // Handle Design Save (Persists to MySQL invitation_designs)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_design') {
@@ -618,8 +620,33 @@ require_once __DIR__ . '/includes/header.php';
           </div>
         </div>
 
+        <!-- Typography & Alignment Controls -->
         <div class="form-group">
-          <label class="form-label">Header Gradient / Solid Color</label>
+          <label class="form-label">Font Styling &amp; Text Alignment</label>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <button type="button" id="btnFontBold" class="btn btn-secondary btn-sm" onclick="toggleFontFormat('bold')" style="font-weight:800;padding:6px 14px;">B</button>
+            <button type="button" id="btnFontItalic" class="btn btn-secondary btn-sm" onclick="toggleFontFormat('italic')" style="font-style:italic;font-family:serif;padding:6px 14px;">I</button>
+            <button type="button" id="btnFontUnderline" class="btn btn-secondary btn-sm" onclick="toggleFontFormat('underline')" style="text-decoration:underline;padding:6px 14px;">U</button>
+            <div style="width:1px;height:24px;background:var(--border-color);margin:0 4px;"></div>
+            <button type="button" id="btnAlignLeft" class="btn btn-secondary btn-sm" onclick="setTextAlignment('left')">Left</button>
+            <button type="button" id="btnAlignCenter" class="btn btn-secondary btn-sm active" onclick="setTextAlignment('center')">Center</button>
+            <button type="button" id="btnAlignRight" class="btn btn-secondary btn-sm" onclick="setTextAlignment('right')">Right</button>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Letter Spacing: <span id="valLetterSpacing" style="color:#FF7A00;font-weight:700;">Normal</span></label>
+            <input type="range" id="cfgLetterSpacing" min="-1" max="6" value="0" class="form-control" style="padding:0;" oninput="updateLetterSpacing(this.value); renderCanvas();">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Line Spacing: <span id="valLineHeight" style="color:#FF7A00;font-weight:700;">1.2x</span></label>
+            <input type="range" id="cfgLineHeight" min="10" max="22" value="12" class="form-control" style="padding:0;" oninput="updateLineHeight(this.value); renderCanvas();">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Header Gradient Colors</label>
           <div style="display:flex;gap:10px;align-items:center;">
             <input type="color" id="cfgHeaderColor1" value="#FF7A00" onchange="renderCanvas()" style="width:44px;height:40px;border-radius:8px;border:1px solid var(--border);cursor:pointer;padding:2px;">
             <input type="color" id="cfgHeaderColor2" value="#E96800" onchange="renderCanvas()" style="width:44px;height:40px;border-radius:8px;border:1px solid var(--border);cursor:pointer;padding:2px;">
@@ -628,7 +655,15 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
         <div class="form-group">
-          <label class="form-label">Card Body Background</label>
+          <label class="form-label">Heading &amp; Event Title Color</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="color" id="cfgHeadingColor" value="#FFFFFF" onchange="renderCanvas()" style="width:44px;height:40px;border-radius:8px;border:1px solid var(--border);cursor:pointer;padding:2px;">
+            <span style="font-size:0.8rem;color:var(--text-secondary);">Event Title &amp; Top Header Text</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Card Body Background Color</label>
           <div style="display:flex;gap:10px;align-items:center;">
             <input type="color" id="cfgBodyBg" value="#FFFFFF" onchange="renderCanvas()" style="width:44px;height:40px;border-radius:8px;border:1px solid var(--border);cursor:pointer;padding:2px;">
             <span style="font-size:0.8rem;color:var(--text-secondary);">Card Surface Color</span>
@@ -640,6 +675,14 @@ require_once __DIR__ . '/includes/header.php';
           <div style="display:flex;gap:10px;align-items:center;">
             <input type="color" id="cfgTextColor" value="#09090B" onchange="renderCanvas()" style="width:44px;height:40px;border-radius:8px;border:1px solid var(--border);cursor:pointer;padding:2px;">
             <span style="font-size:0.8rem;color:var(--text-secondary);">Main Attendee &amp; Labels</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Border &amp; Frame Accent Color</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="color" id="cfgBorderColor" value="#E4E4E7" onchange="renderCanvas()" style="width:44px;height:40px;border-radius:8px;border:1px solid var(--border);cursor:pointer;padding:2px;">
+            <span style="font-size:0.8rem;color:var(--text-secondary);">Outer Card Frame &amp; Inset Borders</span>
           </div>
         </div>
 
@@ -2601,6 +2644,23 @@ function renderStudioCard() {
   title.style.fontFamily = state.fontFamily;
   guest.style.fontFamily = state.fontFamily;
 
+  title.style.color = state.headingColor || '#FFFFFF';
+  title.style.fontWeight = state.fontBold ? '800' : '700';
+  title.style.fontStyle = state.fontItalic ? 'italic' : 'normal';
+  title.style.textDecoration = state.fontUnderline ? 'underline' : 'none';
+  title.style.textAlign = state.textAlign || 'center';
+  title.style.letterSpacing = `${state.letterSpacing || 0}px`;
+  title.style.lineHeight = `${((state.lineHeight || 12) / 10).toFixed(1)}`;
+
+  guest.style.fontWeight = state.fontBold ? '800' : '700';
+  guest.style.fontStyle = state.fontItalic ? 'italic' : 'normal';
+  guest.style.letterSpacing = `${state.letterSpacing || 0}px`;
+  guest.style.textAlign = state.textAlign || 'center';
+
+  if (state.borderColor) {
+    artboard.style.borderColor = state.borderColor;
+  }
+
   header.style.background = `linear-gradient(135deg, ${state.headerColor1}, ${state.headerColor2})`;
   body.style.background = state.bodyBg;
   body.style.color = state.textColor;
@@ -2813,12 +2873,28 @@ function syncStateToInputs() {
   updateScales();
   document.getElementById('cfgHeaderColor1').value = state.headerColor1 || '#FF7A00';
   document.getElementById('cfgHeaderColor2').value = state.headerColor2 || '#E96800';
+  if (document.getElementById('cfgHeadingColor')) {
+    document.getElementById('cfgHeadingColor').value = state.headingColor || '#FFFFFF';
+  }
   document.getElementById('cfgBodyBg').value = state.bodyBg || '#FFFFFF';
   document.getElementById('cfgTextColor').value = state.textColor || '#09090B';
+  if (document.getElementById('cfgBorderColor')) {
+    document.getElementById('cfgBorderColor').value = state.borderColor || '#E4E4E7';
+  }
   document.getElementById('cfgAccentColor').value = state.accentColor || '#FF7A00';
   document.getElementById('cfgBorderFrame').value = state.borderFrame || 'none';
   document.getElementById('cfgSeal').value = state.seal || 'ribbon';
   document.getElementById('cfgTexture').value = state.texture || 'none';
+
+  if (document.getElementById('cfgLetterSpacing')) {
+    document.getElementById('cfgLetterSpacing').value = state.letterSpacing || 0;
+    document.getElementById('valLetterSpacing').textContent = state.letterSpacing ? `${state.letterSpacing}px` : 'Normal';
+  }
+  if (document.getElementById('cfgLineHeight')) {
+    document.getElementById('cfgLineHeight').value = state.lineHeight || 12;
+    document.getElementById('valLineHeight').textContent = `${((state.lineHeight || 12) / 10).toFixed(1)}x`;
+  }
+  updateFormatButtonStyles();
 
   // Canva QR Controls
   syncPositionInputs();
@@ -2864,12 +2940,24 @@ function pullInputsToState() {
   state.guestScale = parseInt(document.getElementById('cfgGuestScale').value, 10);
   state.headerColor1 = document.getElementById('cfgHeaderColor1').value;
   state.headerColor2 = document.getElementById('cfgHeaderColor2').value;
+  if (document.getElementById('cfgHeadingColor')) {
+    state.headingColor = document.getElementById('cfgHeadingColor').value;
+  }
   state.bodyBg = document.getElementById('cfgBodyBg').value;
   state.textColor = document.getElementById('cfgTextColor').value;
+  if (document.getElementById('cfgBorderColor')) {
+    state.borderColor = document.getElementById('cfgBorderColor').value;
+  }
   state.accentColor = document.getElementById('cfgAccentColor').value;
   state.borderFrame = document.getElementById('cfgBorderFrame').value;
   state.seal = document.getElementById('cfgSeal').value;
   state.texture = document.getElementById('cfgTexture').value;
+  if (document.getElementById('cfgLetterSpacing')) {
+    state.letterSpacing = parseInt(document.getElementById('cfgLetterSpacing').value, 10);
+  }
+  if (document.getElementById('cfgLineHeight')) {
+    state.lineHeight = parseInt(document.getElementById('cfgLineHeight').value, 10);
+  }
 
   // Canva QR Inputs
   state.qrXPercent = parseFloat(document.getElementById('cfgQrX').value);
@@ -2887,6 +2975,49 @@ function pullInputsToState() {
   state.showAttendee = document.getElementById('cfgShowAttendee').checked;
   state.showRef = document.getElementById('cfgShowRef').checked;
   state.showTier = document.getElementById('cfgShowTier').checked;
+}
+
+function toggleFontFormat(fmt) {
+  if (fmt === 'bold') state.fontBold = !state.fontBold;
+  if (fmt === 'italic') state.fontItalic = !state.fontItalic;
+  if (fmt === 'underline') state.fontUnderline = !state.fontUnderline;
+  updateFormatButtonStyles();
+  renderCanvas();
+}
+
+function setTextAlignment(align) {
+  state.textAlign = align;
+  updateFormatButtonStyles();
+  renderCanvas();
+}
+
+function updateLetterSpacing(val) {
+  state.letterSpacing = parseInt(val, 10);
+  const lbl = document.getElementById('valLetterSpacing');
+  if (lbl) lbl.textContent = val == 0 ? 'Normal' : `${val}px`;
+}
+
+function updateLineHeight(val) {
+  state.lineHeight = parseInt(val, 10);
+  const lbl = document.getElementById('valLineHeight');
+  if (lbl) lbl.textContent = `${(val / 10).toFixed(1)}x`;
+}
+
+function updateFormatButtonStyles() {
+  const btnB = document.getElementById('btnFontBold');
+  const btnI = document.getElementById('btnFontItalic');
+  const btnU = document.getElementById('btnFontUnderline');
+  if (btnB) btnB.classList.toggle('active', !!state.fontBold);
+  if (btnI) btnI.classList.toggle('active', !!state.fontItalic);
+  if (btnU) btnU.classList.toggle('active', !!state.fontUnderline);
+
+  const align = state.textAlign || 'center';
+  const al = document.getElementById('btnAlignLeft');
+  const ac = document.getElementById('btnAlignCenter');
+  const ar = document.getElementById('btnAlignRight');
+  if (al) al.classList.toggle('active', align === 'left');
+  if (ac) ac.classList.toggle('active', align === 'center');
+  if (ar) ar.classList.toggle('active', align === 'right');
 }
 
 function toggleQrTransparentBg(isTransparent) {
