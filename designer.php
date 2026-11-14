@@ -217,7 +217,7 @@ require_once __DIR__ . '/includes/header.php';
         💎 Badges
       </button>
       <button type="button" class="tab-btn" data-tab="tabLogo" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
-        🖼️ Logo
+        🖼️ Cover &amp; Logo
       </button>
     </div>
 
@@ -241,12 +241,9 @@ require_once __DIR__ . '/includes/header.php';
           <p style="font-size:0.78rem;color:var(--text-secondary);margin:0 0 10px;line-height:1.4;">
             Upload your invitation poster. Click and drag the QR code directly on the canvas, use corner handles to resize, or use precision alignment tools.
           </p>
-          <div style="display:flex;gap:8px;">
-            <button type="button" class="btn btn-sm btn-primary" onclick="document.getElementById('canvaBgInput').click()" style="flex:1;justify-content:center;font-size:0.75rem;">
-              <?= svgIcon('upload', 13) ?> Upload Card Poster
-            </button>
-            <button type="button" class="btn btn-sm btn-secondary" onclick="loadSampleCanvaCard()" style="font-size:0.75rem;">
-              ✨ Load Sample
+          <div>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('canvaBgInput').click()" style="width:100%;justify-content:center;font-size:0.8rem;padding:9px 12px;font-weight:700;box-shadow:0 3px 10px rgba(255,122,0,0.25);">
+              <?= svgIcon('upload', 14) ?> Upload Card Poster
             </button>
           </div>
           <input type="file" id="canvaBgInput" accept="image/*" style="display:none;" onchange="handleCanvaBgUpload(this)">
@@ -732,27 +729,114 @@ require_once __DIR__ . '/includes/header.php';
         </div>
       </div>
 
-      <!-- TAB 6: LOGO & BRANDING -->
+      <!-- TAB 6: COVER PHOTO, LOGO & BRANDING -->
       <div class="tab-panel" data-tab-panel="tabLogo" data-tab-group="studio">
-        <div class="form-group">
-          <label class="form-label">Upload Brand or Sponsor Logo</label>
-          <div class="file-input-wrapper" onclick="document.getElementById('logoFileInput').click()" style="padding:20px;text-align:center;">
-            <div style="font-size:2rem;color:#FF7A00;margin-bottom:6px;">
-              <?= svgIcon('upload', 32) ?>
+
+        <!-- 1. Top Card Cover Photo / Header Banner -->
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#FF7A00,#E96800);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(255,122,0,0.25);">
+              <?= svgIcon('image', 18) ?>
             </div>
-            <div style="font-size:0.84rem;color:var(--text-primary);font-weight:600;">Click to upload logo PNG/JPEG</div>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">Transparent PNG works best</div>
+            <div>
+              <div style="font-weight:700;color:var(--text-primary);font-size:0.86rem;">Top Card Cover Photo</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">Covers card header with full image adjustments</div>
+            </div>
+          </div>
+
+          <p style="font-size:0.75rem;color:var(--text-secondary);margin:0 0 10px;line-height:1.4;">
+            Upload an event banner or couple/keynote photo. It will cover the top of the card with customizable vertical position, zoom, and legibility tint.
+          </p>
+
+          <div>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('cardCoverInput').click()" style="width:100%;justify-content:center;font-size:0.8rem;padding:9px 12px;font-weight:700;box-shadow:0 3px 10px rgba(255,122,0,0.25);">
+              <?= svgIcon('upload', 14) ?> Upload Top Cover Photo
+            </button>
+          </div>
+          <input type="file" id="cardCoverInput" accept="image/*" style="display:none;" onchange="handleCoverUpload(this)">
+
+          <div id="cardCoverPreviewWrapper" style="display:none;margin-top:10px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <img id="cardCoverThumb" src="" style="height:36px;width:52px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+              <div>
+                <div style="font-size:0.78rem;font-weight:700;color:var(--text-primary);">Cover Photo Active</div>
+                <div style="font-size:0.7rem;color:#059669;font-weight:600;">✓ Covering Top of Card</div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="removeCoverPhoto()" style="color:var(--danger);font-size:0.72rem;padding:3px 8px;">Remove</button>
+          </div>
+
+          <!-- Cover Photo Adjustments -->
+          <div id="cardCoverControls" style="display:none;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
+            
+            <!-- A. Vertical Position (Reposition) -->
+            <div class="form-group" style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <label class="form-label" style="font-size:0.75rem;margin:0;">Vertical Position (Y-Offset)</label>
+                <span id="valCoverPositionY" style="font-size:0.75rem;font-weight:700;color:#FF7A00;">50%</span>
+              </div>
+              <input type="range" id="cfgCoverPositionY" min="0" max="100" step="1" value="50" class="form-control" style="padding:0;" oninput="onCoverPositionYChange(this.value)">
+              <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin-top:3px;">
+                <span>Top (0%)</span>
+                <span>Center (50%)</span>
+                <span>Bottom (100%)</span>
+              </div>
+            </div>
+
+            <!-- B. Cover Height -->
+            <div class="form-group" style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <label class="form-label" style="font-size:0.75rem;margin:0;">Cover Area Height</label>
+                <span id="valCoverHeight" style="font-size:0.75rem;font-weight:700;color:#FF7A00;">190px</span>
+              </div>
+              <input type="range" id="cfgCoverHeight" min="120" max="320" step="5" value="190" class="form-control" style="padding:0;" oninput="onCoverHeightChange(this.value)">
+            </div>
+
+            <!-- C. Cover Scale / Zoom -->
+            <div class="form-group" style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <label class="form-label" style="font-size:0.75rem;margin:0;">Cover Zoom / Scale</label>
+                <span id="valCoverScale" style="font-size:0.75rem;font-weight:700;color:#FF7A00;">100%</span>
+              </div>
+              <input type="range" id="cfgCoverScale" min="100" max="200" step="5" value="100" class="form-control" style="padding:0;" oninput="onCoverScaleChange(this.value)">
+            </div>
+
+            <!-- D. Overlay Tint / Darkness for readability -->
+            <div class="form-group" style="margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <label class="form-label" style="font-size:0.75rem;margin:0;">Text Legibility Darkness Tint</label>
+                <span id="valCoverOverlay" style="font-size:0.75rem;font-weight:700;color:#FF7A00;">40%</span>
+              </div>
+              <input type="range" id="cfgCoverOverlay" min="0" max="85" step="5" value="40" class="form-control" style="padding:0;" oninput="onCoverOverlayChange(this.value)">
+            </div>
+
+            <div style="font-size:0.7rem;color:var(--text-muted);background:var(--surface-3);padding:6px 10px;border-radius:6px;margin-top:6px;line-height:1.4;">
+              💡 <strong>Pro-Tip:</strong> You can also drag up and down directly on the card cover photo on the canvas to reposition it!
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Brand or Sponsor Logo -->
+        <div class="form-group">
+          <label class="form-label" style="font-size:0.8rem;font-weight:700;">Brand / Sponsor Logo Overlay</label>
+          <div class="file-input-wrapper" onclick="document.getElementById('logoFileInput').click()" style="padding:16px;text-align:center;">
+            <div style="font-size:1.8rem;color:#FF7A00;margin-bottom:4px;">
+              <?= svgIcon('upload', 26) ?>
+            </div>
+            <div style="font-size:0.82rem;color:var(--text-primary);font-weight:600;">Click to upload logo PNG/JPEG</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Transparent PNG works best</div>
             <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(this)">
           </div>
         </div>
 
-        <div id="logoPreviewWrapper" style="display:none;margin-top:14px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;align-items:center;justify-content:space-between;">
+        <div id="logoPreviewWrapper" style="display:none;margin-top:10px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;align-items:center;justify-content:space-between;">
           <div style="display:flex;align-items:center;gap:10px;">
             <img id="logoPreviewImg" src="" style="max-height:36px;max-width:100px;object-fit:contain;">
             <span style="font-size:0.8rem;font-weight:600;color:var(--text-primary);">Logo Loaded</span>
           </div>
           <button type="button" class="btn btn-secondary btn-sm" onclick="removeLogo()" style="color:var(--danger)">Remove</button>
         </div>
+
       </div>
 
     </div>
@@ -767,6 +851,9 @@ require_once __DIR__ . '/includes/header.php';
         <span id="canvasDimIndicator" class="stage-dim-indicator">Canva Card Canvas</span>
         <span id="canvasModeBadge" class="stage-mode-pill">
           CANVA CARD CLONER
+        </span>
+        <span id="canvasEditHint" style="font-size:0.72rem;color:var(--text-secondary);background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:3px 10px;display:inline-flex;align-items:center;gap:5px;">
+          <?= svgIcon('edit', 12) ?> <span>Click text on card to edit directly</span>
         </span>
       </div>
 
@@ -825,7 +912,7 @@ require_once __DIR__ . '/includes/header.php';
 
           <!-- Inside Badge Content (QR Code + Optional Text/Tier) -->
           <div id="canvaQrBadgeContent" class="canva-qr-badge-content badge-glass">
-            <div id="canvaBadgePill" class="badge badge-primary" style="font-size:0.68rem;padding:2px 8px;margin-bottom:6px;background:#FF7A00;color:#FFFFFF;border:none;">
+            <div id="canvaBadgePill" class="badge badge-primary editable-canvas-text" contenteditable="true" spellcheck="false" style="font-size:0.68rem;padding:2px 8px;margin-bottom:6px;background:#FF7A00;color:#FFFFFF;border:none;" title="Click to edit badge text">
               VIP GUEST
             </div>
             
@@ -833,10 +920,10 @@ require_once __DIR__ . '/includes/header.php';
               <div id="canvaQrBox"></div>
             </div>
 
-            <div id="canvaAttendeeText" class="badge-text-primary" style="font-weight:800;font-size:0.82rem;margin-top:6px;color:#09090B;white-space:nowrap;">
+            <div id="canvaAttendeeText" class="badge-text-primary editable-canvas-text" contenteditable="true" spellcheck="false" style="font-weight:800;font-size:0.82rem;margin-top:6px;color:#09090B;white-space:nowrap;" title="Click to edit attendee name">
               Dr. Reginald Massawe
             </div>
-            <div id="canvaRefText" class="badge-text-secondary" style="font-family:monospace;font-size:0.72rem;letter-spacing:0.8px;color:#52525B;">
+            <div id="canvaRefText" class="badge-text-secondary editable-canvas-text" contenteditable="true" spellcheck="false" style="font-family:monospace;font-size:0.72rem;letter-spacing:0.8px;color:#52525B;" title="Click to edit reference code">
               INV-REG-8821
             </div>
           </div>
@@ -851,23 +938,32 @@ require_once __DIR__ . '/includes/header.php';
         <div id="cardTextureOverlay" class="texture-overlay"></div>
 
         <div id="artboardHeader" class="artboard-header">
-          <div id="cardLogoContainer" style="display:none;margin-bottom:10px;">
-            <img id="cardLogoImg" src="" style="max-height:44px;max-width:150px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));">
+          <!-- Top Card Cover Photo Layer (Draggable for repositioning) -->
+          <div id="cardCoverContainer" class="card-cover-container" style="display:none;" onpointerdown="onCoverPointerDown(event)">
+            <img id="cardCoverImg" src="" alt="Top Cover Photo" class="card-cover-img">
+            <div id="cardCoverOverlay" class="card-cover-overlay"></div>
+            <div class="cover-reposition-pill">↕ Drag to reposition photo</div>
           </div>
-          <div id="cardBadge" class="card-badge">VIP DELEGATE PASS</div>
-          <h2 id="cardTitle" class="card-title-text"><?= e($event['title'] ?? 'Annual Gala & Awards') ?></h2>
-          <div id="cardSubtitle" class="card-subtitle-text">Celebrating Technological Leadership</div>
+
+          <div id="artboardHeaderContent" class="artboard-header-content">
+            <div id="cardLogoContainer" style="display:none;margin-bottom:10px;">
+              <img id="cardLogoImg" src="" style="max-height:44px;max-width:150px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));">
+            </div>
+            <div id="cardBadge" class="card-badge editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit badge directly">VIP DELEGATE PASS</div>
+            <h2 id="cardTitle" class="card-title-text editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit event title directly"><?= e($event['title'] ?? 'Annual Gala & Awards') ?></h2>
+            <div id="cardSubtitle" class="card-subtitle-text editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit subtitle directly">Celebrating Technological Leadership</div>
+          </div>
         </div>
 
         <div id="artboardBody" class="artboard-body">
           <div id="cardSealWrapper" style="display:flex;justify-content:center;margin-bottom:4px;">
             <span id="cardSealBadge" class="seal-pill">⭐ OFFICIAL ACCREDITED PASS</span>
           </div>
-          <div id="cardQuote" style="font-size:0.76rem;font-style:italic;color:var(--text-secondary);margin:4px 0 6px;">
+          <div id="cardQuote" class="editable-canvas-text" contenteditable="true" spellcheck="false" style="font-size:0.76rem;font-style:italic;color:var(--text-secondary);margin:4px 0 6px;" title="Click to edit invitation quote directly">
             Honored to request the pleasure of your company
           </div>
           <div class="card-attendee-label">ADMIT ATTENDEE BEARER</div>
-          <h3 id="cardGuest" class="card-guest-name">Dr. Reginald Massawe</h3>
+          <h3 id="cardGuest" class="card-guest-name editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit guest name directly">Dr. Reginald Massawe</h3>
 
           <div class="card-qr-frame">
             <div id="cardQrBox"></div>
@@ -877,14 +973,14 @@ require_once __DIR__ . '/includes/header.php';
 
           <div id="cardMetaBox" class="card-meta-box">
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-              <span id="cardDate" style="font-weight:700;">Saturday, Nov 21, 2026</span>
-              <span id="cardTime" style="color:var(--text-muted);">18:00 EAT</span>
+              <span id="cardDate" class="editable-canvas-text" contenteditable="true" spellcheck="false" style="font-weight:700;" title="Click to edit date directly">Saturday, Nov 21, 2026</span>
+              <span id="cardTime" class="editable-canvas-text" contenteditable="true" spellcheck="false" style="color:var(--text-muted);" title="Click to edit time directly">18:00 EAT</span>
             </div>
-            <div id="cardVenue" style="font-weight:600;margin-bottom:4px;">Serena Grand Ballroom</div>
-            <div id="cardSeat" style="font-size:0.78rem;color:#FF7A00;font-weight:700;">Table 04 &bull; VIP North Gate 1</div>
+            <div id="cardVenue" class="editable-canvas-text" contenteditable="true" spellcheck="false" style="font-weight:600;margin-bottom:4px;" title="Click to edit venue directly">Serena Grand Ballroom</div>
+            <div id="cardSeat" class="editable-canvas-text" contenteditable="true" spellcheck="false" style="font-size:0.78rem;color:#FF7A00;font-weight:700;" title="Click to edit table/seat directly">Table 04 &bull; VIP North Gate 1</div>
           </div>
 
-          <div id="cardFooter" class="card-footer-note">
+          <div id="cardFooter" class="card-footer-note editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit footer note directly">
             Black Tie Required &bull; Non-Transferable Digital QR Ticket
           </div>
         </div>
@@ -1177,10 +1273,81 @@ require_once __DIR__ . '/includes/header.php';
 .artboard-header {
   background: linear-gradient(135deg, #FF7A00, #E96800);
   color: #FFFFFF;
-  padding: 32px 24px;
+  padding: 0;
   text-align: center;
   position: relative;
+  overflow: hidden;
   z-index: 2;
+  transition: min-height 0.25s ease;
+}
+.artboard-header-content {
+  position: relative;
+  z-index: 2;
+  padding: 30px 24px;
+}
+/* Top Card Cover Photo Layer */
+.card-cover-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  cursor: grab;
+  user-select: none;
+}
+.card-cover-container:active {
+  cursor: grabbing;
+}
+.card-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: transform 0.08s ease;
+}
+.card-cover-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(0,0,0,0.4);
+}
+.cover-reposition-pill {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.7);
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  backdrop-filter: blur(4px);
+  z-index: 3;
+}
+.artboard-header:hover .cover-reposition-pill {
+  opacity: 0.95;
+}
+
+/* In-Canvas WYSIWYG Editable Text */
+.editable-canvas-text {
+  cursor: text !important;
+  outline: 1.5px dashed transparent;
+  border-radius: 4px;
+  transition: outline 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  user-select: text;
+}
+.editable-canvas-text:hover {
+  outline: 1.5px dashed #FF7A00 !important;
+  background: rgba(255, 122, 0, 0.08) !important;
+}
+.editable-canvas-text:focus {
+  outline: 2px solid #FF7A00 !important;
+  background: rgba(255, 122, 0, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.25) !important;
 }
 .card-badge {
   display: inline-block;
@@ -1193,6 +1360,7 @@ require_once __DIR__ . '/includes/header.php';
   text-transform: uppercase;
   margin-bottom: 12px;
   backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 .card-title-text {
   font-size: 1.45rem;
@@ -1917,15 +2085,24 @@ let state = {
   guestScale: 100,
   headerColor1: '#FF7A00',
   headerColor2: '#E96800',
+  headingColor: '#FFFFFF',
   bodyBg: '#FFFFFF',
   textColor: '#09090B',
   accentColor: '#FF7A00',
+  borderColor: '#FF7A00',
   borderFrame: 'none',
   seal: 'ribbon',
   texture: 'none',
   qrSize: 140,
   qrDark: '#09090B',
-  logoData: null
+  logoData: null,
+
+  // Top Card Cover Photo & Adjustments
+  coverImgData: null,
+  coverHeight: 190,     // px height (120 to 320)
+  coverPositionY: 50,   // % vertical alignment (0 = top, 50 = center, 100 = bottom)
+  coverScale: 100,      // % zoom scale (100% to 200%)
+  coverOverlay: 40      // % dark legibility overlay tint (0% to 85%)
 };
 
 // Restore saved DB configuration
@@ -2329,168 +2506,228 @@ const TEMPLATE_PRESETS = {
     fontFamily: "'Sora', sans-serif",
     headerColor1: '#FF7A00',
     headerColor2: '#E96800',
+    headingColor: '#FFFFFF',
     bodyBg: '#FFFFFF',
     textColor: '#09090B',
     accentColor: '#FF7A00',
+    borderColor: '#FF7A00',
     borderFrame: 'glass_glow',
     seal: 'ribbon',
     texture: 'glow',
     qrDark: '#09090B',
-    badge: 'VIP DELEGATE PASS'
+    canvaQrLight: '#FFFFFF',
+    badge: 'VIP DELEGATE PASS',
+    quote: 'Honored to request the pleasure of your company',
+    footer: 'Black Tie Required • Non-Transferable Digital QR Ticket'
   },
   obsidian_gold: {
     name: 'Obsidian & Gold',
     fontFamily: "'Cinzel', serif",
     headerColor1: '#18181B',
     headerColor2: '#09090B',
+    headingColor: '#F6D580',
     bodyBg: '#09090B',
     textColor: '#F6D580',
     accentColor: '#D4AF37',
+    borderColor: '#D4AF37',
     borderFrame: 'gold_double',
     seal: 'crown',
     texture: 'stardust',
     qrDark: '#18181B',
-    badge: 'ROYAL VIP ACCREDITATION'
+    canvaQrLight: '#F6D580',
+    badge: 'ROYAL VIP ACCREDITATION',
+    quote: 'By Royal Invitation • Formal Gala Admission',
+    footer: 'Strict Formal Black Tie • Admission with Golden QR Token'
   },
   swahili_wedding: {
     name: 'Luxury Rose Wedding',
     fontFamily: "'Playfair Display', serif",
     headerColor1: '#4A0E17',
     headerColor2: '#721C24',
+    headingColor: '#F6D580',
     bodyBg: '#FFF8F6',
     textColor: '#4A0E17',
     accentColor: '#C53030',
+    borderColor: '#E2B2B8',
     borderFrame: 'gold_single',
     seal: 'ribbon',
     texture: 'marble',
     qrDark: '#4A0E17',
-    badge: 'HARUSI YA KIFAHARI'
+    canvaQrLight: '#FFFFFF',
+    badge: 'HARUSI YA KIFAHARI',
+    quote: 'Tunayo furaha kubwa kukualika kusherehekea nasi siku yetu maalum',
+    footer: 'Kadi hii ni ya Mtu Mmoja • Karibu Sana Shereheni'
   },
   emerald_summit: {
     name: 'Emerald Prestige',
     fontFamily: "'Playfair Display', serif",
     headerColor1: '#064E3B',
     headerColor2: '#047857',
+    headingColor: '#A7F3D0',
     bodyBg: '#F0FDF4',
     textColor: '#064E3B',
     accentColor: '#059669',
+    borderColor: '#059669',
     borderFrame: 'gold_single',
     seal: 'verified',
     texture: 'glow',
     qrDark: '#064E3B',
-    badge: 'EMERALD DELEGATE PASS'
+    canvaQrLight: '#FFFFFF',
+    badge: 'EMERALD DELEGATE PASS',
+    quote: 'Leadership Forum & Executive Leadership Summit',
+    footer: 'Accredited Executive Admission • Non-Transferable'
   },
   swiss_minimal: {
     name: 'Swiss Modernist B&W',
     fontFamily: "'Montserrat', sans-serif",
-    headerColor1: '#FFFFFF',
-    headerColor2: '#F4F4F5',
+    headerColor1: '#18181B',
+    headerColor2: '#09090B',
+    headingColor: '#FFFFFF',
     bodyBg: '#FFFFFF',
     textColor: '#09090B',
     accentColor: '#18181B',
+    borderColor: '#E4E4E7',
     borderFrame: 'none',
     seal: 'none',
     texture: 'none',
     qrDark: '#000000',
-    badge: 'ADMISSION ACCREDITATION'
+    canvaQrLight: '#FFFFFF',
+    badge: 'ADMISSION ACCREDITATION',
+    quote: 'International Design & Architecture Symposium',
+    footer: 'Present QR Code at Entrance Kiosk for Fast Pass Scanning'
   },
   cyberpunk_tech: {
     name: 'Cyberpunk Neon',
     fontFamily: "'Space Grotesk', sans-serif",
     headerColor1: '#0F172A',
     headerColor2: '#312E81',
+    headingColor: '#06B6D4',
     bodyBg: '#0F172A',
     textColor: '#E2E8F0',
     accentColor: '#06B6D4',
+    borderColor: '#06B6D4',
     borderFrame: 'glass_glow',
     seal: 'diamond',
     texture: 'dots',
     qrDark: '#0F172A',
-    badge: 'TECH SUMMIT VIP ACCESS'
+    canvaQrLight: '#06B6D4',
+    badge: 'TECH SUMMIT VIP ACCESS',
+    quote: 'Next-Generation Innovation & Artificial Intelligence Expo',
+    footer: 'Digital Key Required • Encrypted Gate Verification'
   },
   sunset_riviera: {
     name: 'Sunset Riviera Gala',
     fontFamily: "'Playfair Display', serif",
     headerColor1: '#FF5E62',
     headerColor2: '#FF9966',
+    headingColor: '#FFFFFF',
     bodyBg: '#FFFBF5',
     textColor: '#3E2723',
     accentColor: '#FF5E62',
+    borderColor: '#FF9966',
     borderFrame: 'none',
     seal: 'ribbon',
     texture: 'glow',
     qrDark: '#3E2723',
-    badge: 'SUMMER RIVIERA PASS'
+    canvaQrLight: '#FFFFFF',
+    badge: 'SUMMER RIVIERA PASS',
+    quote: 'Sunset Soirée, Cocktails & Live Orchestral Symphony',
+    footer: 'Smart Elegant Resort Attire • Gate Access via Digital Pass'
   },
   nordic_frost: {
     name: 'Nordic Executive Frost',
     fontFamily: "'Inter', sans-serif",
     headerColor1: '#0F172A',
     headerColor2: '#1E293B',
+    headingColor: '#38BDF8',
     bodyBg: '#F8FAFC',
     textColor: '#0F172A',
     accentColor: '#0284C7',
+    borderColor: '#38BDF8',
     borderFrame: 'none',
     seal: 'verified',
     texture: 'dots',
     qrDark: '#0F172A',
-    badge: 'EXECUTIVE FORUM BADGE'
+    canvaQrLight: '#FFFFFF',
+    badge: 'EXECUTIVE FORUM BADGE',
+    quote: 'Annual Global Governance & Sustainable Finance Assembly',
+    footer: 'Official Identity & QR Badge Required for Security Screening'
   },
   botanical_garden: {
     name: 'Botanical Garden Soirée',
     fontFamily: "'Cormorant Garamond', serif",
     headerColor1: '#2D4739',
     headerColor2: '#3F6350',
+    headingColor: '#F5EBE0',
     bodyBg: '#FDFBF7',
     textColor: '#2D4739',
     accentColor: '#557A61',
+    borderColor: '#A3B899',
     borderFrame: 'deco_corners',
     seal: 'ribbon',
     texture: 'marble',
     qrDark: '#2D4739',
-    badge: 'PRIVATE GARDEN GUEST'
+    canvaQrLight: '#FFFFFF',
+    badge: 'PRIVATE GARDEN GUEST',
+    quote: 'Celebrating Nature, Art, Music & Philanthropy',
+    footer: 'Floral Cocktail Chic • Non-Transferable Private Invitation'
   },
   monaco_navy: {
     name: 'Monaco Royal Navy',
     fontFamily: "'Cinzel', serif",
     headerColor1: '#0A1128',
     headerColor2: '#001F54',
+    headingColor: '#E0A96D',
     bodyBg: '#0A1128',
     textColor: '#F6D580',
     accentColor: '#E0A96D',
+    borderColor: '#D4AF37',
     borderFrame: 'gold_double',
     seal: 'crown',
     texture: 'stardust',
     qrDark: '#0A1128',
-    badge: 'ROYAL PATRON PASS'
+    canvaQrLight: '#F6D580',
+    badge: 'ROYAL PATRON PASS',
+    quote: 'Under the High Patronage of the Royal Society Foundation',
+    footer: 'Formal Evening Wear Required • Gate Clearance via Encrypted Token'
   },
   serengeti_sunset: {
     name: 'Serengeti Sunset Warmth',
     fontFamily: "'Sora', sans-serif",
     headerColor1: '#A04000',
     headerColor2: '#6E2C00',
+    headingColor: '#FAD7A0',
     bodyBg: '#FEF9E7',
     textColor: '#4E342E',
     accentColor: '#D35400',
+    borderColor: '#F5B041',
     borderFrame: 'gold_single',
     seal: 'ticket',
     texture: 'glow',
     qrDark: '#4E342E',
-    badge: 'SERENGETI GUEST BADGE'
+    canvaQrLight: '#FFFFFF',
+    badge: 'SERENGETI GUEST BADGE',
+    quote: 'Celebrating Heritage, Wildlife Conservation & African Excellence',
+    footer: 'Safari Glam Attire • Present Pass for Gate Check-In'
   },
   golden_aurora: {
     name: 'Golden Aurora Holographic',
     fontFamily: "'Space Grotesk', sans-serif",
     headerColor1: '#240046',
     headerColor2: '#5A189A',
+    headingColor: '#FFD166',
     bodyBg: '#10002B',
     textColor: '#FFD166',
     accentColor: '#9D4EDD',
+    borderColor: '#9D4EDD',
     borderFrame: 'glass_glow',
     seal: 'diamond',
     texture: 'stardust',
     qrDark: '#240046',
-    badge: 'AURORA SPECIAL VIP'
+    canvaQrLight: '#FFD166',
+    badge: 'AURORA SPECIAL VIP',
+    quote: 'Exclusive Aurora Gala • Music, Cinema & Creative Arts Festival',
+    footer: 'VIP Stage & Lounge Access Granted • Strictly Non-Transferable'
   }
 };
 
@@ -2501,11 +2738,11 @@ function applyTemplate(templateId) {
   state.template = templateId;
   Object.assign(state, preset);
 
+  // Sync inputs FIRST so the inputs hold the new preset values
+  syncStateToInputs();
+
   // Switch to Studio mode so user immediately sees the editorial template rendered
   setCardMode('studio');
-
-  // Update form inputs to reflect template state
-  syncStateToInputs();
 
   // Highlight active card
   document.querySelectorAll('.template-card').forEach(el => {
@@ -2627,24 +2864,48 @@ function renderStudioCard() {
   const seal = document.getElementById('cardSealBadge');
   const metaBox = document.getElementById('cardMetaBox');
   const textureOverlay = document.getElementById('cardTextureOverlay');
+  const badgeEl = document.getElementById('cardBadge');
+  const subtitleEl = document.getElementById('cardSubtitle');
+  const dateEl = document.getElementById('cardDate');
+  const timeEl = document.getElementById('cardTime');
+  const venueEl = document.getElementById('cardVenue');
+  const seatEl = document.getElementById('cardSeat');
+  const footerEl = document.getElementById('cardFooter');
+  const refCodeEl = document.getElementById('cardRefCode');
 
-  document.getElementById('cardBadge').textContent = state.badge;
-  title.textContent = state.title;
-  document.getElementById('cardSubtitle').textContent = state.subtitle;
-  guest.textContent = state.guest;
-  quote.textContent = state.quote;
-  document.getElementById('cardDate').textContent = state.date;
-  document.getElementById('cardTime').textContent = state.time;
-  document.getElementById('cardVenue').textContent = state.venue;
-  document.getElementById('cardSeat').textContent = state.seat;
-  document.getElementById('cardFooter').textContent = state.footer;
+  // Text values (only update DOM text if user is not actively editing that specific element)
+  if (badgeEl && document.activeElement !== badgeEl) badgeEl.textContent = state.badge || 'VIP DELEGATE PASS';
+  if (title && document.activeElement !== title) title.textContent = state.title || '';
+  if (subtitleEl && document.activeElement !== subtitleEl) subtitleEl.textContent = state.subtitle || '';
+  if (guest && document.activeElement !== guest) guest.textContent = state.guest || '';
+  if (quote && document.activeElement !== quote) quote.textContent = state.quote || '';
+  if (dateEl && document.activeElement !== dateEl) dateEl.textContent = state.date || '';
+  if (timeEl && document.activeElement !== timeEl) timeEl.textContent = state.time || '';
+  if (venueEl && document.activeElement !== venueEl) venueEl.textContent = state.venue || '';
+  if (seatEl && document.activeElement !== seatEl) seatEl.textContent = state.seat || '';
+  if (footerEl && document.activeElement !== footerEl) footerEl.textContent = state.footer || '';
 
+  // Typography & Scales
   title.style.fontSize = `${(1.45 * (state.titleScale / 100)).toFixed(2)}rem`;
   guest.style.fontSize = `${(1.45 * (state.guestScale / 100)).toFixed(2)}rem`;
   title.style.fontFamily = state.fontFamily;
   guest.style.fontFamily = state.fontFamily;
 
-  title.style.color = state.headingColor || '#FFFFFF';
+  const headingCol = state.headingColor || '#FFFFFF';
+  title.style.color = headingCol;
+  if (badgeEl) {
+    badgeEl.style.color = headingCol;
+    badgeEl.style.borderColor = `${headingCol}55`;
+    badgeEl.style.fontFamily = state.fontFamily;
+  }
+  if (subtitleEl) {
+    subtitleEl.style.color = headingCol;
+    subtitleEl.style.opacity = '0.92';
+  }
+  if (seatEl) {
+    seatEl.style.color = state.accentColor || '#FF7A00';
+  }
+
   title.style.fontWeight = state.fontBold ? '800' : '700';
   title.style.fontStyle = state.fontItalic ? 'italic' : 'normal';
   title.style.textDecoration = state.fontUnderline ? 'underline' : 'none';
@@ -2666,6 +2927,30 @@ function renderStudioCard() {
   body.style.color = state.textColor;
   guest.style.color = state.textColor;
 
+  // Top Card Cover Photo Layer
+  const coverContainer = document.getElementById('cardCoverContainer');
+  const coverImg = document.getElementById('cardCoverImg');
+  const coverOverlay = document.getElementById('cardCoverOverlay');
+  if (state.coverImgData) {
+    if (coverContainer) coverContainer.style.display = 'block';
+    if (coverImg) {
+      coverImg.src = state.coverImgData;
+      const posY = state.coverPositionY !== undefined ? state.coverPositionY : 50;
+      coverImg.style.objectPosition = `center ${posY}%`;
+      const scale = (state.coverScale || 100) / 100;
+      coverImg.style.transform = `scale(${scale})`;
+      coverImg.style.transformOrigin = `center ${posY}%`;
+    }
+    if (coverOverlay) {
+      const alpha = ((state.coverOverlay !== undefined ? state.coverOverlay : 40) / 100).toFixed(2);
+      coverOverlay.style.background = `rgba(0, 0, 0, ${alpha})`;
+    }
+    header.style.minHeight = `${state.coverHeight || 190}px`;
+  } else {
+    if (coverContainer) coverContainer.style.display = 'none';
+    header.style.minHeight = '';
+  }
+
   textureOverlay.className = 'texture-overlay';
   if (state.texture === 'dots') textureOverlay.classList.add('texture-dots');
   else if (state.texture === 'glow') textureOverlay.classList.add('texture-glow');
@@ -2679,16 +2964,21 @@ function renderStudioCard() {
   else if (state.borderFrame === 'glass_glow') artboard.classList.add('frame-glass-glow');
   else if (state.borderFrame === 'deco_corners') artboard.classList.add('frame-deco-corners');
 
-  if (isDarkColor(state.bodyBg)) {
+  const isDark = isDarkColor(state.bodyBg);
+  if (isDark) {
     metaBox.style.background = 'rgba(255,255,255,0.06)';
     metaBox.style.borderColor = 'rgba(255,255,255,0.12)';
     metaBox.style.color = state.textColor;
-    quote.style.color = 'rgba(255,255,255,0.7)';
+    quote.style.color = 'rgba(255,255,255,0.75)';
+    if (footerEl) footerEl.style.color = 'rgba(255,255,255,0.6)';
+    if (refCodeEl) refCodeEl.style.color = 'rgba(255,255,255,0.75)';
   } else {
     metaBox.style.background = '#F9FAFB';
     metaBox.style.borderColor = 'rgba(0,0,0,0.08)';
     metaBox.style.color = state.textColor;
     quote.style.color = 'var(--text-secondary)';
+    if (footerEl) footerEl.style.color = 'var(--text-muted)';
+    if (refCodeEl) refCodeEl.style.color = 'var(--text-secondary)';
   }
 
   if (state.seal === 'none') {
@@ -2839,6 +3129,149 @@ function removeLogo() {
   showToast('Logo removed from canvas', 'info');
 }
 
+// ============================================================
+// Top Card Cover Photo & Adjustments Engine
+// ============================================================
+function handleCoverUpload(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      // Resize cover image client-side to max 1200px for optimal speed & ultra crispness
+      const img = new Image();
+      img.onload = function() {
+        const maxDim = 1200;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        state.coverImgData = canvas.toDataURL('image/jpeg', 0.88);
+        setCardMode('studio');
+        syncCoverControls();
+        renderCanvas();
+        showToast('Top cover photo loaded! Adjust position, zoom, and height.', 'success');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function removeCoverPhoto() {
+  state.coverImgData = null;
+  syncCoverControls();
+  renderCanvas();
+  showToast('Cover photo removed, reverted to gradient header', 'info');
+}
+
+function onCoverHeightChange(val) {
+  state.coverHeight = parseInt(val, 10);
+  const el = document.getElementById('valCoverHeight');
+  if (el) el.textContent = `${state.coverHeight}px`;
+  renderCanvas();
+}
+
+function onCoverPositionYChange(val) {
+  state.coverPositionY = parseInt(val, 10);
+  const el = document.getElementById('valCoverPositionY');
+  if (el) el.textContent = `${state.coverPositionY}%`;
+  renderCanvas();
+}
+
+function onCoverScaleChange(val) {
+  state.coverScale = parseInt(val, 10);
+  const el = document.getElementById('valCoverScale');
+  if (el) el.textContent = `${state.coverScale}%`;
+  renderCanvas();
+}
+
+function onCoverOverlayChange(val) {
+  state.coverOverlay = parseInt(val, 10);
+  const el = document.getElementById('valCoverOverlay');
+  if (el) el.textContent = `${state.coverOverlay}%`;
+  renderCanvas();
+}
+
+function syncCoverControls() {
+  const preview = document.getElementById('cardCoverPreviewWrapper');
+  const controls = document.getElementById('cardCoverControls');
+  const thumb = document.getElementById('cardCoverThumb');
+  const heightInp = document.getElementById('cfgCoverHeight');
+  const posYInp = document.getElementById('cfgCoverPositionY');
+  const scaleInp = document.getElementById('cfgCoverScale');
+  const overlayInp = document.getElementById('cfgCoverOverlay');
+
+  if (state.coverImgData) {
+    if (preview) preview.style.display = 'flex';
+    if (controls) controls.style.display = 'block';
+    if (thumb) thumb.src = state.coverImgData;
+    if (heightInp) heightInp.value = state.coverHeight || 190;
+    if (posYInp) posYInp.value = state.coverPositionY !== undefined ? state.coverPositionY : 50;
+    if (scaleInp) scaleInp.value = state.coverScale || 100;
+    if (overlayInp) overlayInp.value = state.coverOverlay !== undefined ? state.coverOverlay : 40;
+    if (document.getElementById('valCoverHeight')) document.getElementById('valCoverHeight').textContent = `${state.coverHeight || 190}px`;
+    if (document.getElementById('valCoverPositionY')) document.getElementById('valCoverPositionY').textContent = `${state.coverPositionY !== undefined ? state.coverPositionY : 50}%`;
+    if (document.getElementById('valCoverScale')) document.getElementById('valCoverScale').textContent = `${state.coverScale || 100}%`;
+    if (document.getElementById('valCoverOverlay')) document.getElementById('valCoverOverlay').textContent = `${state.coverOverlay !== undefined ? state.coverOverlay : 40}%`;
+  } else {
+    if (preview) preview.style.display = 'none';
+    if (controls) controls.style.display = 'none';
+  }
+}
+
+// Interactive Pointer Drag on Cover Photo for direct on-canvas repositioning
+let isCoverDragging = false;
+let coverDragStartY = 0;
+let coverStartPosY = 50;
+
+function onCoverPointerDown(e) {
+  if (e.target.isContentEditable || e.target.closest('[contenteditable="true"]')) return;
+  isCoverDragging = true;
+  coverDragStartY = e.clientY;
+  coverStartPosY = state.coverPositionY !== undefined ? state.coverPositionY : 50;
+  window.addEventListener('pointermove', onCoverPointerMove);
+  window.addEventListener('pointerup', onCoverPointerUp);
+  e.preventDefault();
+}
+
+function onCoverPointerMove(e) {
+  if (!isCoverDragging) return;
+  const deltaY = e.clientY - coverDragStartY;
+  let newY = Math.round(coverStartPosY - (deltaY * 0.35));
+  newY = Math.max(0, Math.min(100, newY));
+  state.coverPositionY = newY;
+  
+  const coverImg = document.getElementById('cardCoverImg');
+  if (coverImg) {
+    coverImg.style.objectPosition = `center ${newY}%`;
+    coverImg.style.transformOrigin = `center ${newY}%`;
+  }
+  const posYInp = document.getElementById('cfgCoverPositionY');
+  if (posYInp) posYInp.value = newY;
+  const valLabel = document.getElementById('valCoverPositionY');
+  if (valLabel) valLabel.textContent = `${newY}%`;
+}
+
+function onCoverPointerUp() {
+  if (isCoverDragging) {
+    isCoverDragging = false;
+    window.removeEventListener('pointermove', onCoverPointerMove);
+    window.removeEventListener('pointerup', onCoverPointerUp);
+  }
+}
+
 function updateScales() {
   state.titleScale = parseInt(document.getElementById('cfgTitleScale').value, 10);
   state.guestScale = parseInt(document.getElementById('cfgGuestScale').value, 10);
@@ -2922,6 +3355,9 @@ function syncStateToInputs() {
     document.getElementById('canvaBgThumb').src = state.canvaBgData;
     document.getElementById('canvaBgPreviewWrapper').style.display = 'flex';
   }
+
+  // Cover photo controls sync
+  syncCoverControls();
 }
 
 function pullInputsToState() {
@@ -2957,6 +3393,20 @@ function pullInputsToState() {
   }
   if (document.getElementById('cfgLineHeight')) {
     state.lineHeight = parseInt(document.getElementById('cfgLineHeight').value, 10);
+  }
+
+  // Cover photo inputs pull
+  if (document.getElementById('cfgCoverHeight')) {
+    state.coverHeight = parseInt(document.getElementById('cfgCoverHeight').value, 10);
+  }
+  if (document.getElementById('cfgCoverPositionY')) {
+    state.coverPositionY = parseInt(document.getElementById('cfgCoverPositionY').value, 10);
+  }
+  if (document.getElementById('cfgCoverScale')) {
+    state.coverScale = parseInt(document.getElementById('cfgCoverScale').value, 10);
+  }
+  if (document.getElementById('cfgCoverOverlay')) {
+    state.coverOverlay = parseInt(document.getElementById('cfgCoverOverlay').value, 10);
   }
 
   // Canva QR Inputs
@@ -3191,6 +3641,67 @@ function zoomCanvasFit() {
   }
 }
 
+// ============================================================
+// Direct On-Canvas WYSIWYG Content Editing Engine
+// ============================================================
+function setupInlineCanvasEditing() {
+  const bindings = [
+    { elId: 'cardBadge',         field: 'badge',    inputId: 'cfgBadge' },
+    { elId: 'cardTitle',         field: 'title',    inputId: 'cfgTitle' },
+    { elId: 'cardSubtitle',      field: 'subtitle', inputId: 'cfgSubtitle' },
+    { elId: 'cardQuote',         field: 'quote',    inputId: 'cfgQuote' },
+    { elId: 'cardGuest',         field: 'guest',    inputId: 'cfgGuest' },
+    { elId: 'cardDate',          field: 'date',     inputId: 'cfgDate' },
+    { elId: 'cardTime',          field: 'time',     inputId: 'cfgTime' },
+    { elId: 'cardVenue',         field: 'venue',    inputId: 'cfgVenue' },
+    { elId: 'cardSeat',          field: 'seat',     inputId: 'cfgSeat' },
+    { elId: 'cardFooter',        field: 'footer',   inputId: 'cfgFooter' },
+    { elId: 'canvaBadgePill',    field: 'badge',    inputId: 'cfgBadge' },
+    { elId: 'canvaAttendeeText', field: 'guest',    inputId: 'cfgGuest' }
+  ];
+
+  bindings.forEach(({ elId, field, inputId }) => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+
+    el.setAttribute('contenteditable', 'true');
+    el.setAttribute('spellcheck', 'false');
+    el.classList.add('editable-canvas-text');
+
+    el.addEventListener('input', () => {
+      const val = el.innerText.trim();
+      state[field] = val;
+      const inp = document.getElementById(inputId);
+      if (inp) inp.value = val;
+    });
+
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && elId !== 'cardFooter' && elId !== 'cardQuote') {
+        e.preventDefault();
+        el.blur();
+      }
+    });
+
+    el.addEventListener('focus', () => {
+      const hint = document.getElementById('canvasEditHint');
+      if (hint) {
+        hint.style.borderColor = '#FF7A00';
+        hint.style.color = '#FF7A00';
+        hint.innerHTML = `✏️ <strong>Editing "${field.toUpperCase()}" directly on card...</strong>`;
+      }
+    });
+
+    el.addEventListener('blur', () => {
+      const hint = document.getElementById('canvasEditHint');
+      if (hint) {
+        hint.style.borderColor = 'var(--border)';
+        hint.style.color = 'var(--text-secondary)';
+        hint.innerHTML = `<?= svgIcon('edit', 12) ?> <span>Click text on card to edit directly</span>`;
+      }
+    });
+  });
+}
+
 // Window resize auto-fit listener for responsive adaptations
 let resizeTimer = null;
 window.addEventListener('resize', () => {
@@ -3206,6 +3717,7 @@ document.addEventListener('DOMContentLoaded', () => {
   syncStateToInputs();
   setCardMode(state.cardMode || 'canva');
   selectQr(true);
+  setupInlineCanvasEditing();
   if (window.innerWidth <= 992) {
     setTimeout(zoomCanvasFit, 100);
   }

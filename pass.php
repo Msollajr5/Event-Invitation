@@ -83,9 +83,11 @@ $showTier = ($designConfig['showTier'] ?? true) !== false;
 $fontFamily = $designConfig['fontFamily'] ?? "'Sora', sans-serif";
 $headerColor1 = $designConfig['headerColor1'] ?? '#FF7A00';
 $headerColor2 = $designConfig['headerColor2'] ?? '#E96800';
+$headingColor = $designConfig['headingColor'] ?? '#FFFFFF';
 $bodyBg = $designConfig['bodyBg'] ?? '#FFFFFF';
 $textColor = $designConfig['textColor'] ?? '#09090B';
 $accentColor = $designConfig['accentColor'] ?? '#FF7A00';
+$borderColor = $designConfig['borderColor'] ?? null;
 $borderFrame = $designConfig['borderFrame'] ?? 'none';
 $seal = $designConfig['seal'] ?? 'ribbon';
 $texture = $designConfig['texture'] ?? 'none';
@@ -95,6 +97,13 @@ $orientation = $designConfig['orientation'] ?? 'portrait';
 $badgeText = !empty($designConfig['badge']) ? $designConfig['badge'] : ($pass['category_name'] ? strtoupper($pass['category_name']) . ' PASS' : 'VIP DELEGATE PASS');
 $quoteText = $designConfig['quote'] ?? 'Honored to request the pleasure of your company';
 $footerNote = $designConfig['footer'] ?? 'Black Tie Required • Non-Transferable Digital QR Ticket';
+
+// Top Card Cover Photo Configuration
+$coverImgData = $designConfig['coverImgData'] ?? null;
+$coverHeight = (int)($designConfig['coverHeight'] ?? 190);
+$coverPositionY = (int)($designConfig['coverPositionY'] ?? 50);
+$coverScale = (int)($designConfig['coverScale'] ?? 100);
+$coverOverlay = (int)($designConfig['coverOverlay'] ?? 40);
 
 // Check if dark surface
 $isDark = false;
@@ -439,26 +448,35 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       <!-- ========================================== -->
       <!-- VIEW 2: BESPOKE STUDIO MULTI-ELEMENT CARD  -->
       <!-- ========================================== -->
-      <div id="targetPassCard" class="digital-pass-card-custom <?= $borderFrame !== 'none' ? 'frame-' . htmlspecialchars($borderFrame) : '' ?>">
+      <div id="targetPassCard" class="digital-pass-card-custom <?= $borderFrame !== 'none' ? 'frame-' . htmlspecialchars($borderFrame) : '' ?>" style="<?= !empty($borderColor) ? 'border-color:' . htmlspecialchars($borderColor) . ';' : '' ?>">
         <div class="texture-overlay <?= $texture !== 'none' ? 'texture-' . htmlspecialchars($texture) : '' ?>"></div>
 
-        <div class="digital-pass-header-custom">
-          <?php if (!empty($logoData)): ?>
-            <div style="margin-bottom:10px;">
-              <img src="<?= htmlspecialchars($logoData) ?>" style="max-height:44px;max-width:150px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="Logo">
+        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;<?= !empty($coverImgData) ? 'min-height:' . $coverHeight . 'px;' : '' ?>">
+          <?php if (!empty($coverImgData)): ?>
+            <div style="position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none;">
+              <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" style="width:100%;height:100%;object-fit:cover;object-position:center <?= $coverPositionY ?>%;transform:scale(<?= $coverScale / 100 ?>);transform-origin:center <?= $coverPositionY ?>%;">
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,<?= number_format($coverOverlay / 100, 2) ?>);"></div>
             </div>
           <?php endif; ?>
 
-          <span class="badge-pill-custom">
-            <?= htmlspecialchars($badgeText) ?>
-          </span>
+          <div style="position:relative;z-index:2;">
+            <?php if (!empty($logoData)): ?>
+              <div style="margin-bottom:10px;">
+                <img src="<?= htmlspecialchars($logoData) ?>" style="max-height:44px;max-width:150px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="Logo">
+              </div>
+            <?php endif; ?>
 
-          <h1 class="event-title-custom">
-            <?= e($pass['event_title']) ?>
-          </h1>
+            <span class="badge-pill-custom" style="color:<?= htmlspecialchars($headingColor) ?>;border-color:<?= htmlspecialchars($headingColor) ?>55;">
+              <?= htmlspecialchars($badgeText) ?>
+            </span>
 
-          <div style="font-size:0.82rem;opacity:0.95;margin-top:4px;">
-            <?= date('l, M d, Y', strtotime($pass['start_date'])) ?> &bull; <?= e($pass['start_time']) ?>
+            <h1 class="event-title-custom" style="color:<?= htmlspecialchars($headingColor) ?>;">
+              <?= e($pass['event_title']) ?>
+            </h1>
+
+            <div style="font-size:0.82rem;opacity:0.95;margin-top:4px;color:<?= htmlspecialchars($headingColor) ?>;">
+              <?= date('l, M d, Y', strtotime($pass['start_date'])) ?> &bull; <?= e($pass['start_time']) ?>
+            </div>
           </div>
         </div>
 
