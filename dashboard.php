@@ -76,9 +76,23 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Page Header -->
 <div class="page-header" style="margin-bottom:20px;">
   <div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;flex-wrap:wrap;">
       <span class="badge badge-primary"><?= e($currentEvent['title'] ?? 'Event') ?></span>
       <span style="font-size:0.8rem;color:var(--text-muted);">&bull; <?= date('M d, Y', strtotime($currentEvent['start_date'] ?? 'now')) ?> &bull; <?= e($currentEvent['venue_name'] ?? '') ?></span>
+      <?php if (!empty($userEvents)): ?>
+        <form method="GET" action="dashboard.php" style="margin:0;display:inline-flex;align-items:center;">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,122,0,0.08);border:1px solid rgba(255,122,0,0.25);border-radius:8px;padding:2px 8px;">
+            <span style="font-size:0.72rem;font-weight:700;color:var(--brand-primary);text-transform:uppercase;letter-spacing:0.04em;">Switch Event:</span>
+            <select name="event_id" onchange="this.form.submit()" aria-label="Select Active Event" style="background:transparent;border:none;font-size:0.8rem;font-weight:600;color:var(--text-primary);cursor:pointer;outline:none;max-width:220px;text-overflow:ellipsis;">
+              <?php foreach ($userEvents as $ev): ?>
+                <option value="<?= $ev['id'] ?>" <?= ((int)$ev['id'] === (int)$selectedEventId) ? 'selected' : '' ?>>
+                  <?= e($ev['title']) ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </form>
+      <?php endif; ?>
     </div>
     <h1 class="page-title">Event Operations &amp; Verification Telemetry</h1>
     <p class="page-subtitle">Real-time attendance velocity, RSVP responses, and access tier breakdown</p>

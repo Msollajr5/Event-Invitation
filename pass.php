@@ -94,16 +94,30 @@ $texture = $designConfig['texture'] ?? 'none';
 $qrDark = $designConfig['qrDark'] ?? '#09090B';
 $logoData = $designConfig['logoData'] ?? null;
 $orientation = $designConfig['orientation'] ?? 'portrait';
-$badgeText = !empty($designConfig['badge']) ? $designConfig['badge'] : ($pass['category_name'] ? strtoupper($pass['category_name']) . ' PASS' : 'VIP DELEGATE PASS');
+$badgeText = !empty($designConfig['badge']) ? $designConfig['badge'] : (!empty($pass['category_name']) ? strtoupper($pass['category_name']) . ' PASS' : 'VIP DELEGATE PASS');
 $quoteText = $designConfig['quote'] ?? 'Honored to request the pleasure of your company';
 $footerNote = $designConfig['footer'] ?? 'Black Tie Required • Non-Transferable Digital QR Ticket';
 
-// Top Card Cover Photo Configuration
+// Top Card Cover Photo 5-Layout Configuration
 $coverImgData = $designConfig['coverImgData'] ?? null;
+$coverLayout = $designConfig['coverLayout'] ?? 'top';
 $coverHeight = (int)($designConfig['coverHeight'] ?? 190);
 $coverPositionY = (int)($designConfig['coverPositionY'] ?? 50);
+$coverPositionX = (int)($designConfig['coverPositionX'] ?? 50);
 $coverScale = (int)($designConfig['coverScale'] ?? 100);
 $coverOverlay = (int)($designConfig['coverOverlay'] ?? 40);
+$coverCropFit = $designConfig['coverCropFit'] ?? 'cover';
+$coverBrightness = (int)($designConfig['coverBrightness'] ?? 100);
+$coverContrast = (int)($designConfig['coverContrast'] ?? 100);
+$coverOpacity = (int)($designConfig['coverOpacity'] ?? 100);
+$coverTextContrast = $designConfig['coverTextContrast'] ?? 'glass';
+$coverHalfSide = $designConfig['coverHalfSide'] ?? 'left';
+$coverHalfRatio = (int)($designConfig['coverHalfRatio'] ?? 50);
+$coverCustomX = (float)($designConfig['coverCustomX'] ?? 50);
+$coverCustomY = (float)($designConfig['coverCustomY'] ?? 35);
+$coverCustomW = (int)($designConfig['coverCustomW'] ?? 240);
+$coverCustomH = (int)($designConfig['coverCustomH'] ?? 180);
+$coverCustomRotation = (int)($designConfig['coverCustomRotation'] ?? 0);
 
 // Check if dark surface
 $isDark = false;
@@ -359,6 +373,114 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       margin-bottom: 14px;
       color: <?= $textColor ?>;
     }
+
+    /* 5-Option Cover Photo Layout Styles for Public Pass */
+    .card-cover-full-wrap {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      overflow: hidden;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .card-cover-full-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .card-cover-full-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .full-cover-glass .digital-pass-header-custom > div {
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 16px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .full-cover-glass .meta-box-custom {
+      background: rgba(0, 0, 0, 0.5) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      color: #FFFFFF !important;
+    }
+    .full-cover-glass .meta-box-custom div {
+      color: #FFFFFF !important;
+    }
+    .full-cover-glass .guest-name-custom,
+    .full-cover-glass #cardQuoteText,
+    .full-cover-glass #cardAdmitBearer,
+    .full-cover-glass #cardFooterNote {
+      color: #FFFFFF !important;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+    }
+    .full-cover-shadow .guest-name-custom,
+    .full-cover-shadow .event-title-custom,
+    .full-cover-shadow #cardQuoteText,
+    .full-cover-shadow #cardFooterNote {
+      text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .card-cover-bottom-wrap {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      margin-top: 12px;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+    }
+    .card-cover-bottom-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .artboard-half-split {
+      display: flex !important;
+      flex-direction: row !important;
+      overflow: hidden;
+    }
+    .artboard-half-split.split-side-right {
+      flex-direction: row-reverse !important;
+    }
+    .artboard-half-split.split-vertical {
+      flex-direction: column !important;
+    }
+    .artboard-half-split.split-vertical.split-side-bottom {
+      flex-direction: column-reverse !important;
+    }
+
+    .card-cover-custom-wrap {
+      position: absolute;
+      z-index: 10;
+      user-select: none;
+      pointer-events: none;
+    }
+    .custom-cover-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+    .card-cover-custom-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -448,13 +570,50 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       <!-- ========================================== -->
       <!-- VIEW 2: BESPOKE STUDIO MULTI-ELEMENT CARD  -->
       <!-- ========================================== -->
-      <div id="targetPassCard" class="digital-pass-card-custom <?= $borderFrame !== 'none' ? 'frame-' . htmlspecialchars($borderFrame) : '' ?>" style="<?= !empty($borderColor) ? 'border-color:' . htmlspecialchars($borderColor) . ';' : '' ?>">
+      <?php
+      $extraClasses = [];
+      if ($borderFrame !== 'none') $extraClasses[] = 'frame-' . htmlspecialchars($borderFrame);
+      if (!empty($coverImgData)) {
+          if ($coverLayout === 'full') {
+              if ($coverTextContrast === 'glass') $extraClasses[] = 'full-cover-glass';
+              elseif ($coverTextContrast === 'shadow') $extraClasses[] = 'full-cover-shadow';
+          } elseif ($coverLayout === 'half') {
+              $extraClasses[] = 'artboard-half-split';
+              if ($orientation === 'portrait') {
+                  if ($coverHalfSide === 'right') $extraClasses[] = 'split-side-right';
+              } else {
+                  $extraClasses[] = 'split-vertical';
+                  if ($coverHalfSide === 'right' || $coverHalfSide === 'bottom') $extraClasses[] = 'split-side-bottom';
+              }
+          }
+      }
+      ?>
+      <div id="targetPassCard" class="digital-pass-card-custom <?= implode(' ', $extraClasses) ?>" style="position:relative;<?= !empty($borderColor) ? 'border-color:' . htmlspecialchars($borderColor) . ';' : '' ?>">
         <div class="texture-overlay <?= $texture !== 'none' ? 'texture-' . htmlspecialchars($texture) : '' ?>"></div>
 
-        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;<?= !empty($coverImgData) ? 'min-height:' . $coverHeight . 'px;' : '' ?>">
-          <?php if (!empty($coverImgData)): ?>
+        <?php if (!empty($coverImgData) && $coverLayout === 'full'): ?>
+          <!-- Layout Option 1: Full Card Background Cover -->
+          <div class="card-cover-full-wrap">
+            <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" class="card-cover-full-img" style="object-fit:<?= htmlspecialchars($coverCropFit) ?>;object-position:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;transform:scale(<?= $coverScale / 100 ?>);filter:brightness(<?= $coverBrightness ?>%) contrast(<?= $coverContrast ?>%);opacity:<?= $coverOpacity / 100 ?>;">
+            <div class="card-cover-full-overlay" style="background:rgba(0,0,0,<?= number_format($coverOverlay / 100, 2) ?>);"></div>
+          </div>
+        <?php endif; ?>
+
+        <?php if (!empty($coverImgData) && $coverLayout === 'custom'): ?>
+          <!-- Layout Option 5: Custom Position Floating Photo -->
+          <div class="card-cover-custom-wrap" style="left:<?= $coverCustomX ?>%;top:<?= $coverCustomY ?>%;width:<?= $coverCustomW ?>px;height:<?= $coverCustomH ?>px;transform:translate(-50%,-50%) rotate(<?= $coverCustomRotation ?>deg);">
+            <div class="custom-cover-frame">
+              <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" class="card-cover-custom-img" style="object-fit:<?= htmlspecialchars($coverCropFit) ?>;filter:brightness(<?= $coverBrightness ?>%) contrast(<?= $coverContrast ?>%);opacity:<?= $coverOpacity / 100 ?>;">
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,<?= number_format($coverOverlay / 100, 2) ?>);"></div>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <!-- Pass Header -->
+        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;<?= (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')) ? (($coverLayout === 'half' ? 'flex:0 0 ' . $coverHalfRatio . '%;' : '') . 'min-height:' . $coverHeight . 'px;') : '' ?>">
+          <?php if (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')): ?>
             <div style="position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none;">
-              <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" style="width:100%;height:100%;object-fit:cover;object-position:center <?= $coverPositionY ?>%;transform:scale(<?= $coverScale / 100 ?>);transform-origin:center <?= $coverPositionY ?>%;">
+              <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" style="width:100%;height:100%;object-fit:<?= htmlspecialchars($coverCropFit) ?>;object-position:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;transform:scale(<?= $coverScale / 100 ?>);transform-origin:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;filter:brightness(<?= $coverBrightness ?>%) contrast(<?= $coverContrast ?>%);opacity:<?= $coverOpacity / 100 ?>;">
               <div style="position:absolute;inset:0;background:rgba(0,0,0,<?= number_format($coverOverlay / 100, 2) ?>);"></div>
             </div>
           <?php endif; ?>
@@ -480,7 +639,8 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
           </div>
         </div>
 
-        <div class="digital-pass-body-custom">
+        <!-- Pass Body -->
+        <div class="digital-pass-body-custom" style="position:relative;z-index:2;">
           <?php if ($seal !== 'none'): ?>
             <div style="display:flex;justify-content:center;margin-bottom:4px;">
               <span class="seal-pill-custom">
@@ -537,6 +697,14 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
           <?php if (!empty($footerNote)): ?>
             <div id="cardFooterNote" style="font-size:0.7rem;opacity:0.65;line-height:1.4;border-top:1px dashed rgba(0,0,0,0.12);padding-top:10px;margin-top:14px;">
               <?= htmlspecialchars($footerNote) ?>
+            </div>
+          <?php endif; ?>
+
+          <?php if (!empty($coverImgData) && $coverLayout === 'bottom'): ?>
+            <!-- Layout Option 3: Bottom Cover Wrap -->
+            <div class="card-cover-bottom-wrap" style="height:<?= $coverHeight ?>px;">
+              <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" class="card-cover-bottom-img" style="object-fit:<?= htmlspecialchars($coverCropFit) ?>;object-position:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;transform:scale(<?= $coverScale / 100 ?>);transform-origin:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;filter:brightness(<?= $coverBrightness ?>%) contrast(<?= $coverContrast ?>%);opacity:<?= $coverOpacity / 100 ?>;">
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,<?= number_format($coverOverlay / 100, 2) ?>);"></div>
             </div>
           <?php endif; ?>
         </div>

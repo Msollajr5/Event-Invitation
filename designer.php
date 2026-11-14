@@ -183,6 +183,16 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Action Buttons Group -->
     <div class="designer-action-buttons">
+      <!-- Undo / Redo History Controls -->
+      <div style="display:inline-flex;gap:4px;margin-right:2px;">
+        <button type="button" id="btnUndoAction" class="btn btn-secondary btn-sm" onclick="undoState()" title="Undo change (Ctrl+Z)" disabled style="padding:6px 9px;font-size:0.75rem;">
+          <?= svgIcon('undo', 13) ?> <span>Undo</span>
+        </button>
+        <button type="button" id="btnRedoAction" class="btn btn-secondary btn-sm" onclick="redoState()" title="Redo change (Ctrl+Y)" disabled style="padding:6px 9px;font-size:0.75rem;">
+          <?= svgIcon('redo', 13) ?> <span>Redo</span>
+        </button>
+      </div>
+
       <div class="dropdown" style="position:relative;display:inline-block;">
         <button type="button" class="btn btn-secondary btn-sm" onclick="toggleExportMenu(event)" title="Export High-Res Invitation">
           <?= svgIcon('download', 14) ?> <span>Export Pass ▾</span>
@@ -214,25 +224,40 @@ require_once __DIR__ . '/includes/header.php';
 
   <!-- Left Column: Canva-Style Toolset Navigation -->
   <div id="designerSidebar" class="card designer-toolset-card">
+
+    <!-- Active Template Indicator & Back to Gallery Banner -->
+    <div id="activeTemplateBanner" class="active-template-bar" style="margin:12px 14px 4px;display:none;">
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+        <span style="font-size:1.1rem;flex-shrink:0;">🎨</span>
+        <div style="min-width:0;">
+          <div style="font-size:0.64rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:0.5px;">Active Design</div>
+          <div id="activeTemplateName" style="font-size:0.82rem;font-weight:800;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Royal Gold Wedding</div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="switchStudioTab('tabTemplates')" style="font-size:0.72rem;padding:4px 9px;font-weight:700;flex-shrink:0;">
+        ← Back to Templates
+      </button>
+    </div>
+
     <!-- Toolset Tabs Bar -->
     <div class="tabs designer-tabs-bar">
-      <button type="button" class="tab-btn active" data-tab="tabCanva" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
-        ✨ Canva Card &amp; QR
-      </button>
-      <button type="button" class="tab-btn" data-tab="tabTemplates" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
+      <button type="button" class="tab-btn" data-tab="tabTemplates" data-tab-group="studio" style="padding:8px 7px;font-size:0.74rem;">
         🎨 50 Templates
       </button>
-      <button type="button" class="tab-btn" data-tab="tabContent" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
+      <button type="button" class="tab-btn active" data-tab="tabCoverLayout" data-tab-group="studio" style="padding:8px 7px;font-size:0.74rem;">
+        🖼️ Cover Layout
+      </button>
+      <button type="button" class="tab-btn" data-tab="tabContent" data-tab-group="studio" style="padding:8px 7px;font-size:0.74rem;">
         ✍️ Content
       </button>
-      <button type="button" class="tab-btn" data-tab="tabStyling" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
+      <button type="button" class="tab-btn" data-tab="tabStyling" data-tab-group="studio" style="padding:8px 7px;font-size:0.74rem;">
         🔤 Style
       </button>
-      <button type="button" class="tab-btn" data-tab="tabElements" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
+      <button type="button" class="tab-btn" data-tab="tabElements" data-tab-group="studio" style="padding:8px 7px;font-size:0.74rem;">
         💎 Badges
       </button>
-      <button type="button" class="tab-btn" data-tab="tabLogo" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
-        🖼️ Cover &amp; Logo
+      <button type="button" class="tab-btn" data-tab="tabCanva" data-tab-group="studio" style="padding:8px 7px;font-size:0.74rem;">
+        📱 QR Pass
       </button>
     </div>
 
@@ -240,7 +265,7 @@ require_once __DIR__ . '/includes/header.php';
     <div style="padding:18px 20px;overflow-y:auto;flex:1;">
       
       <!-- TAB 1: CANVA CARD CLONER & DIRECT QR CONTROLS -->
-      <div class="tab-panel active" data-tab-panel="tabCanva" data-tab-group="studio">
+      <div class="tab-panel" data-tab-panel="tabCanva" data-tab-group="studio">
         
         <!-- Minimalist Canva Banner -->
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
@@ -753,116 +778,318 @@ require_once __DIR__ . '/includes/header.php';
         </div>
       </div>
 
-      <!-- TAB 6: COVER PHOTO, LOGO & BRANDING -->
-      <div class="tab-panel" data-tab-panel="tabLogo" data-tab-group="studio">
+      <!-- TAB 2: COVER PHOTO & ADVANCED LAYOUT OPTIONS -->
+      <div class="tab-panel" data-tab-panel="tabCoverLayout" data-tab-group="studio">
 
-        <!-- 1. Top Card Cover Photo / Header Banner -->
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:18px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <!-- Cover Photo Upload & Status Header -->
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
             <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#FF7A00,#E96800);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(255,122,0,0.25);">
-              <?= svgIcon('image', 18) ?>
+              <?= svgIcon('palette', 18) ?>
             </div>
             <div>
-              <div style="font-weight:700;color:var(--text-primary);font-size:0.86rem;">Top Card Cover Photo</div>
-              <div style="font-size:0.72rem;color:var(--text-muted);">Covers card header with full image adjustments</div>
+              <div style="font-weight:700;color:var(--text-primary);font-size:0.86rem;">Cover Photo &amp; Artboard Layout</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">5 distinct layouts, drag &amp; drop, zoom, opacity &amp; contrast</div>
             </div>
           </div>
 
           <p style="font-size:0.75rem;color:var(--text-secondary);margin:0 0 10px;line-height:1.4;">
-            Upload an event banner or couple/keynote photo. It will cover the top of the card with customizable vertical position, zoom, and legibility tint.
+            Upload an event poster, keynote speaker or couple photo. Choose between 5 layout architectures without losing your text or QR codes.
           </p>
 
-          <div>
-            <button type="button" class="btn btn-primary" onclick="document.getElementById('cardCoverInput').click()" style="width:100%;justify-content:center;font-size:0.8rem;padding:9px 12px;font-weight:700;box-shadow:0 3px 10px rgba(255,122,0,0.25);">
-              <?= svgIcon('upload', 14) ?> Upload Top Cover Photo
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('cardCoverInput').click()" style="flex:1;justify-content:center;font-size:0.8rem;padding:9px 12px;font-weight:700;box-shadow:0 3px 10px rgba(255,122,0,0.25);">
+              <?= svgIcon('upload', 14) ?> <span id="coverUploadBtnText">Upload Cover Photo</span>
+            </button>
+            <button type="button" id="btnRemoveCover" class="btn btn-secondary" onclick="removeCoverPhoto()" style="display:none;color:#DC2626;padding:9px 12px;" title="Remove Cover Photo">
+              <?= svgIcon('trash', 14) ?>
             </button>
           </div>
           <input type="file" id="cardCoverInput" accept="image/*" style="display:none;" onchange="handleCoverUpload(this)">
 
-          <div id="cardCoverPreviewWrapper" style="display:none;margin-top:10px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;align-items:center;justify-content:space-between;">
+          <!-- Active Photo Preview Thumbnail -->
+          <div id="cardCoverPreviewWrapper" style="display:none;margin-top:10px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;">
               <img id="cardCoverThumb" src="" style="height:36px;width:52px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
               <div>
-                <div style="font-size:0.78rem;font-weight:700;color:var(--text-primary);">Cover Photo Active</div>
-                <div style="font-size:0.7rem;color:#059669;font-weight:600;">✓ Covering Top of Card</div>
+                <div style="font-size:0.76rem;font-weight:700;color:var(--text-primary);">Photo Loaded</div>
+                <div id="coverLayoutStatusText" style="font-size:0.7rem;color:#059669;font-weight:600;">Layout: Top Section</div>
               </div>
             </div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="removeCoverPhoto()" style="color:var(--danger);font-size:0.72rem;padding:3px 8px;">Remove</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('cardCoverInput').click()" style="font-size:0.7rem;padding:3px 8px;">
+              Replace
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================================
+             SECTION: COVER PHOTO LAYOUT (5 OPTIONS)
+             ============================================================ -->
+        <div style="margin-bottom:18px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <label class="form-label" style="font-size:0.78rem;font-weight:800;color:var(--text-primary);letter-spacing:0.5px;margin:0;">
+              COVER PHOTO LAYOUT
+            </label>
+            <span style="font-size:0.68rem;color:#FF7A00;font-weight:700;">5 Layout Options</span>
           </div>
 
-          <!-- Cover Photo Adjustments -->
-          <div id="cardCoverControls" style="display:none;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);">
-            
-            <!-- A. Vertical Position (Reposition) -->
-            <div class="form-group" style="margin-bottom:12px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                <label class="form-label" style="font-size:0.75rem;margin:0;">Vertical Position (Y-Offset)</label>
-                <span id="valCoverPositionY" style="font-size:0.75rem;font-weight:700;color:#FF7A00;">50%</span>
+          <div class="photo-layout-grid">
+            <!-- OPTION 1: FULL CARD -->
+            <div id="optLayoutFull" class="photo-layout-card" onclick="setCoverLayout('full')" title="Option 1: Full Card Background Cover">
+              <div class="photo-layout-icon-box">
+                <div style="position:absolute;inset:0;background:linear-gradient(135deg,#FF7A00,#E96800);opacity:0.85;"></div>
+                <div style="position:absolute;inset:4px;display:flex;flex-direction:column;gap:3px;justify-content:center;">
+                  <div style="height:3px;background:#fff;border-radius:2px;width:70%;"></div>
+                  <div style="height:3px;background:#fff;border-radius:2px;width:90%;"></div>
+                  <div style="height:8px;width:8px;background:#fff;border-radius:2px;margin:2px auto 0;"></div>
+                </div>
               </div>
-              <input type="range" id="cfgCoverPositionY" min="0" max="100" step="1" value="50" class="form-control" style="padding:0;" oninput="onCoverPositionYChange(this.value)">
-              <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-muted);margin-top:3px;">
-                <span>Top (0%)</span>
-                <span>Center (50%)</span>
-                <span>Bottom (100%)</span>
-              </div>
+              <div class="photo-layout-name">1. Full Card</div>
             </div>
 
-            <!-- B. Cover Height -->
-            <div class="form-group" style="margin-bottom:12px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                <label class="form-label" style="font-size:0.75rem;margin:0;">Cover Area Height</label>
-                <span id="valCoverHeight" style="font-size:0.75rem;font-weight:700;color:#FF7A00;">190px</span>
+            <!-- OPTION 2: TOP SECTION -->
+            <div id="optLayoutTop" class="photo-layout-card active" onclick="setCoverLayout('top')" title="Option 2: Top Header Section Cover">
+              <div class="photo-layout-icon-box">
+                <div style="position:absolute;top:0;left:0;right:0;height:45%;background:#FF7A00;"></div>
+                <div style="position:absolute;bottom:4px;left:4px;right:4px;display:flex;flex-direction:column;gap:2px;">
+                  <div style="height:2px;background:#aaa;border-radius:1px;"></div>
+                  <div style="height:2px;background:#aaa;border-radius:1px;width:60%;"></div>
+                </div>
               </div>
-              <input type="range" id="cfgCoverHeight" min="120" max="320" step="5" value="190" class="form-control" style="padding:0;" oninput="onCoverHeightChange(this.value)">
+              <div class="photo-layout-name">2. Top Section</div>
             </div>
 
-            <!-- C. Cover Scale / Zoom -->
-            <div class="form-group" style="margin-bottom:12px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                <label class="form-label" style="font-size:0.75rem;margin:0;">Cover Zoom / Scale</label>
-                <span id="valCoverScale" style="font-size:0.75rem;font-weight:700;color:#FF7A00;">100%</span>
+            <!-- OPTION 3: BOTTOM SECTION -->
+            <div id="optLayoutBottom" class="photo-layout-card" onclick="setCoverLayout('bottom')" title="Option 3: Bottom Base Section Cover">
+              <div class="photo-layout-icon-box">
+                <div style="position:absolute;top:4px;left:4px;right:4px;display:flex;flex-direction:column;gap:2px;">
+                  <div style="height:2px;background:#aaa;border-radius:1px;"></div>
+                  <div style="height:2px;background:#aaa;border-radius:1px;width:70%;"></div>
+                </div>
+                <div style="position:absolute;bottom:0;left:0;right:0;height:45%;background:#FF7A00;"></div>
               </div>
-              <input type="range" id="cfgCoverScale" min="100" max="200" step="5" value="100" class="form-control" style="padding:0;" oninput="onCoverScaleChange(this.value)">
+              <div class="photo-layout-name">3. Bottom</div>
             </div>
 
-            <!-- D. Overlay Tint / Darkness for readability -->
+            <!-- OPTION 4: HALF CARD -->
+            <div id="optLayoutHalf" class="photo-layout-card" onclick="setCoverLayout('half')" title="Option 4: Half Card Split Layout">
+              <div class="photo-layout-icon-box">
+                <div style="position:absolute;top:0;left:0;bottom:0;width:50%;background:#FF7A00;"></div>
+                <div style="position:absolute;top:6px;right:3px;width:40%;display:flex;flex-direction:column;gap:2px;">
+                  <div style="height:2px;background:#aaa;border-radius:1px;"></div>
+                  <div style="height:2px;background:#aaa;border-radius:1px;"></div>
+                  <div style="height:6px;width:6px;background:#aaa;margin-top:2px;"></div>
+                </div>
+              </div>
+              <div class="photo-layout-name">4. Half Card</div>
+            </div>
+
+            <!-- OPTION 5: CUSTOM POSITION -->
+            <div id="optLayoutCustom" class="photo-layout-card" onclick="setCoverLayout('custom')" title="Option 5: Custom Floating Draggable &amp; Rotatable">
+              <div class="photo-layout-icon-box">
+                <div style="position:absolute;top:10px;left:7px;width:24px;height:18px;background:#FF7A00;border-radius:3px;border:1px dashed #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>
+              </div>
+              <div class="photo-layout-name">5. Custom</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================
+             LAYOUT CONTEXTUAL ADJUSTMENT CONTROLS
+             ============================================================ -->
+        <div id="layoutControlsPanel" style="background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:16px;">
+          
+          <!-- Controls for Option 1: Full Card -->
+          <div id="ctrlFullCard" style="display:none;">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Full Card Text Readability &amp; Overlay</div>
+            <div class="form-group" style="margin-bottom:10px;">
+              <label class="form-label" style="font-size:0.72rem;">Text Readability Backing</label>
+              <div style="display:flex;gap:4px;">
+                <button type="button" id="btnContrastGlass" class="btn btn-secondary btn-sm" onclick="setCoverTextContrast('glass')" style="flex:1;font-size:0.7rem;padding:4px 6px;">
+                  ❄️ Frosted Glass
+                </button>
+                <button type="button" id="btnContrastShadow" class="btn btn-secondary btn-sm" onclick="setCoverTextContrast('shadow')" style="flex:1;font-size:0.7rem;padding:4px 6px;">
+                  🌑 Drop Shadow
+                </button>
+                <button type="button" id="btnContrastNone" class="btn btn-secondary btn-sm" onclick="setCoverTextContrast('none')" style="flex:1;font-size:0.7rem;padding:4px 6px;">
+                  ✨ Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls for Option 2 & 3: Top / Bottom Section -->
+          <div id="ctrlSectionHeight" style="display:block;">
+            <div class="form-group" style="margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                <label class="form-label" style="font-size:0.72rem;margin:0;">Section Height</label>
+                <span id="valCoverHeight" style="font-size:0.72rem;font-weight:700;color:#FF7A00;">190px</span>
+              </div>
+              <input type="range" id="cfgCoverHeight" min="120" max="380" step="5" value="190" class="form-control" style="padding:0;" oninput="onCoverHeightChange(this.value)">
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group" style="margin-bottom:6px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                  <label class="form-label" style="font-size:0.7rem;margin:0;">Vertical (Y)</label>
+                  <span id="valCoverPositionY" style="font-size:0.7rem;font-weight:700;color:#FF7A00;">50%</span>
+                </div>
+                <input type="range" id="cfgCoverPositionY" min="0" max="100" step="1" value="50" class="form-control" style="padding:0;" oninput="onCoverPositionYChange(this.value)">
+              </div>
+              <div class="form-group" style="margin-bottom:6px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                  <label class="form-label" style="font-size:0.7rem;margin:0;">Horizontal (X)</label>
+                  <span id="valCoverPositionX" style="font-size:0.7rem;font-weight:700;color:#FF7A00;">50%</span>
+                </div>
+                <input type="range" id="cfgCoverPositionX" min="0" max="100" step="1" value="50" class="form-control" style="padding:0;" oninput="onCoverPositionXChange(this.value)">
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls for Option 4: Half Card -->
+          <div id="ctrlHalfCard" style="display:none;">
+            <div class="form-group" style="margin-bottom:10px;">
+              <label class="form-label" style="font-size:0.72rem;">Photo Position Side</label>
+              <div style="display:flex;gap:4px;">
+                <button type="button" id="btnHalfLeft" class="btn btn-primary btn-sm" onclick="setCoverHalfSide('left')" style="flex:1;font-size:0.72rem;padding:4px 6px;">
+                  ⬅️ Left Photo
+                </button>
+                <button type="button" id="btnHalfRight" class="btn btn-secondary btn-sm" onclick="setCoverHalfSide('right')" style="flex:1;font-size:0.72rem;padding:4px 6px;">
+                  ➡️ Right Photo
+                </button>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                <label class="form-label" style="font-size:0.72rem;margin:0;">Split Proportion</label>
+                <span id="valHalfRatio" style="font-size:0.72rem;font-weight:700;color:#FF7A00;">50% / 50%</span>
+              </div>
+              <input type="range" id="cfgHalfRatio" min="30" max="70" step="5" value="50" class="form-control" style="padding:0;" oninput="onCoverHalfRatioChange(this.value)">
+            </div>
+          </div>
+
+          <!-- Controls for Option 5: Custom Position -->
+          <div id="ctrlCustomPos" style="display:none;">
+            <div style="font-size:0.74rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;">Custom Floating Positioning</div>
+            <div class="form-grid-2" style="margin-bottom:8px;">
+              <div class="form-group" style="margin-bottom:4px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                  <label class="form-label" style="font-size:0.7rem;margin:0;">Position X</label>
+                  <span id="valCustomX" style="font-size:0.7rem;font-weight:700;color:#FF7A00;">50%</span>
+                </div>
+                <input type="range" id="cfgCustomX" min="0" max="100" step="1" value="50" class="form-control" style="padding:0;" oninput="onCustomPosChange('x', this.value)">
+              </div>
+              <div class="form-group" style="margin-bottom:4px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                  <label class="form-label" style="font-size:0.7rem;margin:0;">Position Y</label>
+                  <span id="valCustomY" style="font-size:0.7rem;font-weight:700;color:#FF7A00;">35%</span>
+                </div>
+                <input type="range" id="cfgCustomY" min="0" max="100" step="1" value="35" class="form-control" style="padding:0;" oninput="onCustomPosChange('y', this.value)">
+              </div>
+            </div>
+            <div class="form-grid-2" style="margin-bottom:8px;">
+              <div class="form-group" style="margin-bottom:4px;">
+                <label class="form-label" style="font-size:0.7rem;margin-bottom:2px;">Width: <span id="valCustomW" style="font-weight:700;color:#FF7A00;">240px</span></label>
+                <input type="range" id="cfgCustomW" min="80" max="420" step="5" value="240" class="form-control" style="padding:0;" oninput="onCustomSizeChange('w', this.value)">
+              </div>
+              <div class="form-group" style="margin-bottom:4px;">
+                <label class="form-label" style="font-size:0.7rem;margin-bottom:2px;">Height: <span id="valCustomH" style="font-weight:700;color:#FF7A00;">180px</span></label>
+                <input type="range" id="cfgCustomH" min="80" max="420" step="5" value="180" class="form-control" style="padding:0;" oninput="onCustomSizeChange('h', this.value)">
+              </div>
+            </div>
             <div class="form-group" style="margin-bottom:8px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-                <label class="form-label" style="font-size:0.75rem;margin:0;">Text Legibility Darkness Tint</label>
-                <span id="valCoverOverlay" style="font-size:0.75rem;font-weight:700;color:#FF7A00;">40%</span>
+              <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                <label class="form-label" style="font-size:0.7rem;margin:0;">Rotation Angle</label>
+                <span id="valCustomRot" style="font-size:0.7rem;font-weight:700;color:#FF7A00;">0°</span>
               </div>
-              <input type="range" id="cfgCoverOverlay" min="0" max="85" step="5" value="40" class="form-control" style="padding:0;" oninput="onCoverOverlayChange(this.value)">
+              <input type="range" id="cfgCustomRot" min="-180" max="180" step="1" value="0" class="form-control" style="padding:0;" oninput="onCustomRotChange(this.value)">
             </div>
+            <div style="display:flex;gap:4px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="centerCustomCoverX()" style="flex:1;font-size:0.7rem;padding:3px 6px;">↔ Center X</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="centerCustomCoverY()" style="flex:1;font-size:0.7rem;padding:3px 6px;">↕ Center Y</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="resetCustomCoverBox()" style="flex:1;font-size:0.7rem;padding:3px 6px;">↺ Reset</button>
+            </div>
+          </div>
 
-            <div style="font-size:0.7rem;color:var(--text-muted);background:var(--surface-3);padding:6px 10px;border-radius:6px;margin-top:6px;line-height:1.4;">
-              💡 <strong>Pro-Tip:</strong> You can also drag up and down directly on the card cover photo on the canvas to reposition it!
+          <!-- Common Overlay Tint Slider -->
+          <div class="form-group" style="margin-top:10px;margin-bottom:4px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <label class="form-label" style="font-size:0.72rem;margin:0;">Dark Tint Overlay (Readability)</label>
+              <span id="valCoverOverlay" style="font-size:0.72rem;font-weight:700;color:#FF7A00;">40%</span>
             </div>
+            <input type="range" id="cfgCoverOverlay" min="0" max="90" step="2" value="40" class="form-control" style="padding:0;" oninput="onCoverOverlayChange(this.value)">
           </div>
         </div>
 
-        <!-- 2. Brand or Sponsor Logo -->
-        <div class="form-group">
-          <label class="form-label" style="font-size:0.8rem;font-weight:700;">Brand / Sponsor Logo Overlay</label>
-          <div class="file-input-wrapper" onclick="document.getElementById('logoFileInput').click()" style="padding:16px;text-align:center;">
-            <div style="font-size:1.8rem;color:#FF7A00;margin-bottom:4px;">
-              <?= svgIcon('upload', 26) ?>
+        <!-- ============================================================
+             SECTION: ADDITIONAL PHOTO CONTROLS (ZOOM, CROP, BRIGHTNESS, ETC.)
+             ============================================================ -->
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-size:0.76rem;font-weight:800;color:var(--text-primary);letter-spacing:0.5px;">
+              ADDITIONAL PHOTO CONTROLS
+            </span>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="resetCoverAdjustments()" style="font-size:0.68rem;padding:2px 8px;">
+              ↺ Reset Adjustments
+            </button>
+          </div>
+
+          <!-- Zoom & Crop Fit -->
+          <div class="form-grid-2" style="margin-bottom:10px;">
+            <div class="form-group" style="margin-bottom:4px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                <label class="form-label" style="font-size:0.72rem;margin:0;">Image Zoom</label>
+                <span id="valCoverScale" style="font-size:0.72rem;font-weight:700;color:#FF7A00;">100%</span>
+              </div>
+              <input type="range" id="cfgCoverScale" min="50" max="250" step="5" value="100" class="form-control" style="padding:0;" oninput="onCoverScaleChange(this.value)">
             </div>
-            <div style="font-size:0.82rem;color:var(--text-primary);font-weight:600;">Click to upload logo PNG/JPEG</div>
-            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">Transparent PNG works best</div>
-            <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(this)">
+            <div class="form-group" style="margin-bottom:4px;">
+              <label class="form-label" style="font-size:0.72rem;margin-bottom:2px;">Image Crop / Fit</label>
+              <select id="cfgCoverCropFit" class="form-control" style="height:32px;font-size:0.72rem;" onchange="setCoverCropFit(this.value)">
+                <option value="cover">Cover (Fill Area)</option>
+                <option value="contain">Contain (Fit Inside)</option>
+                <option value="fill">Stretch / Fill</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Brightness & Contrast -->
+          <div class="form-grid-2" style="margin-bottom:10px;">
+            <div class="form-group" style="margin-bottom:4px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                <label class="form-label" style="font-size:0.72rem;margin:0;">Brightness</label>
+                <span id="valCoverBrightness" style="font-size:0.72rem;font-weight:700;color:#FF7A00;">100%</span>
+              </div>
+              <input type="range" id="cfgCoverBrightness" min="50" max="150" step="2" value="100" class="form-control" style="padding:0;" oninput="onCoverBrightnessChange(this.value)">
+            </div>
+            <div class="form-group" style="margin-bottom:4px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                <label class="form-label" style="font-size:0.72rem;margin:0;">Contrast</label>
+                <span id="valCoverContrast" style="font-size:0.72rem;font-weight:700;color:#FF7A00;">100%</span>
+              </div>
+              <input type="range" id="cfgCoverContrast" min="50" max="150" step="2" value="100" class="form-control" style="padding:0;" oninput="onCoverContrastChange(this.value)">
+            </div>
+          </div>
+
+          <!-- Opacity -->
+          <div class="form-group" style="margin-bottom:4px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <label class="form-label" style="font-size:0.72rem;margin:0;">Image Transparency / Opacity</label>
+              <span id="valCoverOpacity" style="font-size:0.72rem;font-weight:700;color:#FF7A00;">100%</span>
+            </div>
+            <input type="range" id="cfgCoverOpacity" min="10" max="100" step="2" value="100" class="form-control" style="padding:0;" oninput="onCoverOpacityChange(this.value)">
           </div>
         </div>
 
-        <div id="logoPreviewWrapper" style="display:none;margin-top:10px;background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;align-items:center;justify-content:space-between;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <img id="logoPreviewImg" src="" style="max-height:36px;max-width:100px;object-fit:contain;">
-            <span style="font-size:0.8rem;font-weight:600;color:var(--text-primary);">Logo Loaded</span>
+        <!-- Brand / Event Logo Upload -->
+        <div style="background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;">
+          <label class="form-label" style="font-size:0.74rem;font-weight:700;margin-bottom:6px;">Event / Host Brand Logo</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="file" id="cfgLogo" accept="image/*" class="form-control" style="font-size:0.72rem;flex:1;" onchange="handleLogoUpload(this)">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="removeLogo()" style="font-size:0.7rem;padding:6px 10px;">Remove</button>
           </div>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="removeLogo()" style="color:var(--danger)">Remove</button>
         </div>
 
       </div>
-
     </div>
   </div>
 
@@ -961,9 +1188,28 @@ require_once __DIR__ . '/includes/header.php';
       <div id="cardArtboard" class="artboard-portrait" style="display:none;">
         <div id="cardTextureOverlay" class="texture-overlay"></div>
 
+        <!-- Layout Option 1: Full Card Background Cover Wrap -->
+        <div id="cardCoverFullWrap" class="card-cover-full-wrap" style="display:none;">
+          <img id="cardCoverFullImg" src="" alt="Full Card Cover" class="card-cover-full-img">
+          <div id="cardCoverFullOverlay" class="card-cover-full-overlay"></div>
+        </div>
+
+        <!-- Layout Option 5: Custom Floating Draggable & Rotatable Photo Wrap -->
+        <div id="cardCoverCustomWrap" class="card-cover-custom-wrap" style="display:none;" onpointerdown="onCustomCoverPointerDown(event)">
+          <div class="custom-cover-frame">
+            <img id="cardCoverCustomImg" src="" alt="Custom Photo" class="card-cover-custom-img">
+            <div id="cardCoverCustomOverlay" class="card-cover-overlay"></div>
+            <div class="custom-cover-handle-tl" onpointerdown="onCustomCoverResizeDown(event, 'tl')"></div>
+            <div class="custom-cover-handle-tr" onpointerdown="onCustomCoverResizeDown(event, 'tr')"></div>
+            <div class="custom-cover-handle-bl" onpointerdown="onCustomCoverResizeDown(event, 'bl')"></div>
+            <div class="custom-cover-handle-br" onpointerdown="onCustomCoverResizeDown(event, 'br')"></div>
+            <div class="custom-cover-rotate-handle" onpointerdown="onCustomCoverRotateDown(event)" title="Drag to rotate photo">↻</div>
+          </div>
+        </div>
+
         <div id="artboardHeader" class="artboard-header">
-          <!-- Top Card Cover Photo Layer (Draggable for repositioning) -->
-          <div id="cardCoverContainer" class="card-cover-container" style="display:none;" onpointerdown="onCoverPointerDown(event)">
+          <!-- Layout Option 2: Top Card Cover Photo Layer (Draggable for repositioning) -->
+          <div id="cardCoverContainer" class="card-cover-container" style="display:none;" onpointerdown="onCoverPointerDown(event, 'top')">
             <img id="cardCoverImg" src="" alt="Top Cover Photo" class="card-cover-img">
             <div id="cardCoverOverlay" class="card-cover-overlay"></div>
             <div class="cover-reposition-pill">↕ Drag to reposition photo</div>
@@ -1006,6 +1252,13 @@ require_once __DIR__ . '/includes/header.php';
 
           <div id="cardFooter" class="card-footer-note editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit footer note directly">
             Black Tie Required &bull; Non-Transferable Digital QR Ticket
+          </div>
+
+          <!-- Layout Option 3: Bottom Base Cover Photo Wrap -->
+          <div id="cardCoverBottomWrap" class="card-cover-bottom-wrap" style="display:none;" onpointerdown="onCoverPointerDown(event, 'bottom')">
+            <img id="cardCoverBottomImg" src="" alt="Bottom Cover Photo" class="card-cover-bottom-img">
+            <div id="cardCoverBottomOverlay" class="card-cover-overlay"></div>
+            <div class="cover-reposition-pill">↕ Drag to reposition photo</div>
           </div>
         </div>
       </div>
@@ -1267,6 +1520,228 @@ require_once __DIR__ . '/includes/header.php';
   background: var(--danger, #EF4444);
   color: #FFFFFF;
   border-color: var(--danger, #EF4444);
+}
+
+/* ============================================================
+   Cover Photo Layout Options (Full, Top, Bottom, Half, Custom)
+   ============================================================ */
+.photo-layout-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+@media (max-width: 600px) {
+  .photo-layout-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.photo-layout-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm, 8px);
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.photo-layout-card:hover {
+  border-color: #FF7A00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255,122,0,0.18);
+}
+.photo-layout-card.active {
+  border-color: #FF7A00;
+  background: rgba(255,122,0,0.08);
+  box-shadow: 0 0 0 2px rgba(255,122,0,0.35);
+}
+.photo-layout-icon-box {
+  width: 36px;
+  height: 48px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.photo-layout-card.active .photo-layout-icon-box {
+  border-color: #FF7A00;
+}
+.photo-layout-name {
+  font-size: 0.67rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+/* Layout Option 1: Full Card Cover */
+.card-cover-full-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+.card-cover-full-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.card-cover-full-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+}
+.full-cover-glass .artboard-header-content {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 16px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+.full-cover-glass .card-meta-box {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #FFFFFF !important;
+}
+.full-cover-glass .card-meta-box span,
+.full-cover-glass .card-meta-box div {
+  color: #FFFFFF !important;
+}
+.full-cover-glass .card-guest-name,
+.full-cover-glass .card-quote,
+.full-cover-glass .card-attendee-label,
+.full-cover-glass .card-footer-note,
+.full-cover-glass .card-ref-code {
+  color: #FFFFFF !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+.full-cover-shadow .card-guest-name,
+.full-cover-shadow .card-title-text,
+.full-cover-shadow .card-subtitle-text,
+.full-cover-shadow .card-quote,
+.full-cover-shadow .card-footer-note {
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.8);
+}
+
+/* Layout Option 3: Bottom Cover Wrap */
+.card-cover-bottom-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin-top: 12px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+  cursor: grab;
+}
+.card-cover-bottom-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Layout Option 4: Half Card Split */
+.artboard-half-split {
+  display: flex !important;
+  flex-direction: row !important;
+  overflow: hidden;
+}
+.artboard-half-split.split-side-right {
+  flex-direction: row-reverse !important;
+}
+.artboard-half-split.split-vertical {
+  flex-direction: column !important;
+}
+.artboard-half-split.split-vertical.split-side-bottom {
+  flex-direction: column-reverse !important;
+}
+
+/* Layout Option 5: Custom Position Draggable Floating Photo */
+.card-cover-custom-wrap {
+  position: absolute;
+  z-index: 10;
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+}
+.custom-cover-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  overflow: visible;
+  border: 2px dashed #FF7A00;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+.custom-cover-frame:hover {
+  border-style: solid;
+}
+.card-cover-custom-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  display: block;
+  pointer-events: none;
+}
+.custom-cover-handle-tl, .custom-cover-handle-tr,
+.custom-cover-handle-bl, .custom-cover-handle-br {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #FFFFFF;
+  border: 2px solid #FF7A00;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  z-index: 2;
+}
+.custom-cover-handle-tl { top: -6px; left: -6px; cursor: nwse-resize; }
+.custom-cover-handle-tr { top: -6px; right: -6px; cursor: nesw-resize; }
+.custom-cover-handle-bl { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.custom-cover-handle-br { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.custom-cover-rotate-handle {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #FF7A00;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(255,122,0,0.4);
+  z-index: 2;
+}
+
+/* Active Template Banner */
+.active-template-bar {
+  background: linear-gradient(135deg, rgba(255,122,0,0.12), rgba(233,104,0,0.06));
+  border: 1px solid rgba(255,122,0,0.3);
+  border-radius: var(--radius-sm, 8px);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* ============================================================
@@ -2351,12 +2826,26 @@ let state = {
   qrDark: '#09090B',
   logoData: null,
 
-  // Top Card Cover Photo & Adjustments
+  // Top Card Cover Photo & 5 Layout Options Engine
+  coverLayout: 'top',          // 'full' | 'top' | 'bottom' | 'half' | 'custom'
   coverImgData: null,
-  coverHeight: 190,     // px height (120 to 320)
-  coverPositionY: 50,   // % vertical alignment (0 = top, 50 = center, 100 = bottom)
-  coverScale: 100,      // % zoom scale (100% to 200%)
-  coverOverlay: 40      // % dark legibility overlay tint (0% to 85%)
+  coverHeight: 190,            // px height for top/bottom (120 to 380)
+  coverPositionY: 50,          // % vertical alignment (0 = top, 50 = center, 100 = bottom)
+  coverPositionX: 50,          // % horizontal alignment (0 = left, 50 = center, 100 = right)
+  coverScale: 100,             // % zoom scale (50% to 250%)
+  coverCropFit: 'cover',       // 'cover' | 'contain' | 'fill'
+  coverBrightness: 100,        // % brightness (50% to 150%)
+  coverContrast: 100,          // % contrast (50% to 150%)
+  coverOpacity: 100,           // % opacity (10% to 100%)
+  coverOverlay: 40,            // % dark legibility overlay tint (0% to 90%)
+  coverTextContrast: 'glass',  // 'glass' | 'shadow' | 'none'
+  coverHalfSide: 'left',       // 'left' | 'right' (portrait) / 'top' | 'bottom' (landscape)
+  coverHalfRatio: 50,          // % split ratio (30% to 70%)
+  coverCustomX: 50,            // % custom X position (0 to 100)
+  coverCustomY: 35,            // % custom Y position (0 to 100)
+  coverCustomW: 240,           // px width (80 to 420)
+  coverCustomH: 180,           // px height (80 to 420)
+  coverCustomRotation: 0       // degrees (-180 to 180)
 };
 
 // Restore saved DB configuration
@@ -2752,6 +3241,94 @@ function toggleQrLock(locked) {
 }
 
 // ============================================================
+// Undo / Redo History Stack & Workspace Tabs Engine
+// ============================================================
+window.isDesignDirty = false;
+const historyStack = [];
+let historyIndex = -1;
+const MAX_HISTORY = 40;
+let isHistoryAction = false;
+
+function pushHistoryState() {
+  if (isHistoryAction) return;
+  const snapshot = JSON.stringify(state);
+  if (historyIndex >= 0 && historyStack[historyIndex] === snapshot) return;
+  if (historyIndex < historyStack.length - 1) {
+    historyStack.splice(historyIndex + 1);
+  }
+  historyStack.push(snapshot);
+  if (historyStack.length > MAX_HISTORY) historyStack.shift();
+  historyIndex = historyStack.length - 1;
+  updateUndoRedoButtons();
+  window.isDesignDirty = true;
+}
+
+function undoState() {
+  if (historyIndex > 0) {
+    historyIndex--;
+    isHistoryAction = true;
+    try {
+      const snapshot = JSON.parse(historyStack[historyIndex]);
+      Object.assign(state, snapshot);
+      syncStateToInputs();
+      renderCanvas();
+      showToast('Undo performed', 'info');
+    } finally {
+      isHistoryAction = false;
+    }
+    updateUndoRedoButtons();
+  }
+}
+
+function redoState() {
+  if (historyIndex < historyStack.length - 1) {
+    historyIndex++;
+    isHistoryAction = true;
+    try {
+      const snapshot = JSON.parse(historyStack[historyIndex]);
+      Object.assign(state, snapshot);
+      syncStateToInputs();
+      renderCanvas();
+      showToast('Redo performed', 'info');
+    } finally {
+      isHistoryAction = false;
+    }
+    updateUndoRedoButtons();
+  }
+}
+
+function updateUndoRedoButtons() {
+  const btnUndo = document.getElementById('btnUndoAction');
+  const btnRedo = document.getElementById('btnRedoAction');
+  if (btnUndo) btnUndo.disabled = (historyIndex <= 0);
+  if (btnRedo) btnRedo.disabled = (historyIndex >= historyStack.length - 1);
+}
+
+// Global Keyboard Shortcuts (Ctrl+Z / Ctrl+Y)
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+    if (!e.target.isContentEditable && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      undoState();
+    }
+  } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey))) {
+    if (!e.target.isContentEditable && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      redoState();
+    }
+  }
+});
+
+function switchStudioTab(tabId) {
+  document.querySelectorAll('[data-tab-group="studio"].tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+  });
+  document.querySelectorAll('[data-tab-group="studio"].tab-panel').forEach(panel => {
+    panel.classList.toggle('active', panel.getAttribute('data-tab-panel') === tabId);
+  });
+}
+
+// ============================================================
 // TEMPLATE ENGINE (50 Premium Designer Templates Library)
 // ============================================================
 const TEMPLATE_PRESETS = (typeof TEMPLATES_LIBRARY !== 'undefined') ? TEMPLATES_LIBRARY : {
@@ -2790,6 +3367,12 @@ function applyTemplate(templateId) {
   // Switch to Studio mode so user immediately sees the editorial template rendered
   setCardMode('studio');
 
+  // Update Active Template Banner
+  const banner = document.getElementById('activeTemplateBanner');
+  const nameEl = document.getElementById('activeTemplateName');
+  if (banner) banner.style.display = 'flex';
+  if (nameEl) nameEl.textContent = preset.name;
+
   // Highlight active card in both marketplace grid and classic preset lists
   document.querySelectorAll('.tpl-card-item, .template-card').forEach(el => {
     el.classList.remove('active');
@@ -2800,6 +3383,7 @@ function applyTemplate(templateId) {
   if (clickedCard) clickedCard.classList.add('active');
 
   renderCanvas();
+  pushHistoryState();
   showToast(`Applied "${preset.name}" preset template!`, 'success');
 }
 
@@ -2975,27 +3559,150 @@ function renderStudioCard() {
   body.style.color = state.textColor;
   guest.style.color = state.textColor;
 
-  // Top Card Cover Photo Layer
-  const coverContainer = document.getElementById('cardCoverContainer');
-  const coverImg = document.getElementById('cardCoverImg');
-  const coverOverlay = document.getElementById('cardCoverOverlay');
+  // Cover Photo Rendering across 5 Layout Options
+  const fullWrap = document.getElementById('cardCoverFullWrap');
+  const fullImg = document.getElementById('cardCoverFullImg');
+  const fullOverlay = document.getElementById('cardCoverFullOverlay');
+
+  const topWrap = document.getElementById('cardCoverContainer');
+  const topImg = document.getElementById('cardCoverImg');
+  const topOverlay = document.getElementById('cardCoverOverlay');
+
+  const bottomWrap = document.getElementById('cardCoverBottomWrap');
+  const bottomImg = document.getElementById('cardCoverBottomImg');
+  const bottomOverlay = document.getElementById('cardCoverBottomOverlay');
+
+  const customWrap = document.getElementById('cardCoverCustomWrap');
+  const customImg = document.getElementById('cardCoverCustomImg');
+  const customOverlay = document.getElementById('cardCoverCustomOverlay');
+
+  // Reset all layout classes
+  artboard.classList.remove('artboard-half-split', 'split-side-right', 'split-vertical', 'split-side-bottom', 'full-cover-glass', 'full-cover-shadow');
+
   if (state.coverImgData) {
-    if (coverContainer) coverContainer.style.display = 'block';
-    if (coverImg) {
-      coverImg.src = state.coverImgData;
-      const posY = state.coverPositionY !== undefined ? state.coverPositionY : 50;
-      coverImg.style.objectPosition = `center ${posY}%`;
-      const scale = (state.coverScale || 100) / 100;
-      coverImg.style.transform = `scale(${scale})`;
-      coverImg.style.transformOrigin = `center ${posY}%`;
+    const filterStyle = `brightness(${state.coverBrightness || 100}%) contrast(${state.coverContrast || 100}%)`;
+    const alphaOverlay = (((state.coverOverlay !== undefined ? state.coverOverlay : 40) / 100)).toFixed(2);
+    const imgOpacity = ((state.coverOpacity !== undefined ? state.coverOpacity : 100) / 100).toFixed(2);
+    const fitStyle = state.coverCropFit || 'cover';
+    const scale = (state.coverScale || 100) / 100;
+    const posX = state.coverPositionX !== undefined ? state.coverPositionX : 50;
+    const posY = state.coverPositionY !== undefined ? state.coverPositionY : 50;
+
+    // 1. Full Card Layout
+    if (state.coverLayout === 'full') {
+      if (fullWrap) fullWrap.style.display = 'block';
+      if (fullImg) {
+        fullImg.src = state.coverImgData;
+        fullImg.style.objectFit = fitStyle;
+        fullImg.style.objectPosition = `${posX}% ${posY}%`;
+        fullImg.style.transform = `scale(${scale})`;
+        fullImg.style.filter = filterStyle;
+        fullImg.style.opacity = imgOpacity;
+      }
+      if (fullOverlay) fullOverlay.style.background = `rgba(0, 0, 0, ${alphaOverlay})`;
+      if (topWrap) topWrap.style.display = 'none';
+      if (bottomWrap) bottomWrap.style.display = 'none';
+      if (customWrap) customWrap.style.display = 'none';
+      header.style.minHeight = '';
+
+      if (state.coverTextContrast === 'glass') artboard.classList.add('full-cover-glass');
+      else if (state.coverTextContrast === 'shadow') artboard.classList.add('full-cover-shadow');
     }
-    if (coverOverlay) {
-      const alpha = ((state.coverOverlay !== undefined ? state.coverOverlay : 40) / 100).toFixed(2);
-      coverOverlay.style.background = `rgba(0, 0, 0, ${alpha})`;
+    // 2. Top Section Layout
+    else if (state.coverLayout === 'top') {
+      if (fullWrap) fullWrap.style.display = 'none';
+      if (bottomWrap) bottomWrap.style.display = 'none';
+      if (customWrap) customWrap.style.display = 'none';
+      if (topWrap) {
+        topWrap.style.display = 'block';
+        if (topImg) {
+          topImg.src = state.coverImgData;
+          topImg.style.objectFit = fitStyle;
+          topImg.style.objectPosition = `${posX}% ${posY}%`;
+          topImg.style.transform = `scale(${scale})`;
+          topImg.style.transformOrigin = `${posX}% ${posY}%`;
+          topImg.style.filter = filterStyle;
+          topImg.style.opacity = imgOpacity;
+        }
+        if (topOverlay) topOverlay.style.background = `rgba(0, 0, 0, ${alphaOverlay})`;
+      }
+      header.style.minHeight = `${state.coverHeight || 190}px`;
     }
-    header.style.minHeight = `${state.coverHeight || 190}px`;
+    // 3. Bottom Section Layout
+    else if (state.coverLayout === 'bottom') {
+      if (fullWrap) fullWrap.style.display = 'none';
+      if (topWrap) topWrap.style.display = 'none';
+      if (customWrap) customWrap.style.display = 'none';
+      header.style.minHeight = '';
+      if (bottomWrap) {
+        bottomWrap.style.display = 'block';
+        bottomWrap.style.height = `${state.coverHeight || 190}px`;
+        if (bottomImg) {
+          bottomImg.src = state.coverImgData;
+          bottomImg.style.objectFit = fitStyle;
+          bottomImg.style.objectPosition = `${posX}% ${posY}%`;
+          bottomImg.style.transform = `scale(${scale})`;
+          bottomImg.style.transformOrigin = `${posX}% ${posY}%`;
+          bottomImg.style.filter = filterStyle;
+          bottomImg.style.opacity = imgOpacity;
+        }
+        if (bottomOverlay) bottomOverlay.style.background = `rgba(0, 0, 0, ${alphaOverlay})`;
+      }
+    }
+    // 4. Half Card Split Layout
+    else if (state.coverLayout === 'half') {
+      if (fullWrap) fullWrap.style.display = 'none';
+      if (bottomWrap) bottomWrap.style.display = 'none';
+      if (customWrap) customWrap.style.display = 'none';
+      artboard.classList.add('artboard-half-split');
+      if (state.orientation === 'portrait') {
+        if (state.coverHalfSide === 'right') artboard.classList.add('split-side-right');
+      } else {
+        artboard.classList.add('split-vertical');
+        if (state.coverHalfSide === 'right' || state.coverHalfSide === 'bottom') artboard.classList.add('split-side-bottom');
+      }
+      if (topWrap) {
+        topWrap.style.display = 'block';
+        topWrap.style.flex = `0 0 ${state.coverHalfRatio || 50}%`;
+        if (topImg) {
+          topImg.src = state.coverImgData;
+          topImg.style.objectFit = fitStyle;
+          topImg.style.objectPosition = `${posX}% ${posY}%`;
+          topImg.style.transform = `scale(${scale})`;
+          topImg.style.filter = filterStyle;
+          topImg.style.opacity = imgOpacity;
+        }
+        if (topOverlay) topOverlay.style.background = `rgba(0, 0, 0, ${alphaOverlay})`;
+      }
+      header.style.minHeight = '100%';
+    }
+    // 5. Custom Position Layout
+    else if (state.coverLayout === 'custom') {
+      if (fullWrap) fullWrap.style.display = 'none';
+      if (topWrap) topWrap.style.display = 'none';
+      if (bottomWrap) bottomWrap.style.display = 'none';
+      header.style.minHeight = '';
+      if (customWrap) {
+        customWrap.style.display = 'block';
+        customWrap.style.left = `${state.coverCustomX || 50}%`;
+        customWrap.style.top = `${state.coverCustomY || 35}%`;
+        customWrap.style.width = `${state.coverCustomW || 240}px`;
+        customWrap.style.height = `${state.coverCustomH || 180}px`;
+        customWrap.style.transform = `translate(-50%, -50%) rotate(${state.coverCustomRotation || 0}deg)`;
+        if (customImg) {
+          customImg.src = state.coverImgData;
+          customImg.style.objectFit = fitStyle;
+          customImg.style.filter = filterStyle;
+          customImg.style.opacity = imgOpacity;
+        }
+        if (customOverlay) customOverlay.style.background = `rgba(0, 0, 0, ${alphaOverlay})`;
+      }
+    }
   } else {
-    if (coverContainer) coverContainer.style.display = 'none';
+    if (fullWrap) fullWrap.style.display = 'none';
+    if (topWrap) topWrap.style.display = 'none';
+    if (bottomWrap) bottomWrap.style.display = 'none';
+    if (customWrap) customWrap.style.display = 'none';
     header.style.minHeight = '';
   }
 
@@ -3178,14 +3885,13 @@ function removeLogo() {
 }
 
 // ============================================================
-// Top Card Cover Photo & Adjustments Engine
+// Cover Photo 5-Layout Engine & Direct On-Canvas Controls
 // ============================================================
 function handleCoverUpload(input) {
   if (input.files && input.files[0]) {
     const file = input.files[0];
     const reader = new FileReader();
     reader.onload = function(e) {
-      // Resize cover image client-side to max 1200px for optimal speed & ultra crispness
       const img = new Image();
       img.onload = function() {
         const maxDim = 1200;
@@ -3206,10 +3912,12 @@ function handleCoverUpload(input) {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
         state.coverImgData = canvas.toDataURL('image/jpeg', 0.88);
+        if (!state.coverLayout) state.coverLayout = 'top';
         setCardMode('studio');
         syncCoverControls();
         renderCanvas();
-        showToast('Top cover photo loaded! Adjust position, zoom, and height.', 'success');
+        saveHistoryState();
+        showToast('Cover photo uploaded successfully! Select layout & adjust.', 'success');
       };
       img.src = e.target.result;
     };
@@ -3221,20 +3929,75 @@ function removeCoverPhoto() {
   state.coverImgData = null;
   syncCoverControls();
   renderCanvas();
-  showToast('Cover photo removed, reverted to gradient header', 'info');
+  saveHistoryState();
+  showToast('Cover photo removed, reverted to design background', 'info');
+}
+
+function setCoverLayout(layout) {
+  state.coverLayout = layout;
+  
+  document.querySelectorAll('.photo-layout-card').forEach(card => card.classList.remove('active'));
+  const activeCardMap = {
+    'full': 'optLayoutFull',
+    'top': 'optLayoutTop',
+    'bottom': 'optLayoutBottom',
+    'half': 'optLayoutHalf',
+    'custom': 'optLayoutCustom'
+  };
+  const activeEl = document.getElementById(activeCardMap[layout]);
+  if (activeEl) activeEl.classList.add('active');
+
+  const names = {
+    'full': 'Full Card Background',
+    'top': 'Top Section',
+    'bottom': 'Bottom Section',
+    'half': 'Half Card Split',
+    'custom': 'Custom Position'
+  };
+  const statusEl = document.getElementById('coverLayoutStatusText');
+  if (statusEl) statusEl.textContent = `Layout: ${names[layout] || layout}`;
+
+  const topBox = document.getElementById('boxTopControls');
+  const bottomBox = document.getElementById('boxBottomControls');
+  const halfBox = document.getElementById('boxHalfControls');
+  const fullBox = document.getElementById('boxFullControls');
+  const customBox = document.getElementById('boxCustomControls');
+
+  if (topBox) topBox.style.display = (layout === 'top') ? 'block' : 'none';
+  if (bottomBox) bottomBox.style.display = (layout === 'bottom') ? 'block' : 'none';
+  if (halfBox) halfBox.style.display = (layout === 'half') ? 'block' : 'none';
+  if (fullBox) fullBox.style.display = (layout === 'full') ? 'block' : 'none';
+  if (customBox) customBox.style.display = (layout === 'custom') ? 'block' : 'none';
+
+  renderCanvas();
+  saveHistoryState();
+  showToast(`Cover photo layout set to: ${names[layout] || layout}`, 'info');
 }
 
 function onCoverHeightChange(val) {
   state.coverHeight = parseInt(val, 10);
-  const el = document.getElementById('valCoverHeight');
-  if (el) el.textContent = `${state.coverHeight}px`;
+  const el1 = document.getElementById('valCoverHeight');
+  if (el1) el1.textContent = `${state.coverHeight}px`;
+  const el2 = document.getElementById('valCoverBottomHeight');
+  if (el2) el2.textContent = `${state.coverHeight}px`;
   renderCanvas();
 }
 
 function onCoverPositionYChange(val) {
   state.coverPositionY = parseInt(val, 10);
-  const el = document.getElementById('valCoverPositionY');
-  if (el) el.textContent = `${state.coverPositionY}%`;
+  const el1 = document.getElementById('valCoverPositionY');
+  if (el1) el1.textContent = `${state.coverPositionY}%`;
+  const el2 = document.getElementById('valCoverBottomPositionY');
+  if (el2) el2.textContent = `${state.coverPositionY}%`;
+  renderCanvas();
+}
+
+function onCoverPositionXChange(val) {
+  state.coverPositionX = parseInt(val, 10);
+  const el1 = document.getElementById('valCoverPositionX');
+  if (el1) el1.textContent = `${state.coverPositionX}%`;
+  const el2 = document.getElementById('valCoverBottomPositionX');
+  if (el2) el2.textContent = `${state.coverPositionX}%`;
   renderCanvas();
 }
 
@@ -3252,42 +4015,146 @@ function onCoverOverlayChange(val) {
   renderCanvas();
 }
 
-function syncCoverControls() {
-  const preview = document.getElementById('cardCoverPreviewWrapper');
-  const controls = document.getElementById('cardCoverControls');
-  const thumb = document.getElementById('cardCoverThumb');
-  const heightInp = document.getElementById('cfgCoverHeight');
-  const posYInp = document.getElementById('cfgCoverPositionY');
-  const scaleInp = document.getElementById('cfgCoverScale');
-  const overlayInp = document.getElementById('cfgCoverOverlay');
-
-  if (state.coverImgData) {
-    if (preview) preview.style.display = 'flex';
-    if (controls) controls.style.display = 'block';
-    if (thumb) thumb.src = state.coverImgData;
-    if (heightInp) heightInp.value = state.coverHeight || 190;
-    if (posYInp) posYInp.value = state.coverPositionY !== undefined ? state.coverPositionY : 50;
-    if (scaleInp) scaleInp.value = state.coverScale || 100;
-    if (overlayInp) overlayInp.value = state.coverOverlay !== undefined ? state.coverOverlay : 40;
-    if (document.getElementById('valCoverHeight')) document.getElementById('valCoverHeight').textContent = `${state.coverHeight || 190}px`;
-    if (document.getElementById('valCoverPositionY')) document.getElementById('valCoverPositionY').textContent = `${state.coverPositionY !== undefined ? state.coverPositionY : 50}%`;
-    if (document.getElementById('valCoverScale')) document.getElementById('valCoverScale').textContent = `${state.coverScale || 100}%`;
-    if (document.getElementById('valCoverOverlay')) document.getElementById('valCoverOverlay').textContent = `${state.coverOverlay !== undefined ? state.coverOverlay : 40}%`;
-  } else {
-    if (preview) preview.style.display = 'none';
-    if (controls) controls.style.display = 'none';
-  }
+function setCoverCropFit(fit) {
+  state.coverCropFit = fit;
+  ['cover', 'contain', 'fill'].forEach(f => {
+    const btn = document.getElementById(`btnCrop${f.charAt(0).toUpperCase() + f.slice(1)}`);
+    if (btn) btn.classList.toggle('active', f === fit);
+  });
+  renderCanvas();
+  saveHistoryState();
 }
 
-// Interactive Pointer Drag on Cover Photo for direct on-canvas repositioning
+function onCoverBrightnessChange(val) {
+  state.coverBrightness = parseInt(val, 10);
+  const el = document.getElementById('valCoverBrightness');
+  if (el) el.textContent = `${state.coverBrightness}%`;
+  renderCanvas();
+}
+
+function onCoverContrastChange(val) {
+  state.coverContrast = parseInt(val, 10);
+  const el = document.getElementById('valCoverContrast');
+  if (el) el.textContent = `${state.coverContrast}%`;
+  renderCanvas();
+}
+
+function onCoverOpacityChange(val) {
+  state.coverOpacity = parseInt(val, 10);
+  const el = document.getElementById('valCoverOpacity');
+  if (el) el.textContent = `${state.coverOpacity}%`;
+  renderCanvas();
+}
+
+function setCoverTextContrast(contrast) {
+  state.coverTextContrast = contrast;
+  const btnGlass = document.getElementById('btnContrastGlass');
+  const btnShadow = document.getElementById('btnContrastShadow');
+  const btnNone = document.getElementById('btnContrastNone');
+  if (btnGlass) btnGlass.classList.toggle('active', contrast === 'glass');
+  if (btnShadow) btnShadow.classList.toggle('active', contrast === 'shadow');
+  if (btnNone) btnNone.classList.toggle('active', contrast === 'none');
+  renderCanvas();
+  saveHistoryState();
+}
+
+function setCoverHalfSide(side) {
+  state.coverHalfSide = side;
+  const btnLeft = document.getElementById('btnHalfLeft');
+  const btnRight = document.getElementById('btnHalfRight');
+  if (btnLeft) btnLeft.classList.toggle('active', side === 'left');
+  if (btnRight) btnRight.classList.toggle('active', side === 'right');
+  renderCanvas();
+  saveHistoryState();
+}
+
+function onCoverHalfRatioChange(val) {
+  state.coverHalfRatio = parseInt(val, 10);
+  const el = document.getElementById('valCoverHalfRatio');
+  if (el) el.textContent = `${state.coverHalfRatio}%`;
+  renderCanvas();
+}
+
+function onCustomPosChange(axis, val) {
+  const num = parseFloat(val);
+  if (axis === 'x') state.coverCustomX = num;
+  if (axis === 'y') state.coverCustomY = num;
+  renderCanvas();
+}
+
+function onCustomSizeChange(dim, val) {
+  const num = parseInt(val, 10);
+  if (dim === 'w') state.coverCustomW = num;
+  if (dim === 'h') state.coverCustomH = num;
+  renderCanvas();
+}
+
+function onCustomRotChange(val) {
+  state.coverCustomRotation = parseInt(val, 10);
+  const el = document.getElementById('valCustomRot');
+  if (el) el.textContent = `${state.coverCustomRotation}°`;
+  renderCanvas();
+}
+
+function centerCustomCoverX() {
+  state.coverCustomX = 50;
+  const inp = document.getElementById('cfgCustomX');
+  if (inp) inp.value = 50;
+  renderCanvas();
+  saveHistoryState();
+}
+
+function centerCustomCoverY() {
+  state.coverCustomY = 50;
+  const inp = document.getElementById('cfgCustomY');
+  if (inp) inp.value = 50;
+  renderCanvas();
+  saveHistoryState();
+}
+
+function resetCustomCoverBox() {
+  state.coverCustomX = 50;
+  state.coverCustomY = 35;
+  state.coverCustomW = 240;
+  state.coverCustomH = 180;
+  state.coverCustomRotation = 0;
+  syncCoverControls();
+  renderCanvas();
+  saveHistoryState();
+  showToast('Custom photo position and size reset', 'info');
+}
+
+function resetCoverAdjustments() {
+  state.coverScale = 100;
+  state.coverCropFit = 'cover';
+  state.coverBrightness = 100;
+  state.coverContrast = 100;
+  state.coverOpacity = 100;
+  state.coverOverlay = 40;
+  state.coverPositionY = 50;
+  state.coverPositionX = 50;
+  state.coverTextContrast = 'glass';
+  syncCoverControls();
+  renderCanvas();
+  saveHistoryState();
+  showToast('Cover photo adjustments reset to defaults', 'info');
+}
+
+// Interactive Pointer Drag on Cover Photo (Top / Bottom section)
 let isCoverDragging = false;
+let coverDragSection = 'top';
+let coverDragStartX = 0;
 let coverDragStartY = 0;
+let coverStartPosX = 50;
 let coverStartPosY = 50;
 
-function onCoverPointerDown(e) {
+function onCoverPointerDown(e, section = 'top') {
   if (e.target.isContentEditable || e.target.closest('[contenteditable="true"]')) return;
   isCoverDragging = true;
+  coverDragSection = section;
+  coverDragStartX = e.clientX;
   coverDragStartY = e.clientY;
+  coverStartPosX = state.coverPositionX !== undefined ? state.coverPositionX : 50;
   coverStartPosY = state.coverPositionY !== undefined ? state.coverPositionY : 50;
   window.addEventListener('pointermove', onCoverPointerMove);
   window.addEventListener('pointerup', onCoverPointerUp);
@@ -3296,20 +4163,40 @@ function onCoverPointerDown(e) {
 
 function onCoverPointerMove(e) {
   if (!isCoverDragging) return;
+  const deltaX = e.clientX - coverDragStartX;
   const deltaY = e.clientY - coverDragStartY;
+  
+  let newX = Math.round(coverStartPosX - (deltaX * 0.35));
   let newY = Math.round(coverStartPosY - (deltaY * 0.35));
+  newX = Math.max(0, Math.min(100, newX));
   newY = Math.max(0, Math.min(100, newY));
+  
+  state.coverPositionX = newX;
   state.coverPositionY = newY;
   
-  const coverImg = document.getElementById('cardCoverImg');
+  const imgId = coverDragSection === 'bottom' ? 'cardCoverBottomImg' : 'cardCoverImg';
+  const coverImg = document.getElementById(imgId);
   if (coverImg) {
-    coverImg.style.objectPosition = `center ${newY}%`;
-    coverImg.style.transformOrigin = `center ${newY}%`;
+    coverImg.style.objectPosition = `${newX}% ${newY}%`;
+    coverImg.style.transformOrigin = `${newX}% ${newY}%`;
   }
-  const posYInp = document.getElementById('cfgCoverPositionY');
-  if (posYInp) posYInp.value = newY;
-  const valLabel = document.getElementById('valCoverPositionY');
-  if (valLabel) valLabel.textContent = `${newY}%`;
+  
+  ['cfgCoverPositionY', 'cfgCoverBottomPositionY'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = newY;
+  });
+  ['valCoverPositionY', 'valCoverBottomPositionY'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = `${newY}%`;
+  });
+  ['cfgCoverPositionX', 'cfgCoverBottomPositionX'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = newX;
+  });
+  ['valCoverPositionX', 'valCoverBottomPositionX'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = `${newX}%`;
+  });
 }
 
 function onCoverPointerUp() {
@@ -3317,6 +4204,300 @@ function onCoverPointerUp() {
     isCoverDragging = false;
     window.removeEventListener('pointermove', onCoverPointerMove);
     window.removeEventListener('pointerup', onCoverPointerUp);
+    saveHistoryState();
+  }
+}
+
+// Custom Floating Cover Dragging & Resizing & Rotation Handlers
+let isCustomCoverDragging = false;
+let customDragStartX = 0;
+let customDragStartY = 0;
+let customStartPosX = 50;
+let customStartPosY = 35;
+
+function onCustomCoverPointerDown(e) {
+  if (e.target.classList.contains('custom-cover-handle-tl') ||
+      e.target.classList.contains('custom-cover-handle-tr') ||
+      e.target.classList.contains('custom-cover-handle-bl') ||
+      e.target.classList.contains('custom-cover-handle-br') ||
+      e.target.classList.contains('custom-cover-rotate-handle')) {
+    return;
+  }
+  isCustomCoverDragging = true;
+  customDragStartX = e.clientX;
+  customDragStartY = e.clientY;
+  customStartPosX = state.coverCustomX !== undefined ? state.coverCustomX : 50;
+  customStartPosY = state.coverCustomY !== undefined ? state.coverCustomY : 35;
+  window.addEventListener('pointermove', onCustomCoverPointerMove);
+  window.addEventListener('pointerup', onCustomCoverPointerUp);
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function onCustomCoverPointerMove(e) {
+  if (!isCustomCoverDragging) return;
+  const artboard = document.getElementById('cardArtboard');
+  if (!artboard) return;
+  const rect = artboard.getBoundingClientRect();
+  const deltaX = (e.clientX - customDragStartX) / rect.width * 100;
+  const deltaY = (e.clientY - customDragStartY) / rect.height * 100;
+  
+  let newX = Math.round(customStartPosX + deltaX);
+  let newY = Math.round(customStartPosY + deltaY);
+  newX = Math.max(0, Math.min(100, newX));
+  newY = Math.max(0, Math.min(100, newY));
+  
+  state.coverCustomX = newX;
+  state.coverCustomY = newY;
+  
+  const wrap = document.getElementById('cardCoverCustomWrap');
+  if (wrap) {
+    wrap.style.left = `${newX}%`;
+    wrap.style.top = `${newY}%`;
+  }
+  const inpX = document.getElementById('cfgCustomX');
+  if (inpX) inpX.value = newX;
+  const inpY = document.getElementById('cfgCustomY');
+  if (inpY) inpY.value = newY;
+}
+
+function onCustomCoverPointerUp() {
+  if (isCustomCoverDragging) {
+    isCustomCoverDragging = false;
+    window.removeEventListener('pointermove', onCustomCoverPointerMove);
+    window.removeEventListener('pointerup', onCustomCoverPointerUp);
+    saveHistoryState();
+  }
+}
+
+let isCustomResizing = false;
+let resizeHandleType = 'br';
+let resizeStartX = 0;
+let resizeStartY = 0;
+let resizeStartW = 240;
+let resizeStartH = 180;
+
+function onCustomCoverResizeDown(e, handle) {
+  isCustomResizing = true;
+  resizeHandleType = handle;
+  resizeStartX = e.clientX;
+  resizeStartY = e.clientY;
+  resizeStartW = state.coverCustomW || 240;
+  resizeStartH = state.coverCustomH || 180;
+  window.addEventListener('pointermove', onCustomCoverResizeMove);
+  window.addEventListener('pointerup', onCustomCoverResizeUp);
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function onCustomCoverResizeMove(e) {
+  if (!isCustomResizing) return;
+  let deltaX = e.clientX - resizeStartX;
+  let deltaY = e.clientY - resizeStartY;
+  
+  if (resizeHandleType === 'tl') { deltaX = -deltaX; deltaY = -deltaY; }
+  else if (resizeHandleType === 'tr') { deltaY = -deltaY; }
+  else if (resizeHandleType === 'bl') { deltaX = -deltaX; }
+  
+  let newW = Math.max(80, Math.min(500, Math.round(resizeStartW + deltaX)));
+  let newH = Math.max(60, Math.min(500, Math.round(resizeStartH + deltaY)));
+  
+  state.coverCustomW = newW;
+  state.coverCustomH = newH;
+  
+  const wrap = document.getElementById('cardCoverCustomWrap');
+  if (wrap) {
+    wrap.style.width = `${newW}px`;
+    wrap.style.height = `${newH}px`;
+  }
+  const inpW = document.getElementById('cfgCustomW');
+  if (inpW) inpW.value = newW;
+  const inpH = document.getElementById('cfgCustomH');
+  if (inpH) inpH.value = newH;
+}
+
+function onCustomCoverResizeUp() {
+  if (isCustomResizing) {
+    isCustomResizing = false;
+    window.removeEventListener('pointermove', onCustomCoverResizeMove);
+    window.removeEventListener('pointerup', onCustomCoverResizeUp);
+    saveHistoryState();
+  }
+}
+
+let isCustomRotating = false;
+let rotCenter = { x: 0, y: 0 };
+
+function onCustomCoverRotateDown(e) {
+  isCustomRotating = true;
+  const wrap = document.getElementById('cardCoverCustomWrap');
+  if (wrap) {
+    const rect = wrap.getBoundingClientRect();
+    rotCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  }
+  window.addEventListener('pointermove', onCustomCoverRotateMove);
+  window.addEventListener('pointerup', onCustomCoverRotateUp);
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function onCustomCoverRotateMove(e) {
+  if (!isCustomRotating) return;
+  const radians = Math.atan2(e.clientX - rotCenter.x, -(e.clientY - rotCenter.y));
+  let deg = Math.round(radians * (180 / Math.PI));
+  if (deg < -180) deg += 360;
+  if (deg > 180) deg -= 360;
+  
+  state.coverCustomRotation = deg;
+  const wrap = document.getElementById('cardCoverCustomWrap');
+  if (wrap) {
+    wrap.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
+  }
+  const inpRot = document.getElementById('cfgCustomRot');
+  if (inpRot) inpRot.value = deg;
+  const valRot = document.getElementById('valCustomRot');
+  if (valRot) valRot.textContent = `${deg}°`;
+}
+
+function onCustomCoverRotateUp() {
+  if (isCustomRotating) {
+    isCustomRotating = false;
+    window.removeEventListener('pointermove', onCustomCoverRotateMove);
+    window.removeEventListener('pointerup', onCustomCoverRotateUp);
+    saveHistoryState();
+  }
+}
+
+function syncCoverControls() {
+  const preview = document.getElementById('cardCoverPreviewWrapper');
+  const btnRemove = document.getElementById('btnRemoveCover');
+  const thumb = document.getElementById('cardCoverThumb');
+  const layout = state.coverLayout || 'top';
+
+  if (state.coverImgData) {
+    if (preview) preview.style.display = 'flex';
+    if (btnRemove) btnRemove.style.display = 'inline-flex';
+    if (thumb) thumb.src = state.coverImgData;
+    
+    document.querySelectorAll('.photo-layout-card').forEach(card => card.classList.remove('active'));
+    const activeCardMap = {
+      'full': 'optLayoutFull',
+      'top': 'optLayoutTop',
+      'bottom': 'optLayoutBottom',
+      'half': 'optLayoutHalf',
+      'custom': 'optLayoutCustom'
+    };
+    const activeEl = document.getElementById(activeCardMap[layout]);
+    if (activeEl) activeEl.classList.add('active');
+
+    const names = {
+      'full': 'Full Card Background',
+      'top': 'Top Section',
+      'bottom': 'Bottom Section',
+      'half': 'Half Card Split',
+      'custom': 'Custom Position'
+    };
+    const statusEl = document.getElementById('coverLayoutStatusText');
+    if (statusEl) statusEl.textContent = `Layout: ${names[layout] || layout}`;
+
+    const topBox = document.getElementById('boxTopControls');
+    const bottomBox = document.getElementById('boxBottomControls');
+    const halfBox = document.getElementById('boxHalfControls');
+    const fullBox = document.getElementById('boxFullControls');
+    const customBox = document.getElementById('boxCustomControls');
+
+    if (topBox) topBox.style.display = (layout === 'top') ? 'block' : 'none';
+    if (bottomBox) bottomBox.style.display = (layout === 'bottom') ? 'block' : 'none';
+    if (halfBox) halfBox.style.display = (layout === 'half') ? 'block' : 'none';
+    if (fullBox) fullBox.style.display = (layout === 'full') ? 'block' : 'none';
+    if (customBox) customBox.style.display = (layout === 'custom') ? 'block' : 'none';
+
+    const heightInp = document.getElementById('cfgCoverHeight');
+    const posYInp = document.getElementById('cfgCoverPositionY');
+    const posXInp = document.getElementById('cfgCoverPositionX');
+    if (heightInp) heightInp.value = state.coverHeight || 190;
+    if (posYInp) posYInp.value = state.coverPositionY !== undefined ? state.coverPositionY : 50;
+    if (posXInp) posXInp.value = state.coverPositionX !== undefined ? state.coverPositionX : 50;
+    if (document.getElementById('valCoverHeight')) document.getElementById('valCoverHeight').textContent = `${state.coverHeight || 190}px`;
+    if (document.getElementById('valCoverPositionY')) document.getElementById('valCoverPositionY').textContent = `${state.coverPositionY !== undefined ? state.coverPositionY : 50}%`;
+    if (document.getElementById('valCoverPositionX')) document.getElementById('valCoverPositionX').textContent = `${state.coverPositionX !== undefined ? state.coverPositionX : 50}%`;
+
+    const bHeightInp = document.getElementById('cfgCoverBottomHeight');
+    const bPosYInp = document.getElementById('cfgCoverBottomPositionY');
+    const bPosXInp = document.getElementById('cfgCoverBottomPositionX');
+    if (bHeightInp) bHeightInp.value = state.coverHeight || 190;
+    if (bPosYInp) bPosYInp.value = state.coverPositionY !== undefined ? state.coverPositionY : 50;
+    if (bPosXInp) bPosXInp.value = state.coverPositionX !== undefined ? state.coverPositionX : 50;
+    if (document.getElementById('valCoverBottomHeight')) document.getElementById('valCoverBottomHeight').textContent = `${state.coverHeight || 190}px`;
+    if (document.getElementById('valCoverBottomPositionY')) document.getElementById('valCoverBottomPositionY').textContent = `${state.coverPositionY !== undefined ? state.coverPositionY : 50}%`;
+    if (document.getElementById('valCoverBottomPositionX')) document.getElementById('valCoverBottomPositionX').textContent = `${state.coverPositionX !== undefined ? state.coverPositionX : 50}%`;
+
+    const side = state.coverHalfSide || 'left';
+    const btnLeft = document.getElementById('btnHalfLeft');
+    const btnRight = document.getElementById('btnHalfRight');
+    if (btnLeft) btnLeft.classList.toggle('active', side === 'left');
+    if (btnRight) btnRight.classList.toggle('active', side === 'right');
+    const halfRatioInp = document.getElementById('cfgCoverHalfRatio');
+    if (halfRatioInp) halfRatioInp.value = state.coverHalfRatio || 50;
+    if (document.getElementById('valCoverHalfRatio')) document.getElementById('valCoverHalfRatio').textContent = `${state.coverHalfRatio || 50}%`;
+
+    const contrast = state.coverTextContrast || 'glass';
+    const btnGlass = document.getElementById('btnContrastGlass');
+    const btnShadow = document.getElementById('btnContrastShadow');
+    const btnNone = document.getElementById('btnContrastNone');
+    if (btnGlass) btnGlass.classList.toggle('active', contrast === 'glass');
+    if (btnShadow) btnShadow.classList.toggle('active', contrast === 'shadow');
+    if (btnNone) btnNone.classList.toggle('active', contrast === 'none');
+
+    const custX = document.getElementById('cfgCustomX');
+    const custY = document.getElementById('cfgCustomY');
+    const custW = document.getElementById('cfgCustomW');
+    const custH = document.getElementById('cfgCustomH');
+    const custRot = document.getElementById('cfgCustomRot');
+    if (custX) custX.value = state.coverCustomX !== undefined ? state.coverCustomX : 50;
+    if (custY) custY.value = state.coverCustomY !== undefined ? state.coverCustomY : 35;
+    if (custW) custW.value = state.coverCustomW || 240;
+    if (custH) custH.value = state.coverCustomH || 180;
+    if (custRot) custRot.value = state.coverCustomRotation || 0;
+    if (document.getElementById('valCustomRot')) document.getElementById('valCustomRot').textContent = `${state.coverCustomRotation || 0}°`;
+
+    const scaleInp = document.getElementById('cfgCoverScale');
+    const overlayInp = document.getElementById('cfgCoverOverlay');
+    const brightInp = document.getElementById('cfgCoverBrightness');
+    const contInp = document.getElementById('cfgCoverContrast');
+    const opacInp = document.getElementById('cfgCoverOpacity');
+
+    if (scaleInp) scaleInp.value = state.coverScale || 100;
+    if (overlayInp) overlayInp.value = state.coverOverlay !== undefined ? state.coverOverlay : 40;
+    if (brightInp) brightInp.value = state.coverBrightness || 100;
+    if (contInp) contInp.value = state.coverContrast || 100;
+    if (opacInp) opacInp.value = state.coverOpacity !== undefined ? state.coverOpacity : 100;
+
+    if (document.getElementById('valCoverScale')) document.getElementById('valCoverScale').textContent = `${state.coverScale || 100}%`;
+    if (document.getElementById('valCoverOverlay')) document.getElementById('valCoverOverlay').textContent = `${state.coverOverlay !== undefined ? state.coverOverlay : 40}%`;
+    if (document.getElementById('valCoverBrightness')) document.getElementById('valCoverBrightness').textContent = `${state.coverBrightness || 100}%`;
+    if (document.getElementById('valCoverContrast')) document.getElementById('valCoverContrast').textContent = `${state.coverContrast || 100}%`;
+    if (document.getElementById('valCoverOpacity')) document.getElementById('valCoverOpacity').textContent = `${state.coverOpacity !== undefined ? state.coverOpacity : 100}%`;
+
+    const fit = state.coverCropFit || 'cover';
+    ['cover', 'contain', 'fill'].forEach(f => {
+      const btn = document.getElementById(`btnCrop${f.charAt(0).toUpperCase() + f.slice(1)}`);
+      if (btn) btn.classList.toggle('active', f === fit);
+    });
+  } else {
+    if (preview) preview.style.display = 'none';
+    if (btnRemove) btnRemove.style.display = 'none';
+    document.querySelectorAll('.photo-layout-card').forEach(card => card.classList.remove('active'));
+    const topBox = document.getElementById('boxTopControls');
+    const bottomBox = document.getElementById('boxBottomControls');
+    const halfBox = document.getElementById('boxHalfControls');
+    const fullBox = document.getElementById('boxFullControls');
+    const customBox = document.getElementById('boxCustomControls');
+    if (topBox) topBox.style.display = 'none';
+    if (bottomBox) bottomBox.style.display = 'none';
+    if (halfBox) halfBox.style.display = 'none';
+    if (fullBox) fullBox.style.display = 'none';
+    if (customBox) customBox.style.display = 'none';
   }
 }
 
@@ -3443,18 +4624,48 @@ function pullInputsToState() {
     state.lineHeight = parseInt(document.getElementById('cfgLineHeight').value, 10);
   }
 
-  // Cover photo inputs pull
+  // Cover photo 5-layout inputs pull
   if (document.getElementById('cfgCoverHeight')) {
     state.coverHeight = parseInt(document.getElementById('cfgCoverHeight').value, 10);
   }
   if (document.getElementById('cfgCoverPositionY')) {
     state.coverPositionY = parseInt(document.getElementById('cfgCoverPositionY').value, 10);
   }
+  if (document.getElementById('cfgCoverPositionX')) {
+    state.coverPositionX = parseInt(document.getElementById('cfgCoverPositionX').value, 10);
+  }
   if (document.getElementById('cfgCoverScale')) {
     state.coverScale = parseInt(document.getElementById('cfgCoverScale').value, 10);
   }
   if (document.getElementById('cfgCoverOverlay')) {
     state.coverOverlay = parseInt(document.getElementById('cfgCoverOverlay').value, 10);
+  }
+  if (document.getElementById('cfgCoverBrightness')) {
+    state.coverBrightness = parseInt(document.getElementById('cfgCoverBrightness').value, 10);
+  }
+  if (document.getElementById('cfgCoverContrast')) {
+    state.coverContrast = parseInt(document.getElementById('cfgCoverContrast').value, 10);
+  }
+  if (document.getElementById('cfgCoverOpacity')) {
+    state.coverOpacity = parseInt(document.getElementById('cfgCoverOpacity').value, 10);
+  }
+  if (document.getElementById('cfgCoverHalfRatio')) {
+    state.coverHalfRatio = parseInt(document.getElementById('cfgCoverHalfRatio').value, 10);
+  }
+  if (document.getElementById('cfgCustomX')) {
+    state.coverCustomX = parseFloat(document.getElementById('cfgCustomX').value);
+  }
+  if (document.getElementById('cfgCustomY')) {
+    state.coverCustomY = parseFloat(document.getElementById('cfgCustomY').value);
+  }
+  if (document.getElementById('cfgCustomW')) {
+    state.coverCustomW = parseInt(document.getElementById('cfgCustomW').value, 10);
+  }
+  if (document.getElementById('cfgCustomH')) {
+    state.coverCustomH = parseInt(document.getElementById('cfgCustomH').value, 10);
+  }
+  if (document.getElementById('cfgCustomRot')) {
+    state.coverCustomRotation = parseInt(document.getElementById('cfgCustomRot').value, 10);
   }
 
   // Canva QR Inputs
@@ -3561,100 +4772,30 @@ function setQrDarkPreset(color) {
   showToast(`QR Barcode color set to ${color}`, 'info');
 }
 
-// Export High-Res Image (PNG / JPG) & Vector PDF Engine
-function toggleExportMenu(e) {
-  if (e) e.stopPropagation();
-  const menu = document.getElementById('exportDropdownMenu');
-  if (menu) {
-    menu.style.display = (menu.style.display === 'block' ? 'none' : 'block');
-  }
-}
-document.addEventListener('click', () => {
-  const menu = document.getElementById('exportDropdownMenu');
-  if (menu) menu.style.display = 'none';
-});
-
-function setQuickTier(tierText) {
-  const input = document.getElementById('cfgBadge');
-  if (input) {
-    input.value = tierText;
-    state.badge = tierText;
-    renderCanvas();
-    showToast(`Pass Tier set to ${tierText}`, 'info');
-  }
-}
-
-function downloadCardImage(format = 'png') {
+// Download High-Res Image (Canva Export Feature)
+function downloadCardImage() {
   selectQr(false); // Hide selection frame for clean export
 
   const target = state.cardMode === 'canva' 
     ? document.getElementById('canvaCardArtboard') 
     : document.getElementById('cardArtboard');
 
-  const isJpg = (format.toLowerCase() === 'jpg' || format.toLowerCase() === 'jpeg');
-  const mimeType = isJpg ? 'image/jpeg' : 'image/png';
-  const ext = isJpg ? 'jpg' : 'png';
-
-  showToast(`Generating ultra high-resolution card (${ext.toUpperCase()})...`, 'info');
+  showToast('Generating ultra high-resolution card image (3x HD)...', 'info');
 
   setTimeout(() => {
     html2canvas(target, {
       scale: 3, // 3x ultra-sharp resolution for printing
       useCORS: true,
-      backgroundColor: isJpg ? '#FFFFFF' : null
-    }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `leula_invitation_pass_${Date.now()}.${ext}`;
-      link.href = canvas.toDataURL(mimeType, 0.95);
-      link.click();
-      showToast(`Invitation Card downloaded successfully (${ext.toUpperCase()})!`, 'success');
-      selectQr(true);
-    }).catch(err => {
-      showToast('Export error: ' + err, 'error');
-      selectQr(true);
-    });
-  }, 100);
-}
-
-function downloadCardPdf() {
-  selectQr(false);
-  const target = state.cardMode === 'canva' 
-    ? document.getElementById('canvaCardArtboard') 
-    : document.getElementById('cardArtboard');
-
-  showToast('Generating print-ready PDF document...', 'info');
-
-  setTimeout(() => {
-    html2canvas(target, {
-      scale: 3,
-      useCORS: true,
       backgroundColor: null
     }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      const isLandscape = state.orientation === 'landscape';
-      
-      const { jsPDF } = window.jspdf || {};
-      if (!jsPDF) {
-        showToast('jsPDF library loading... please try again', 'warning');
-        selectQr(true);
-        return;
-      }
-      
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      
-      const pdf = new jsPDF({
-        orientation: isLandscape ? 'landscape' : 'portrait',
-        unit: 'px',
-        format: [imgWidth, imgHeight]
-      });
-
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`leula_invitation_${Date.now()}.pdf`);
-      showToast('Invitation PDF exported successfully!', 'success');
+      const link = document.createElement('a');
+      link.download = `canva_invitation_pass_${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('Invitation Card downloaded successfully (PNG)!', 'success');
       selectQr(true);
     }).catch(err => {
-      showToast('PDF Export error: ' + err, 'error');
+      window.Toast.error('Export error: ' + err);
       selectQr(true);
     });
   }, 100);
@@ -3836,9 +4977,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setCardMode(state.cardMode || 'canva');
   selectQr(true);
   setupInlineCanvasEditing();
-  if (typeof renderTemplatesLibrary === 'function') {
-    renderTemplatesLibrary('all', '');
-  }
   if (window.innerWidth <= 992) {
     setTimeout(zoomCanvasFit, 100);
   }

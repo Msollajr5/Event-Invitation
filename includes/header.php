@@ -152,46 +152,46 @@ foreach ($allNavSections as $sec) {
 
 <!-- Main View Content Area -->
 <div class="main-content">
-  <!-- Topbar -->
-  <header class="topbar">
+  <!-- Topbar: Clean & Minimal (Contains ONLY Logout Button per System Requirements) -->
+  <header class="topbar" style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:var(--surface);">
     <button class="hamburger" id="sidebarToggle" aria-label="Toggle navigation">
       <span></span><span></span><span></span>
     </button>
-    <div class="topbar-title-wrap" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div class="topbar-title"><?= e($pageTitle ?? 'Dashboard') ?></div>
-      <?php if (!empty($userEvents) && !in_array($currentPage, ['scanner', 'settings', 'users', 'organizations'])): ?>
-        <form method="GET" action="" id="topbarEventSelector" style="margin:0;display:inline-flex;align-items:center;">
-          <?php foreach ($_GET as $gk => $gv): if ($gk === 'event_id') continue; ?>
-            <input type="hidden" name="<?= e($gk) ?>" value="<?= e($gv) ?>">
-          <?php endforeach; ?>
-          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,122,0,0.08);border:1px solid rgba(255,122,0,0.25);border-radius:8px;padding:3px 10px;">
-            <span style="font-size:0.75rem;font-weight:700;color:var(--brand-primary);text-transform:uppercase;letter-spacing:0.04em;">Event:</span>
-            <select name="event_id" onchange="this.form.submit()" aria-label="Select Active Event" style="background:transparent;border:none;font-size:0.83rem;font-weight:600;color:var(--text-primary);cursor:pointer;outline:none;max-width:240px;text-overflow:ellipsis;">
-              <?php foreach ($userEvents as $ev): ?>
-                <option value="<?= $ev['id'] ?>" <?= ((int)$ev['id'] === (int)$activeEventId) ? 'selected' : '' ?>>
-                  <?= e($ev['title']) ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-        </form>
-      <?php endif; ?>
-    </div>
+    <div style="flex:1;"></div>
     <div class="topbar-actions">
-      <?php if ($currentPage !== 'scanner'): ?>
-        <a href="scanner.php" class="btn btn-primary btn-sm" style="box-shadow:none">
-          <?= svgIcon('qr', 15) ?>
-          <span>Scan Pass</span>
-        </a>
-      <?php endif; ?>
-      <span style="font-size:0.84rem;color:var(--text-secondary);font-weight:600">
-        <?= e($user['name'] ?? '') ?>
-      </span>
-      <a href="logout.php" class="topbar-btn" title="Sign Out">
+      <a href="logout.php" id="globalLogoutBtn" class="btn btn-secondary btn-sm" title="Sign Out of Leula Events" style="display:inline-flex;align-items:center;gap:7px;color:#DC2626;border-color:rgba(220,38,38,0.25);background:rgba(220,38,38,0.06);font-weight:700;padding:6px 14px;border-radius:var(--radius-sm, 8px);">
         <?= svgIcon('logout', 16) ?>
+        <span>Sign Out</span>
       </a>
     </div>
   </header>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var logoutBtn = document.getElementById('globalLogoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (typeof showConfirmDialog === 'function') {
+            showConfirmDialog({
+              title: 'Sign Out',
+              subtitle: 'Ending authenticated session',
+              message: 'Are you sure you want to log out of Leula Events?',
+              confirmText: 'Sign Out',
+              cancelText: 'Cancel',
+              type: 'warning'
+            }).then(function(confirmed) {
+              if (confirmed) {
+                window.location.href = 'logout.php';
+              }
+            });
+          } else {
+            window.location.href = 'logout.php';
+          }
+        });
+      }
+    });
+  </script>
 
   <!-- Page Content Container -->
   <div class="page-content">

@@ -1536,14 +1536,14 @@ function renderTemplatesLibrary(filterCat = 'all', searchQuery = '') {
 
   container.innerHTML = filtered.map(tpl => {
     const isFav = favs.includes(tpl.id);
-    const isActive = (state && state.template === tpl.id);
+    const isActive = (typeof state !== 'undefined' && state && state.template === tpl.id);
 
     return `
-      <div class="tpl-card-item ${isActive ? 'active' : ''}" onclick="applyTemplate('${tpl.id}')" title="Click to apply ${tpl.name}">
+      <div class="tpl-card-item ${isActive ? 'active' : ''}" onclick="customizeTemplate('${tpl.id}', event)" title="Click to customize ${tpl.name}" data-template-id="${tpl.id}">
         <!-- Preview Swatch Banner -->
         <div class="tpl-card-swatch" style="background: linear-gradient(135deg, ${tpl.headerColor1}, ${tpl.headerColor2}); color: ${tpl.headingColor};">
           <div class="tpl-card-category-tag">${tpl.catIcon} ${tpl.catName}</div>
-          <button type="button" class="tpl-fav-btn ${isFav ? 'favorited' : ''}" onclick="toggleFavoriteTemplate('${tpl.id}', event)" title="${isFav ? 'Remove favorite' : 'Add to favorites'}">
+          <button type="button" class="tpl-fav-btn ${isFav ? 'favorited' : ''}" onclick="toggleFavoriteTemplate('${tpl.id}', event)" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">
             ${isFav ? '⭐' : '☆'}
           </button>
           
@@ -1555,24 +1555,114 @@ function renderTemplatesLibrary(filterCat = 'all', searchQuery = '') {
           </div>
         </div>
 
-        <!-- Meta Footer -->
+        <!-- Meta Footer & 4 Action Buttons -->
         <div class="tpl-card-footer">
           <div class="tpl-card-info">
             <div class="tpl-card-name">${tpl.name}</div>
             <div class="tpl-card-tagline">${tpl.tagline || ''}</div>
           </div>
           <div class="tpl-card-actions">
-            <button type="button" class="btn btn-sm btn-primary tpl-use-btn" onclick="applyTemplate('${tpl.id}')">
-              Apply
+            <button type="button" class="btn btn-sm btn-primary tpl-use-btn" onclick="customizeTemplate('${tpl.id}', event)" title="Load into editing canvas">
+              ✨ Customize
             </button>
             <button type="button" class="btn btn-sm btn-secondary tpl-preview-btn" onclick="previewTemplateModal('${tpl.id}', event)" title="Preview Full Invitation">
               👁️
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary tpl-dup-btn" onclick="duplicateTemplate('${tpl.id}', event)" title="Duplicate as Custom Template">
+              📑
             </button>
           </div>
         </div>
       </div>
     `;
   }).join('');
+}
+
+// Customize Template & Connect Directly to Editing Canvas
+function customizeTemplate(tplId, e) {
+  if (e) e.stopPropagation();
+  const tpl = TEMPLATES_LIBRARY[tplId];
+  if (!tpl) return;
+
+  // Check for unsaved changes before replacing current design
+  if (window.isDesignDirty && typeof showConfirmDialog === 'function') {
+    showConfirmDialog({
+      title: 'Load New Template?',
+      subtitle: 'Replace current unsaved canvas design',
+      message: `Load and customize "${tpl.name}"? Any unsaved changes on the current canvas will be replaced with this template.`,
+      confirmText: 'Load Template',
+      cancelText: 'Keep Current',
+      type: 'warning'
+    }).then(function(confirmed) {
+      if (confirmed) {
+        executeCustomizeTemplate(tplId);
+      }
+    });
+  } else {
+    executeCustomizeTemplate(tplId);
+  }
+}
+
+function executeCustomizeTemplate(tplId) {
+  const tpl = TEMPLATES_LIBRARY[tplId];
+  if (!tpl) return;
+
+  if (typeof applyTemplate === 'function') {
+    applyTemplate(tplId);
+  }
+
+  // Minimize template gallery and switch to editing controls
+  if (typeof switchStudioTab === 'function') {
+    switchStudioTab('tabCoverLayout');
+  }
+
+  // Update Active Template Banner
+  const banner = document.getElementById('activeTemplateBanner');
+  const nameEl = document.getElementById('activeTemplateName');
+  if (banner) banner.style.display = 'flex';
+  if (nameEl) nameEl.textContent = tpl.name;
+
+  if (typeof isDesignDirty !== 'undefined') {
+    window.isDesignDirty = false;
+  }
+
+  if (typeof showToast === 'function') {
+    showToast(`Loaded "${tpl.name}" into live canvas editor!`, 'success');
+  }
+}
+
+// Duplicate Template Functionality
+function duplicateTemplate(tplId, e) {
+  if (e) e.stopPropagation();
+  const source = TEMPLATES_LIBRARY[tplId];
+  if (!source) return;
+
+  const copyId = `${tplId}_copy_${Date.now()}`;
+  const copyName = `${source.name} (Custom Copy)`;
+  const copyTpl = Object.assign({}, source, {
+    id: copyId,
+    name: copyName,
+    tagline: `Custom variant of ${source.name}`
+  });
+
+  TEMPLATES_LIBRARY[copyId] = copyTpl;
+
+  // Persist to user custom templates in localStorage
+  try {
+    const customList = JSON.parse(localStorage.getItem('leula_custom_templates') || '[]');
+    customList.unshift(copyTpl);
+    localStorage.setItem('leula_custom_templates', JSON.stringify(customList.slice(0, 30)));
+  } catch (err) {}
+
+  if (typeof renderTemplatesLibrary === 'function') {
+    renderTemplatesLibrary('all', '');
+  }
+
+  if (typeof showToast === 'function') {
+    showToast(`Duplicated "${source.name}"! Opening in editor...`, 'success');
+  }
+
+  executeCustomizeTemplate(copyId);
 }
 
 // Full Modal Preview of Template
@@ -1636,9 +1726,12 @@ function previewTemplateModal(tplId, e) {
       </div>
     </div>
     
-    <div style="margin-top: 16px; display: flex; gap: 10px; justify-content: center;">
-      <button type="button" class="btn btn-primary btn-sm" onclick="applyTemplate('${tpl.id}'); closeTemplatePreviewModal();" style="padding: 8px 20px;">
-        ✨ Use "${tpl.name}" Template
+    <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+      <button type="button" class="btn btn-primary btn-sm" onclick="customizeTemplate('${tpl.id}'); closeTemplatePreviewModal();" style="padding: 8px 18px; font-weight: 700;">
+        ✨ Customize Design
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="duplicateTemplate('${tpl.id}', event); closeTemplatePreviewModal();" style="padding: 8px 14px;">
+        📑 Duplicate
       </button>
       <button type="button" class="btn btn-secondary btn-sm" onclick="closeTemplatePreviewModal()">
         Close
