@@ -684,6 +684,152 @@
     return s;
   }
 
+  // ------------------------------------------------------------------
+  // Dress Code Vector Icons (10 bespoke couture/event icons)
+  // ------------------------------------------------------------------
+  function dressCodeIcon(type, color = '#B8955A') {
+    const col = color || '#B8955A';
+    switch (type) {
+      case 'tuxedo':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4L14 13L21 4L25 8V24H3V8L7 4Z" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/><path d="M10.5 8.5L14 10.5L17.5 8.5V11.5L14 9.5L10.5 11.5V8.5Z" fill="${col}"/><circle cx="14" cy="15.5" r="1" fill="${col}"/><circle cx="14" cy="19" r="1" fill="${col}"/></svg>`;
+      case 'gown':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 4C11.5 6 16.5 6 18 4L16.5 11L23 24H5L11.5 11L10 4Z" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/><path d="M11.5 11H16.5" stroke="${col}" stroke-width="1.5"/></svg>`;
+      case 'bowtie':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8L12.5 14L3 20V8Z" fill="${col}" fill-opacity="0.2" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/><path d="M25 8L15.5 14L25 20V8Z" fill="${col}" fill-opacity="0.2" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/><rect x="12" y="11.5" width="4" height="5" rx="1" fill="${col}"/></svg>`;
+      case 'crown':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20L6 9L11 14L14 7L17 14L22 9L24 20H4Z" fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/><line x1="4" y1="23" x2="24" y2="23" stroke="${col}" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+      case 'floral':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 22C10 18 16 12 24 6" stroke="${col}" stroke-width="1.5" stroke-linecap="round"/><path d="M11 15C9 11 11 7 15 8C14 12 13 14 11 15Z" fill="${col}" fill-opacity="0.28" stroke="${col}" stroke-width="1.2"/><path d="M17 12C21 11 23 13 21 17C18 16 17 14 17 12Z" fill="${col}" fill-opacity="0.28" stroke="${col}" stroke-width="1.2"/><circle cx="14" cy="14" r="2" fill="${col}"/></svg>`;
+      case 'african_shield':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="14,3 24,14 14,25 4,14" fill="${col}" fill-opacity="0.18" stroke="${col}" stroke-width="1.6"/><polygon points="14,8 19,14 14,20 9,14" stroke="${col}" stroke-width="1.2"/><circle cx="14" cy="14" r="2" fill="${col}"/></svg>`;
+      case 'sparkles':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 3L16.2 11.8L25 14L16.2 16.2L14 25L11.8 16.2L3 14L11.8 11.8L14 3Z" fill="${col}" fill-opacity="0.22" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+      case 'hanger':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 9C14 7.5 15.5 6.5 16.5 5.5C17.5 4.5 16.8 3 15 3C13.2 3 12.5 4.2 12.5 5" stroke="${col}" stroke-width="1.6" stroke-linecap="round"/><path d="M3 20L14 11L25 20H3Z" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+      case 'diamond':
+        return `<svg viewBox="0 0 28 28" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 5H20L25 11L14 24L3 11L8 5Z" fill="${col}" fill-opacity="0.16" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><path d="M3 11H25" stroke="${col}" stroke-width="1.2"/></svg>`;
+      default:
+        return '';
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Independently Editable Standalone Decorative Vector Motifs
+  // ------------------------------------------------------------------
+  function standaloneMotifSvg(motifType, primary = '#B8955A', secondary = '#F5ECE0') {
+    const c = new Ctx(motifType + primary, 140, 140);
+    let body = '';
+    switch (motifType) {
+      case 'ivory_bloom_cluster':
+        body += branch(c, [[20, 120], [70, 70], [120, 25]], { count: 7, leafLen: 20, colors: ['#95A78D', '#A7B89F'], stem: '#7A8972' });
+        body += bloom(c, 68, 70, 38, { layers: 3, petals: [8, 7, 6], colors: { edge: '#FFFFFF', base: secondary, deep: '#DECBB4', center: primary } });
+        body += bud(c, 108, 35, 14, -45, secondary);
+        break;
+      case 'gold_olive_sprig':
+        body += olive(c, [[18, 118], [58, 76], [96, 42], [124, 18]], { count: 10, leafLen: 20, colors: [primary, lighten(primary, 0.25)], berries: 3, berryColor: secondary, stem: primary });
+        break;
+      case 'blush_rose_duo':
+        body += branch(c, [[16, 110], [70, 70], [124, 30]], { count: 6, leafLen: 18, colors: ['#8EA48B', '#A4B8A0'], stem: '#6F846C' });
+        body += peony(c, 58, 74, 34, { colors: { edge: '#FFF7F8', base: '#F4C2C9', deep: '#D48793', center: primary } });
+        body += rose(c, 96, 48, 24, { colors: { edge: '#FFF5F6', base: '#EEB4BC', deep: '#C97A86' } });
+        break;
+      case 'eucalyptus_stem':
+        body += eucalyptus(c, [[24, 124], [56, 82], [88, 46], [116, 16]], { count: 9, leafLen: 22, colors: ['#7D9B84', '#98B49E', '#64826B'], stem: '#5C7462' });
+        break;
+      case 'royal_crest_emblem':
+        body += crest(c, 70, 68, 52, { color: primary, crownFill: primary });
+        break;
+      case 'african_diamond_seal':
+        body += star8(c, 70, 70, 48, { color: primary, fill: secondary + '33' });
+        break;
+      case 'baroque_corner':
+        body += cornerFlourish(c, 16, 16, 105, { color: primary, width: 1.5 });
+        break;
+      case 'pampas_plume':
+        body += pampas(c, [[26, 126], [68, 74], [112, 22]], { strands: 38, len: 26, colors: ['#DFCBB2', '#CBB292', '#EFE3D2'] });
+        break;
+      case 'orchid_blossom':
+        body += orchid(c, 70, 70, 44, { colors: { edge: '#FFFFFF', base: secondary, lip: primary, center: primary } });
+        break;
+      case 'diamond_rings':
+        body += rings(c, 70, 76, 56, { color: primary });
+        break;
+      case 'sunburst_medallion':
+        body += sunburst(c, 70, 70, 14, 58, 24, 0, 360, { color: primary, width: 1.0 });
+        break;
+      default:
+        body += divider(c, 70, 70, 115, { color: primary, style: 'flourish', width: 1.3 });
+        break;
+    }
+    return `<svg viewBox="0 0 140 140" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible;">${c.defsMarkup()}${body}</svg>`;
+  }
+
+  // ------------------------------------------------------------------
+  // Sample Studio Portrait Generator (Replaceable Photo Placeholder)
+  // Generates a high-fashion editorial portrait illustration data-URL
+  // that users can replace with their own uploaded JPG/PNG/WebP photo.
+  // ------------------------------------------------------------------
+  function samplePortraitDataUrl(style = 'couple_floral', accent = '#B8955A', bg = '#F4EDE2') {
+    const dark = darken(accent, 0.38);
+    const soft = lighten(accent, 0.42);
+    let art = '';
+    if (style === 'corporate_speaker') {
+      art = `
+        <rect width="300" height="360" fill="${bg}"/>
+        <circle cx="150" cy="145" r="110" fill="${soft}" fill-opacity="0.35"/>
+        <circle cx="150" cy="122" r="44" fill="#D8B89A"/>
+        <path d="M114 108 C118 76 182 76 186 108 C175 94 125 94 114 108Z" fill="#2A2421"/>
+        <path d="M72 320 C76 226 112 192 150 192 C188 192 224 226 228 320Z" fill="#1E293B"/>
+        <polygon points="150,192 132,258 150,285 168,258" fill="#F8FAFC"/>
+        <polygon points="150,206 143,262 150,278 157,262" fill="${accent}"/>
+      `;
+    } else if (style === 'african_royalty') {
+      art = `
+        <rect width="300" height="360" fill="${bg}"/>
+        <circle cx="150" cy="165" r="118" fill="${accent}" fill-opacity="0.18"/>
+        <!-- Regal Gele / Headwrap & Agbada Silhouette -->
+        <path d="M78 118 C82 54 218 54 222 118 C200 142 100 142 78 118Z" fill="${accent}"/>
+        <path d="M92 112 C115 74 185 74 208 112" fill="none" stroke="#FFF8E7" stroke-width="2.5"/>
+        <circle cx="150" cy="144" r="40" fill="#6E4730"/>
+        <circle cx="106" cy="152" r="6" fill="#D4AF37"/>
+        <circle cx="194" cy="152" r="6" fill="#D4AF37"/>
+        <path d="M64 335 C74 232 108 202 150 202 C192 202 226 232 236 335Z" fill="${dark}"/>
+        <path d="M116 205 Q150 245 184 205" fill="none" stroke="#D4AF37" stroke-width="5"/>
+      `;
+    } else if (style === 'celebrant_portrait') {
+      art = `
+        <rect width="300" height="360" fill="${bg}"/>
+        <circle cx="150" cy="155" r="115" fill="${soft}" fill-opacity="0.35"/>
+        <path d="M116 90 L126 68 L140 82 L150 62 L160 82 L174 68 L184 90Z" fill="${accent}"/>
+        <circle cx="150" cy="134" r="42" fill="#C69472"/>
+        <path d="M76 330 C84 228 114 196 150 196 C186 196 216 228 224 330Z" fill="${accent}"/>
+        <path d="M112 200 Q150 238 188 200" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+      `;
+    } else {
+      // Romantic Couple Editorial Portrait
+      art = `
+        <rect width="300" height="360" fill="${bg}"/>
+        <circle cx="150" cy="165" r="122" fill="${soft}" fill-opacity="0.32"/>
+        <!-- Groom Silhouette -->
+        <circle cx="122" cy="126" r="34" fill="#C89F81"/>
+        <path d="M94 114 C98 86 146 86 150 114 C138 100 106 100 94 114Z" fill="#2C221E"/>
+        <path d="M56 335 C62 232 90 186 126 186 C158 186 180 225 186 335Z" fill="#232020"/>
+        <polygon points="124,186 112,238 124,256 136,238" fill="#FFFFFF"/>
+        <!-- Bride Silhouette -->
+        <circle cx="178" cy="142" r="32" fill="#D7B196"/>
+        <path d="M150 132 C154 102 204 102 208 138 C196 120 162 120 150 132Z" fill="#3B2B23"/>
+        <path d="M188 122 Q232 165 244 265" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-opacity="0.55" stroke-linecap="round"/>
+        <path d="M118 335 C124 242 150 202 180 202 C210 202 236 242 244 335Z" fill="#FAF6F0" stroke="${accent}" stroke-width="1.2"/>
+        <!-- Mini floral bouquet -->
+        <circle cx="164" cy="268" r="16" fill="${soft}"/>
+        <circle cx="182" cy="274" r="14" fill="#FFFFFF"/>
+        <circle cx="172" cy="258" r="12" fill="${accent}" fill-opacity="0.65"/>
+      `;
+    }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360" width="300" height="360">${art}</svg>`;
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
   const LuxeArt = {
     Ctx, f, pol, rad, mix, lighten, darken, hashStr, rng, smoothPath, samplePath, stemPts, arcPts, petalPath, archPath,
     wash, splatter, goldFlakes, marble,
@@ -692,6 +838,7 @@
     frameRect, arch, cornerFlourish, fourCorners, divider, laurel, monogramRing, crest, sunburst, decoCorner, pearlSwag, star8,
     kitengeBand, chevronBand, mudcloth, kangaFrame, swahiliDoor, waves, dhow,
     balloon, confetti, mortarboard, rings, geoLines,
+    dressCodeIcon, standaloneMotifSvg, samplePortraitDataUrl,
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = LuxeArt;
   else root.LuxeArt = LuxeArt;

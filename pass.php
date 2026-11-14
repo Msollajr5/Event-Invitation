@@ -125,6 +125,26 @@ $decorativeArtwork = $designConfig['decorativeArtwork'] ?? '';
 $sampleCouple = $designConfig['sampleCouple'] ?? '';
 $scriptFont = $designConfig['scriptFont'] ?? "'Great Vibes', cursive";
 $templateId = $designConfig['template'] ?? '';
+$textAlign = $designConfig['textAlign'] ?? 'center';
+$photoLayers = is_array($designConfig['photoLayers'] ?? null) ? $designConfig['photoLayers'] : [];
+$decorativeObjects = is_array($designConfig['decorativeObjects'] ?? null) ? $designConfig['decorativeObjects'] : [];
+$visibleFields = is_array($designConfig['visibleFields'] ?? null) ? $designConfig['visibleFields'] : [];
+$showDressCode = ($designConfig['showDressCode'] ?? true) !== false && (($visibleFields['dressCode'] ?? true) !== false);
+$dressCode = $designConfig['dressCode'] ?? 'Black Tie Optional';
+$dressCodeNote = $designConfig['dressCodeNote'] ?? '';
+$dressCodeStyle = $designConfig['dressCodeStyle'] ?? 'luxury_serif';
+$dressCodeIcon = $designConfig['dressCodeIcon'] ?? 'tuxedo';
+$dressCodeColor = $designConfig['dressCodeColor'] ?? $accentColor;
+$hostNames = $designConfig['hostNames'] ?? '';
+$celebrantName = $designConfig['celebrantName'] ?? '';
+$guestOfHonour = $designConfig['guestOfHonour'] ?? '';
+$rsvpText = $designConfig['rsvp'] ?? '';
+$contactInfo = $designConfig['contactInfo'] ?? '';
+$additionalInstructions = $designConfig['additionalInstructions'] ?? '';
+$eventWebsite = $designConfig['eventWebsite'] ?? '';
+$socialMedia = $designConfig['socialMedia'] ?? '';
+$guestCatLabel = !empty($pass['category_name']) ? strtoupper($pass['category_name']) : ($designConfig['guestCategory'] ?? 'VIP');
+$showQrCategoryLabel = ($designConfig['showQrCategoryLabel'] ?? true) !== false;
 
 // Check if dark surface
 $isDark = false;
@@ -644,6 +664,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
           <div id="passDecorativeArtwork" class="card-decorative-artwork" data-template-id="<?= htmlspecialchars($templateId) ?>" data-accent="<?= htmlspecialchars($accentColor) ?>" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;overflow:hidden;border-radius:inherit;opacity:<?= number_format($artworkOpacity / 100, 2) ?>;">
             <?= $decorativeArtwork ?>
           </div>
+          <div id="passInteractiveDecorLayer" style="position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden;"></div>
           <script>
             document.addEventListener('DOMContentLoaded', function() {
               var artEl = document.getElementById('passDecorativeArtwork');
@@ -652,8 +673,36 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
                 var acc = artEl.getAttribute('data-accent');
                 if (tid) artEl.innerHTML = generateTemplateArtworkSvg(tid, acc);
               }
+              var decorLayer = document.getElementById('passInteractiveDecorLayer');
+              var decorObjs = <?= json_encode($decorativeObjects) ?>;
+              if (decorLayer && Array.isArray(decorObjs) && typeof LuxeArt !== 'undefined' && typeof LuxeArt.standaloneMotifSvg === 'function') {
+                decorObjs.forEach(function(obj) {
+                  if (!obj) return;
+                  var d = document.createElement('div');
+                  d.style.cssText = 'position:absolute;left:' + (obj.x || 50) + '%;top:' + (obj.y || 20) + '%;width:' + (obj.size || 90) + 'px;height:' + (obj.size || 90) + 'px;transform:translate(-50%,-50%) rotate(' + (obj.rotation || 0) + 'deg);opacity:' + ((obj.opacity || 95) / 100) + ';';
+                  d.innerHTML = LuxeArt.standaloneMotifSvg(obj.type, '<?= htmlspecialchars($accentColor) ?>', '<?= htmlspecialchars($headingColor) ?>');
+                  decorLayer.appendChild(d);
+                });
+              }
             });
           </script>
+        <?php endif; ?>
+
+        <?php if (!empty($photoLayers)): ?>
+          <div id="passPhotoLayersContainer" style="position:absolute;inset:0;pointer-events:none;z-index:4;overflow:hidden;">
+            <?php foreach ($photoLayers as $pl):
+              if (empty($pl['src'])) continue;
+              $plShape = $pl['shape'] ?? 'arch';
+              $plRadius = ($plShape === 'circle') ? '50%' : (($plShape === 'arch') ? '999px 999px 12px 12px' : (($plShape === 'oval') ? '50%/50%' : (($pl['cornerRadius'] ?? 14) . 'px')));
+              $plClip = ($plShape === 'octagon') ? 'clip-path:polygon(28% 0%,72% 0%,100% 28%,100% 72%,72% 100%,28% 100%,0% 72%,0% 28%);' : (($plShape === 'diamond') ? 'clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);' : (($plShape === 'shield') ? 'clip-path:polygon(0% 0%,100% 0%,100% 65%,50% 100%,0% 65%);' : ''));
+            ?>
+              <div style="position:absolute;left:<?= (float)($pl['x'] ?? 50) ?>%;top:<?= (float)($pl['y'] ?? 30) ?>%;width:<?= (int)($pl['w'] ?? 135) ?>px;height:<?= (int)($pl['h'] ?? 170) ?>px;transform:translate(-50%,-50%) rotate(<?= (int)($pl['rotation'] ?? 0) ?>deg);z-index:<?= (int)($pl['zIndex'] ?? 5) ?>;">
+                <div style="width:100%;height:100%;overflow:hidden;border-radius:<?= $plRadius ?>;<?= $plClip ?>border:<?= (float)($pl['borderWidth'] ?? 2) ?>px solid <?= htmlspecialchars($pl['borderColor'] ?? $accentColor) ?>;box-shadow:0 8px 22px rgba(0,0,0,0.16);">
+                  <img src="<?= htmlspecialchars($pl['src']) ?>" alt="Portrait" style="width:100%;height:100%;object-fit:cover;object-position:<?= (int)($pl['cropX'] ?? 50) ?>% <?= (int)($pl['cropY'] ?? 50) ?>%;transform:scale(<?= ((int)($pl['cropZoom'] ?? 100)) / 100 ?>);filter:brightness(<?= (int)($pl['brightness'] ?? 100) ?>%) contrast(<?= (int)($pl['contrast'] ?? 100) ?>%);opacity:<?= ((int)($pl['opacity'] ?? 100)) / 100 ?>;">
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
         <?php endif; ?>
 
         <?php if (!empty($coverImgData) && $coverLayout === 'full'): ?>
@@ -675,7 +724,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
         <?php endif; ?>
 
         <!-- Pass Header -->
-        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;<?= ((!empty($coverImgData) && $coverLayout === 'full') || $isUnifiedPass) ? 'background:transparent !important;background-image:none !important;box-shadow:none !important;' : '' ?><?= (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')) ? (($coverLayout === 'half' ? 'flex:0 0 ' . $coverHalfRatio . '%;' : '') . 'min-height:' . $coverHeight . 'px;') : '' ?>">
+        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;text-align:<?= htmlspecialchars($textAlign) ?>;<?= ((!empty($coverImgData) && $coverLayout === 'full') || $isUnifiedPass) ? 'background:transparent !important;background-image:none !important;box-shadow:none !important;' : '' ?><?= (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')) ? (($coverLayout === 'half' ? 'flex:0 0 ' . $coverHalfRatio . '%;' : '') . 'min-height:' . $coverHeight . 'px;') : '' ?>">
           <?php if (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')): ?>
             <div style="position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none;">
               <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" style="width:100%;height:100%;object-fit:<?= htmlspecialchars($coverCropFit) ?>;object-position:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;transform:scale(<?= $coverScale / 100 ?>);transform-origin:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;filter:brightness(<?= $coverBrightness ?>%) contrast(<?= $coverContrast ?>%);opacity:<?= $coverOpacity / 100 ?>;">
@@ -683,10 +732,16 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
             </div>
           <?php endif; ?>
 
-          <div style="position:relative;z-index:4;">
+          <div style="position:relative;z-index:5;">
             <?php if (!empty($logoData)): ?>
               <div style="margin-bottom:10px;">
                 <img src="<?= htmlspecialchars($logoData) ?>" style="max-height:44px;max-width:150px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="Logo">
+              </div>
+            <?php endif; ?>
+
+            <?php if (!empty($hostNames) && (($visibleFields['hostNames'] ?? false) !== false)): ?>
+              <div style="font-size:0.65rem;letter-spacing:1.8px;text-transform:uppercase;font-weight:700;margin-bottom:4px;opacity:0.86;color:<?= htmlspecialchars($headingColor) ?>;">
+                <?= htmlspecialchars($hostNames) ?>
               </div>
             <?php endif; ?>
 
@@ -694,9 +749,15 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
               <?= htmlspecialchars($badgeText) ?>
             </span>
 
-            <?php if (!empty($sampleCouple)): ?>
+            <?php if (!empty($sampleCouple) && (($visibleFields['sampleCouple'] ?? true) !== false)): ?>
               <div class="card-couple-script" style="font-family:<?= htmlspecialchars($scriptFont) ?>;font-size:2.1rem;line-height:1.15;margin:4px 0 6px;color:<?= htmlspecialchars($headingColor) ?>;">
                 <?= htmlspecialchars($sampleCouple) ?>
+              </div>
+            <?php endif; ?>
+
+            <?php if (!empty($celebrantName) && (($visibleFields['celebrantName'] ?? false) !== false)): ?>
+              <div style="font-size:1.35rem;font-weight:800;margin:2px 0;color:<?= htmlspecialchars($accentColor) ?>;font-family:<?= htmlspecialchars($scriptFont) ?>;">
+                <?= htmlspecialchars($celebrantName) ?>
               </div>
             <?php endif; ?>
 
@@ -704,14 +765,20 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
               <?= e($pass['event_title']) ?>
             </h1>
 
+            <?php if (!empty($guestOfHonour) && (($visibleFields['guestOfHonour'] ?? false) !== false)): ?>
+              <div style="font-size:0.74rem;font-weight:700;letter-spacing:0.8px;margin-top:4px;color:<?= htmlspecialchars($accentColor) ?>;">
+                <?= htmlspecialchars($guestOfHonour) ?>
+              </div>
+            <?php endif; ?>
+
             <div style="font-size:0.82rem;opacity:0.95;margin-top:4px;color:<?= htmlspecialchars($headingColor) ?>;">
-              <?= date('l, M d, Y', strtotime($pass['start_date'])) ?> &bull; <?= e($pass['start_time']) ?>
+              <?= date('l, M d, Y', strtotime($pass['start_date'])) ?> &bull; <?= e($pass['start_time']) ?><?= !empty($pass['end_time']) ? ' &ndash; ' . e($pass['end_time']) : '' ?>
             </div>
           </div>
         </div>
 
         <!-- Pass Body -->
-        <div class="digital-pass-body-custom" style="position:relative;z-index:4;<?= ((!empty($coverImgData) && $coverLayout === 'full') || $isUnifiedPass) ? 'background:transparent !important;' : '' ?>">
+        <div class="digital-pass-body-custom" style="position:relative;z-index:5;text-align:<?= htmlspecialchars($textAlign) ?>;<?= ((!empty($coverImgData) && $coverLayout === 'full') || $isUnifiedPass) ? 'background:transparent !important;' : '' ?>">
           <?php if ($seal !== 'none'): ?>
             <div style="display:flex;justify-content:center;margin-bottom:4px;">
               <span class="seal-pill-custom">
@@ -738,6 +805,14 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
             <?= e($pass['guest_name']) ?>
           </h2>
 
+          <?php if ($showQrCategoryLabel): ?>
+            <div style="margin-bottom:4px;">
+              <span style="display:inline-block;font-size:0.62rem;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;padding:2px 10px;border-radius:99px;background:<?= htmlspecialchars($accentColor) ?>;color:#FFFFFF;">
+                <?= htmlspecialchars($guestCatLabel) ?> PASS
+              </span>
+            </div>
+          <?php endif; ?>
+
           <div class="qr-frame-custom" style="<?= $qrBgTransparent ? 'background:transparent;box-shadow:none;border:none;padding:0;' : '' ?>">
             <div id="passQr"></div>
           </div>
@@ -746,7 +821,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
             <?= e($pass['reference_code']) ?>
           </div>
 
-          <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;">
             <?php if ($pass['is_checked_in']): ?>
               <span id="cardCheckinBadge" class="badge badge-success"><?= svgIcon('check', 12) ?> CHECKED IN</span>
             <?php else: ?>
@@ -765,8 +840,52 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
             </div>
           </div>
 
+          <?php if ($showDressCode && !empty($dressCode)): ?>
+            <!-- Dedicated Template-Matched Dress Code Section -->
+            <div id="passDressCodeSection" style="margin:8px auto 10px;padding:7px 14px;border-top:1px solid <?= htmlspecialchars($dressCodeColor) ?>66;border-bottom:1px solid <?= htmlspecialchars($dressCodeColor) ?>66;color:<?= htmlspecialchars($dressCodeColor) ?>;display:flex;align-items:center;justify-content:center;gap:8px;">
+              <span id="passDressCodeIcon" data-icon="<?= htmlspecialchars($dressCodeIcon) ?>" data-color="<?= htmlspecialchars($dressCodeColor) ?>"></span>
+              <div style="text-align:center;">
+                <div style="font-size:0.55rem;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;opacity:0.8;">DRESS CODE</div>
+                <div style="font-size:0.78rem;font-weight:700;"><?= htmlspecialchars($dressCode) ?></div>
+                <?php if (!empty($dressCodeNote)): ?>
+                  <div style="font-size:0.65rem;font-style:italic;opacity:0.82;"><?= htmlspecialchars($dressCodeNote) ?></div>
+                <?php endif; ?>
+              </div>
+            </div>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                var ic = document.getElementById('passDressCodeIcon');
+                if (ic && typeof LuxeArt !== 'undefined' && typeof LuxeArt.dressCodeIcon === 'function') {
+                  var t = ic.getAttribute('data-icon');
+                  var c = ic.getAttribute('data-color');
+                  if (t && t !== 'none') ic.innerHTML = LuxeArt.dressCodeIcon(t, c);
+                }
+              });
+            </script>
+          <?php endif; ?>
+
+          <?php if (!empty($rsvpText) || !empty($contactInfo) || !empty($additionalInstructions) || !empty($eventWebsite) || !empty($socialMedia)): ?>
+            <div style="font-size:0.68rem;line-height:1.4;margin-bottom:8px;opacity:0.88;">
+              <?php if (!empty($rsvpText) && (($visibleFields['rsvp'] ?? true) !== false)): ?>
+                <div style="font-weight:700;"><?= htmlspecialchars($rsvpText) ?></div>
+              <?php endif; ?>
+              <?php if (!empty($contactInfo) && !empty($visibleFields['contactInfo'])): ?>
+                <div><?= htmlspecialchars($contactInfo) ?></div>
+              <?php endif; ?>
+              <?php if (!empty($additionalInstructions) && !empty($visibleFields['additionalInstructions'])): ?>
+                <div style="font-style:italic;"><?= htmlspecialchars($additionalInstructions) ?></div>
+              <?php endif; ?>
+              <?php if (!empty($eventWebsite) && !empty($visibleFields['eventWebsite'])): ?>
+                <div style="font-weight:600;"><?= htmlspecialchars($eventWebsite) ?></div>
+              <?php endif; ?>
+              <?php if (!empty($socialMedia) && !empty($visibleFields['socialMedia'])): ?>
+                <div><?= htmlspecialchars($socialMedia) ?></div>
+              <?php endif; ?>
+            </div>
+          <?php endif; ?>
+
           <?php if (!empty($footerNote)): ?>
-            <div id="cardFooterNote" style="font-size:0.7rem;opacity:0.65;line-height:1.4;border-top:1px dashed rgba(0,0,0,0.12);padding-top:10px;margin-top:14px;">
+            <div id="cardFooterNote" style="font-size:0.7rem;opacity:0.65;line-height:1.4;border-top:1px dashed rgba(0,0,0,0.12);padding-top:10px;margin-top:10px;">
               <?= htmlspecialchars($footerNote) ?>
             </div>
           <?php endif; ?>

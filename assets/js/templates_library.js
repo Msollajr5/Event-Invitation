@@ -2908,13 +2908,851 @@ const TEMPLATES_LIBRARY = {
   },
 };
 
-// Populate original SVG decorativeArtwork on all 50 templates at initialization
+// ============================================================
+// DRESS CODE PRESETS & ARTISTIC STYLE DEFINITIONS
+// ============================================================
+const DRESS_CODE_PRESETS = [
+  'Formal Attire',
+  'Black Tie',
+  'White Tie',
+  'Smart Casual',
+  'Cocktail Attire',
+  'Traditional African Wear',
+  'African Formal Attire',
+  'All White',
+  'All Black',
+  'Cultural Attire',
+  'Casual Wear',
+  'Custom Dress Code'
+];
+
+// ============================================================
+// UNIQUE COMPOSITION, PHOTO FRAME, DRESS CODE & QR LAYOUT SPECS
+// FOR ALL 50 TEMPLATES
+// ============================================================
+const TEMPLATE_LAYOUT_SPECS = {
+  // --- COLLECTION A: LUXURY FLORAL WEDDINGS (1-10) ---
+  wedding_ivory_bloom: {
+    composition: 'asymmetrical-right',
+    textAlign: 'right',
+    padding: { top: 28, right: 24, bottom: 24, left: 122 },
+    dressCode: { wording: 'Formal Attire', style: 'floral_wreath', icon: 'floral', note: 'Shades of Champagne, Warm Ivory & Sage Requested', x: 64, y: 80, width: 230 },
+    photoFrame: { shape: 'arch', x: 74, y: 20, w: 94, h: 116, borderWidth: 2, cornerRadius: 48, sampleStyle: 'couple_floral', label: 'Couple Portrait' },
+    qrPos: { x: 80, y: 90, size: 78, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'ivory_bloom_cluster', label: 'Ivory Floral Cluster', x: 18, y: 24, w: 86, h: 86, rotation: 0 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Botanical Sprig', x: 22, y: 78, w: 72, h: 72, rotation: 15 }
+    ],
+    fields: { hostNames: 'Together with the Mensah & Laurent Families', rsvp: 'RSVP by November 1, 2026', fullAddress: 'Oceanfront Palm Gardens, Dar es Salaam', endTime: '23:30 EAT', socialMedia: '#AmeliaAndSebastian2026' }
+  },
+  wedding_champagne_romance: {
+    composition: 'diagonal-cascade',
+    textAlign: 'center',
+    padding: { top: 42, right: 32, bottom: 38, left: 32 },
+    dressCode: { wording: 'Black Tie', style: 'luxury_serif', icon: 'tuxedo', note: 'Champagne & Gold Evening Gowns • Black Tuxedos', x: 50, y: 79, width: 250 },
+    photoFrame: { shape: 'oval', x: 76, y: 22, w: 88, h: 110, borderWidth: 2, cornerRadius: 55, sampleStyle: 'couple_floral', label: 'Couple Cameo' },
+    qrPos: { x: 24, y: 88, size: 76, dock: 'bottom-left', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'ivory_bloom_cluster', label: 'Champagne Peony', x: 20, y: 16, w: 84, h: 84, rotation: -10 },
+      { id: 'dec_2', motif: 'ivory_bloom_cluster', label: 'Lower Floral Spray', x: 80, y: 84, w: 82, h: 82, rotation: 165 }
+    ],
+    fields: { hostNames: 'Mr. & Mrs. Kensington cordially invite you', rsvp: 'Kindly respond by Oct 30, 2026', fullAddress: 'The Grand Champagne Conservatory, Nairobi', endTime: '00:00 EAT', eventWebsite: 'www.claireandjulian.wedding' }
+  },
+  wedding_blush_petals: {
+    composition: 'garland-frame',
+    textAlign: 'center',
+    padding: { top: 74, right: 28, bottom: 68, left: 28 },
+    dressCode: { wording: 'Cocktail Attire', style: 'floral_wreath', icon: 'gown', note: 'Blush Pink, Rose Gold & Pastel Attire Encouraged', x: 50, y: 76, width: 250 },
+    photoFrame: { shape: 'circle', x: 50, y: 27, w: 92, h: 92, borderWidth: 2.5, cornerRadius: 50, sampleStyle: 'couple_floral', label: 'Blush Medallion Photo' },
+    qrPos: { x: 50, y: 88, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'blush_rose_duo', label: 'Top Blush Rose Garland', x: 50, y: 10, w: 96, h: 72, rotation: 0 },
+      { id: 'dec_2', motif: 'blush_rose_duo', label: 'Bottom Rose Sprig', x: 50, y: 92, w: 88, h: 68, rotation: 180 }
+    ],
+    fields: { hostNames: 'With joyful hearts, the Rossi & Beaumont Families', rsvp: 'RSVP by Nov 5, 2026', fullAddress: 'Villa Rosa Kempinski Rose Pavilion', endTime: '23:00 EAT', socialMedia: '#IsabellaWedsTheodore' }
+  },
+  wedding_white_orchid: {
+    composition: 'asymmetrical-left',
+    textAlign: 'left',
+    padding: { top: 32, right: 116, bottom: 28, left: 26 },
+    dressCode: { wording: 'White Tie', style: 'arch_pill', icon: 'floral', note: 'Sophisticated Evening Attire • Orchid Corsages Provided', x: 36, y: 78, width: 225 },
+    photoFrame: { shape: 'arch', x: 26, y: 21, w: 88, h: 112, borderWidth: 1.5, cornerRadius: 44, sampleStyle: 'couple_floral', label: 'Orchid Arch Portrait' },
+    qrPos: { x: 22, y: 89, size: 76, dock: 'bottom-left', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'orchid_blossom', label: 'Phalaenopsis Orchid', x: 82, y: 28, w: 84, h: 84, rotation: -12 },
+      { id: 'dec_2', motif: 'orchid_blossom', label: 'Lower Orchid Stem', x: 80, y: 62, w: 74, h: 74, rotation: 18 }
+    ],
+    fields: { hostNames: 'Dr. & Mrs. Alastair Vance request your presence', rsvp: 'RSVP by Nov 8, 2026', fullAddress: 'The White Glasshouse Botanical Sanctuary', endTime: '22:30 EAT', contactInfo: 'concierge@celesteandgabriel.com' }
+  },
+  wedding_golden_botanical: {
+    composition: 'diagonal-cascade',
+    textAlign: 'center',
+    padding: { top: 38, right: 34, bottom: 36, left: 34 },
+    dressCode: { wording: 'Black Tie', style: 'black_tie_gold', icon: 'crown', note: 'Black Tie with a Touch of Metallic Gold', x: 50, y: 78, width: 248 },
+    photoFrame: { shape: 'octagon', x: 50, y: 25, w: 94, h: 94, borderWidth: 2, cornerRadius: 12, sampleStyle: 'couple_floral', label: 'Gilded Frame Portrait' },
+    qrPos: { x: 78, y: 88, size: 76, dock: 'bottom-right', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'gold_olive_sprig', label: '24k Gold Leaf Branch', x: 20, y: 18, w: 86, h: 86, rotation: -8 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Lower Gold Foliage', x: 82, y: 80, w: 82, h: 82, rotation: 165 }
+    ],
+    fields: { hostNames: 'Lord & Lady Sterling invite you to celebrate', rsvp: 'RSVP by Nov 2, 2026', fullAddress: 'Gilded Conservatory Hall, Serena Hotel', endTime: '23:55 EAT', additionalInstructions: 'Valet reception at the Golden Porte-Cochère' }
+  },
+  wedding_beige_elegance: {
+    composition: 'asymmetrical-left',
+    textAlign: 'left',
+    padding: { top: 30, right: 110, bottom: 28, left: 28 },
+    dressCode: { wording: 'Formal Attire', style: 'luxury_serif', icon: 'hanger', note: 'Warm Neutrals, Oatmeal, Champagne & Taupe Palette', x: 38, y: 79, width: 228 },
+    photoFrame: { shape: 'rounded', x: 28, y: 22, w: 92, h: 108, borderWidth: 2, cornerRadius: 18, sampleStyle: 'couple_floral', label: 'Editorial Couple Photo' },
+    qrPos: { x: 24, y: 89, size: 74, dock: 'bottom-left', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'pampas_plume', label: 'Cashmere Botanical Plume', x: 82, y: 34, w: 84, h: 84, rotation: 8 },
+      { id: 'dec_2', motif: 'ivory_bloom_cluster', label: 'Beige Bloom Cluster', x: 78, y: 76, w: 78, h: 78, rotation: -20 }
+    ],
+    fields: { hostNames: 'Together with their loving parents', rsvp: 'RSVP before Nov 10, 2026', fullAddress: 'The Sand & Stone Courtyard, Zanzibar', endTime: '23:00 EAT', eventWebsite: 'www.elodieandnathaniel.com' }
+  },
+  wedding_rose_garden: {
+    composition: 'royal-medallion',
+    textAlign: 'center',
+    padding: { top: 44, right: 36, bottom: 40, left: 36 },
+    dressCode: { wording: 'Formal Attire', style: 'floral_wreath', icon: 'floral', note: 'English Garden Formal • Fascinators & Morning Suits Welcome', x: 50, y: 78, width: 252 },
+    photoFrame: { shape: 'oval', x: 50, y: 25, w: 92, h: 112, borderWidth: 2.5, cornerRadius: 56, sampleStyle: 'couple_floral', label: 'Rose Medallion Portrait' },
+    qrPos: { x: 50, y: 89, size: 76, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'blush_rose_duo', label: 'English Garden Roses Left', x: 18, y: 20, w: 82, h: 82, rotation: -15 },
+      { id: 'dec_2', motif: 'blush_rose_duo', label: 'English Garden Roses Right', x: 82, y: 80, w: 82, h: 82, rotation: 165 }
+    ],
+    fields: { hostNames: 'Sir Arthur & Lady Montgomery request your company', rsvp: 'RSVP by Nov 3, 2026', fullAddress: 'Kensington Rose Manor & Orangerie', endTime: '23:00 EAT', socialMedia: '#GenevieveAndWilliam' }
+  },
+  wedding_magnolia_dreams: {
+    composition: 'asymmetrical-right',
+    textAlign: 'right',
+    padding: { top: 30, right: 26, bottom: 28, left: 118 },
+    dressCode: { wording: 'Cocktail Attire', style: 'floral_wreath', icon: 'gown', note: 'Southern Estate Cocktail & Silk Evening Wear', x: 62, y: 79, width: 232 },
+    photoFrame: { shape: 'arch', x: 74, y: 22, w: 90, h: 112, borderWidth: 2, cornerRadius: 45, sampleStyle: 'couple_floral', label: 'Magnolia Arch Portrait' },
+    qrPos: { x: 78, y: 89, size: 76, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'ivory_bloom_cluster', label: 'Southern Magnolia Branch', x: 22, y: 26, w: 90, h: 90, rotation: 5 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Russet Magnolia Leaves', x: 24, y: 76, w: 78, h: 78, rotation: -15 }
+    ],
+    fields: { hostNames: 'Mr. & Mrs. Beauregard invite you to share their joy', rsvp: 'RSVP by Nov 4, 2026', fullAddress: 'Magnolia Lawn & Veranda Estate', endTime: '22:30 EAT', contactInfo: 'rsvp@claraandaugustine.com' }
+  },
+  wedding_vintage_floral: {
+    composition: 'garland-frame',
+    textAlign: 'center',
+    padding: { top: 54, right: 36, bottom: 48, left: 36 },
+    dressCode: { wording: 'Formal Attire', style: 'monogram_scroll', icon: 'bowtie', note: 'Classic Heirloom Formal & Vintage Black Tie', x: 50, y: 78, width: 248 },
+    photoFrame: { shape: 'oval', x: 50, y: 26, w: 88, h: 108, borderWidth: 2, cornerRadius: 54, sampleStyle: 'couple_floral', label: 'Heirloom Cameo Photo' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'baroque_corner', label: 'Vintage Filigree Corner', x: 16, y: 14, w: 72, h: 72, rotation: 0 },
+      { id: 'dec_2', motif: 'ivory_bloom_cluster', label: 'Etched Parchment Rose', x: 82, y: 82, w: 78, h: 78, rotation: 180 }
+    ],
+    fields: { hostNames: 'In the spirit of timeless tradition, our families', rsvp: 'RSVP by Oct 28, 2026', fullAddress: 'The Historic Library & Heritage Chapel', endTime: '23:00 EAT', additionalInstructions: 'Carriages depart at midnight' }
+  },
+  wedding_soft_peony: {
+    composition: 'garland-frame',
+    textAlign: 'center',
+    padding: { top: 68, right: 30, bottom: 64, left: 30 },
+    dressCode: { wording: 'Formal Attire', style: 'floral_wreath', icon: 'floral', note: 'Romantic Peony Blush, Cream & Gold Tie', x: 50, y: 77, width: 250 },
+    photoFrame: { shape: 'circle', x: 50, y: 26, w: 94, h: 94, borderWidth: 2.5, cornerRadius: 50, sampleStyle: 'couple_floral', label: 'Peony Wreath Photo' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'blush_rose_duo', label: 'Lush Peony Crown', x: 24, y: 14, w: 86, h: 86, rotation: -8 },
+      { id: 'dec_2', motif: 'blush_rose_duo', label: 'Lower Peony Bouquet', x: 76, y: 86, w: 86, h: 86, rotation: 170 }
+    ],
+    fields: { hostNames: 'Together with their parents, Seraphina & Dominic', rsvp: 'RSVP by Nov 6, 2026', fullAddress: 'The Peony Glasshouse & Champagne Lawn', endTime: '23:30 EAT', socialMedia: '#SeraphinaAndDominic' }
+  },
+
+  // --- COLLECTION B: MINIMALIST AND EDITORIAL (11-20) ---
+  minimal_modern_ivory: {
+    composition: 'editorial-magazine',
+    textAlign: 'center',
+    padding: { top: 38, right: 34, bottom: 34, left: 34 },
+    dressCode: { wording: 'Black Tie', style: 'luxury_serif', icon: 'tuxedo', note: 'Minimalist Monochrome or Warm Ivory Evening Wear', x: 50, y: 79, width: 244 },
+    photoFrame: { shape: 'circle', x: 50, y: 24, w: 88, h: 88, borderWidth: 1.5, cornerRadius: 44, sampleStyle: 'couple_floral', label: 'Minimalist Circle Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'gold_olive_sprig', label: 'Fine Hairline Accent', x: 50, y: 12, w: 68, h: 42, rotation: 0 }
+    ],
+    fields: { hostNames: 'Camille & Henrik invite you to their wedding', rsvp: 'RSVP by Nov 10, 2026', fullAddress: 'The Modernist Pavilion, Masaki', endTime: '23:00 EAT', eventWebsite: 'www.camillehenrik.studio' }
+  },
+  minimal_the_editorial: {
+    composition: 'editorial-magazine',
+    textAlign: 'center',
+    padding: { top: 28, right: 26, bottom: 26, left: 26 },
+    dressCode: { wording: 'Black Tie', style: 'corporate_minimal', icon: 'hanger', note: 'Haute Couture Editorial Black Tie • Runway Inspired', x: 50, y: 80, width: 260 },
+    photoFrame: { shape: 'rect', x: 50, y: 27, w: 186, h: 112, borderWidth: 1.5, cornerRadius: 4, sampleStyle: 'couple_floral', label: 'Vogue Editorial Feature Photo' },
+    qrPos: { x: 80, y: 89, size: 72, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'sunburst_medallion', label: 'Editorial Seal', x: 84, y: 14, w: 54, h: 54, rotation: 0 }
+    ],
+    fields: { hostNames: 'THE AUTUMN / WINTER MATRIMONY ISSUE', rsvp: 'RSVP to the Concierge by Nov 12', fullAddress: 'Museum of Contemporary Art Gallery Hall', endTime: '01:00 EAT', socialMedia: '#VogueVowsMargauxLeo' }
+  },
+  minimal_minimal_black: {
+    composition: 'editorial-magazine',
+    textAlign: 'center',
+    padding: { top: 34, right: 30, bottom: 30, left: 30 },
+    dressCode: { wording: 'All Black', style: 'black_tie_gold', icon: 'bowtie', note: 'Strictly All-Black Formal Couture & Gold Accents', x: 50, y: 79, width: 252 },
+    photoFrame: { shape: 'rect', x: 50, y: 25, w: 145, h: 102, borderWidth: 1.5, cornerRadius: 6, sampleStyle: 'couple_floral', label: 'Monochrome Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'baroque_corner', label: 'Obsidian Gold Corner', x: 16, y: 14, w: 62, h: 62, rotation: 0 }
+    ],
+    fields: { hostNames: 'An Evening of Midnight Luxury', rsvp: 'Private Guestlist RSVP Required', fullAddress: 'The Obsidian Rooftop Penthouse', endTime: '02:00 EAT', additionalInstructions: 'Present digital pass at private elevator' }
+  },
+  minimal_soft_typography: {
+    composition: 'minimalist-grid',
+    textAlign: 'center',
+    padding: { top: 36, right: 32, bottom: 32, left: 32 },
+    dressCode: { wording: 'Smart Casual', style: 'luxury_serif', icon: 'hanger', note: 'Soft Warm Tones, Linen & Cashmere Tailoring', x: 50, y: 79, width: 240 },
+    photoFrame: { shape: 'rounded', x: 50, y: 24, w: 96, h: 104, borderWidth: 1.5, cornerRadius: 20, sampleStyle: 'couple_floral', label: 'Soft Portrait Frame' },
+    qrPos: { x: 78, y: 89, size: 72, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'eucalyptus_stem', label: 'Minimalist Leaf Accent', x: 20, y: 82, w: 64, h: 64, rotation: -12 }
+    ],
+    fields: { hostNames: 'Intimate Dinner & Vows hosted by our families', rsvp: 'Kindly reply by Nov 8, 2026', fullAddress: 'The Linen & Olive Courtyard Studio', endTime: '22:30 EAT', contactInfo: 'hello@eloiseandfelix.com' }
+  },
+  minimal_modern_arch: {
+    composition: 'arch-alcove',
+    textAlign: 'center',
+    padding: { top: 48, right: 44, bottom: 36, left: 44 },
+    dressCode: { wording: 'Cocktail Attire', style: 'arch_pill', icon: 'gown', note: 'Mediterranean Terracotta, Ivory & Olive Palette', x: 50, y: 78, width: 232 },
+    photoFrame: { shape: 'arch', x: 50, y: 24, w: 92, h: 112, borderWidth: 2, cornerRadius: 46, sampleStyle: 'couple_floral', label: 'Roman Arch Portrait' },
+    qrPos: { x: 50, y: 89, size: 72, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'sunburst_medallion', label: 'Terracotta Sun Crest', x: 50, y: 12, w: 58, h: 58, rotation: 0 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Villa Olive Sprig', x: 22, y: 82, w: 68, h: 68, rotation: 20 }
+    ],
+    fields: { hostNames: 'Beneath the Villa Arches', rsvp: 'RSVP by Nov 5, 2026', fullAddress: 'Villa Terracotta Cloisters & Wine Cellar', endTime: '23:30 EAT', socialMedia: '#SiennaAndMatteo' }
+  },
+  minimal_the_monogram: {
+    composition: 'royal-medallion',
+    textAlign: 'center',
+    padding: { top: 44, right: 36, bottom: 36, left: 36 },
+    dressCode: { wording: 'Black Tie', style: 'monogram_scroll', icon: 'crown', note: 'Formal Black Tie & Floor-Length Evening Gowns', x: 50, y: 79, width: 248 },
+    photoFrame: { shape: 'circle', x: 50, y: 24, w: 90, h: 90, borderWidth: 2, cornerRadius: 45, sampleStyle: 'couple_floral', label: 'Monogram Crest Photo' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'royal_crest_emblem', label: 'Heraldic Monogram Ring', x: 50, y: 14, w: 64, h: 64, rotation: 0 }
+    ],
+    fields: { hostNames: 'The House of Lavinia & Edward', rsvp: 'RSVP before Nov 1, 2026', fullAddress: 'The Estate Orangery & Grand Lawn', endTime: '00:00 EAT', eventWebsite: 'www.laviniaandedward.com' }
+  },
+  minimal_minimal_beige: {
+    composition: 'minimalist-grid',
+    textAlign: 'center',
+    padding: { top: 36, right: 34, bottom: 32, left: 34 },
+    dressCode: { wording: 'Smart Casual', style: 'corporate_minimal', icon: 'hanger', note: 'Coastal Cashmere, Silk & Earthy Beige Tones', x: 50, y: 79, width: 238 },
+    photoFrame: { shape: 'arch', x: 50, y: 24, w: 86, h: 106, borderWidth: 1.5, cornerRadius: 43, sampleStyle: 'couple_floral', label: 'Cashmere Arch Photo' },
+    qrPos: { x: 78, y: 89, size: 72, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'pampas_plume', label: 'Minimalist Reed Sprig', x: 22, y: 84, w: 66, h: 66, rotation: -10 }
+    ],
+    fields: { hostNames: 'An Intimate Coastal Sanctuary Gathering', rsvp: 'RSVP by Nov 9, 2026', fullAddress: 'Dune House Sanctuary, Kilifi Coast', endTime: '22:00 EAT', contactInfo: 'rsvp@noemiandsoren.com' }
+  },
+  minimal_classic_white: {
+    composition: 'minimalist-grid',
+    textAlign: 'center',
+    padding: { top: 38, right: 34, bottom: 34, left: 34 },
+    dressCode: { wording: 'White Tie', style: 'luxury_serif', icon: 'bowtie', note: 'Morning Suit, White Tie or Formal Cathedral Daywear', x: 50, y: 79, width: 248 },
+    photoFrame: { shape: 'oval', x: 50, y: 24, w: 88, h: 108, borderWidth: 1.5, cornerRadius: 54, sampleStyle: 'couple_floral', label: 'Classic Oval Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'baroque_corner', label: 'Fine Engraved Corner', x: 16, y: 14, w: 58, h: 58, rotation: 0 }
+    ],
+    fields: { hostNames: 'Mr. & Mrs. Charles Cavendish request your presence', rsvp: 'RSVP by Nov 1, 2026', fullAddress: 'St. Alban Cathedral & The Ivory Ballroom', endTime: '22:30 EAT', additionalInstructions: 'Ceremony commences promptly at 14:00' }
+  },
+  minimal_contemporary_line: {
+    composition: 'asymmetrical-left',
+    textAlign: 'left',
+    padding: { top: 32, right: 108, bottom: 28, left: 28 },
+    dressCode: { wording: 'Cocktail Attire', style: 'corporate_minimal', icon: 'sparkles', note: 'Contemporary Gallery Chic & Architectural Tailoring', x: 38, y: 79, width: 228 },
+    photoFrame: { shape: 'rect', x: 28, y: 22, w: 94, h: 112, borderWidth: 1.5, cornerRadius: 2, sampleStyle: 'couple_floral', label: 'Asymmetric Gallery Photo' },
+    qrPos: { x: 24, y: 89, size: 74, dock: 'bottom-left', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'gold_olive_sprig', label: 'Geometric Line Accent', x: 80, y: 30, w: 72, h: 72, rotation: 15 }
+    ],
+    fields: { hostNames: 'Modern Soirée & Sculpture Garden Reception', rsvp: 'RSVP by Nov 11, 2026', fullAddress: 'Contemporary Art Foundation Terrace', endTime: '23:30 EAT', eventWebsite: 'www.ariaandbastian.art' }
+  },
+  minimal_timeless_elegance: {
+    composition: 'minimalist-grid',
+    textAlign: 'center',
+    padding: { top: 40, right: 36, bottom: 36, left: 36 },
+    dressCode: { wording: 'Black Tie', style: 'monogram_scroll', icon: 'tuxedo', note: 'White Tie or Formal Black Tie Optional', x: 50, y: 79, width: 250 },
+    photoFrame: { shape: 'arch', x: 50, y: 24, w: 88, h: 108, borderWidth: 1.5, cornerRadius: 44, sampleStyle: 'couple_floral', label: 'Passe-Partout Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'royal_crest_emblem', label: 'Engraved Crest', x: 50, y: 12, w: 56, h: 56, rotation: 0 }
+    ],
+    fields: { hostNames: 'The Honour of Your Presence is Requested', rsvp: 'RSVP by Oct 29, 2026', fullAddress: 'Symphony Hall Grand Foyer, Dar es Salaam', endTime: '23:45 EAT', contactInfo: 'protocol@symphonygala.org' }
+  },
+
+  // --- COLLECTION C: BOTANICAL AND NATURE (21-30) ---
+  nature_eucalyptus_garden: {
+    composition: 'asymmetrical-right',
+    textAlign: 'right',
+    padding: { top: 30, right: 26, bottom: 28, left: 118 },
+    dressCode: { wording: 'Formal Attire', style: 'floral_wreath', icon: 'floral', note: 'Garden Semi-Formal • Sage, Eucalyptus & Cream Tones', x: 64, y: 79, width: 232 },
+    photoFrame: { shape: 'arch', x: 74, y: 21, w: 90, h: 110, borderWidth: 2, cornerRadius: 45, sampleStyle: 'couple_floral', label: 'Botanical Arch Portrait' },
+    qrPos: { x: 78, y: 89, size: 74, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'eucalyptus_stem', label: 'Silver-Dollar Eucalyptus', x: 20, y: 24, w: 88, h: 88, rotation: 8 },
+      { id: 'dec_2', motif: 'eucalyptus_stem', label: 'Lower Sage Branch', x: 24, y: 76, w: 78, h: 78, rotation: -18 }
+    ],
+    fields: { hostNames: 'Surrounded by Evergreen Grace', rsvp: 'RSVP by Nov 5, 2026', fullAddress: 'The Glass Botanical Atrium, Arusha', endTime: '22:30 EAT', socialMedia: '#OliviaAndHarrison' }
+  },
+  nature_olive_branch: {
+    composition: 'asymmetrical-left',
+    textAlign: 'left',
+    padding: { top: 32, right: 112, bottom: 28, left: 28 },
+    dressCode: { wording: 'Cocktail Attire', style: 'arch_pill', icon: 'floral', note: 'Mediterranean Villa Formal • Linen Suits & Silk Dresses', x: 38, y: 79, width: 230 },
+    photoFrame: { shape: 'oval', x: 28, y: 22, w: 88, h: 108, borderWidth: 2, cornerRadius: 54, sampleStyle: 'couple_floral', label: 'Olive Grove Portrait' },
+    qrPos: { x: 24, y: 89, size: 74, dock: 'bottom-left', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'gold_olive_sprig', label: 'Mediterranean Olive Branch', x: 80, y: 26, w: 86, h: 86, rotation: -12 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Lower Olive Leaf Sprig', x: 78, y: 76, w: 74, h: 74, rotation: 22 }
+    ],
+    fields: { hostNames: 'Peace, Devotion & Tuscan Hospitality', rsvp: 'RSVP by Nov 3, 2026', fullAddress: 'The Olive Grove Courtyard & Vineyard', endTime: '23:30 EAT', eventWebsite: 'www.sofiaandlorenzo.it' }
+  },
+  nature_wildflower_story: {
+    composition: 'diagonal-cascade',
+    textAlign: 'center',
+    padding: { top: 38, right: 32, bottom: 64, left: 32 },
+    dressCode: { wording: 'Smart Casual', style: 'floral_wreath', icon: 'floral', note: 'Pastel Meadow Attire • Lawn-Friendly Footwear Advised', x: 50, y: 76, width: 246 },
+    photoFrame: { shape: 'circle', x: 50, y: 24, w: 90, h: 90, borderWidth: 2, cornerRadius: 45, sampleStyle: 'couple_floral', label: 'Meadow Circle Photo' },
+    qrPos: { x: 50, y: 88, size: 72, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'ivory_bloom_cluster', label: 'Meadow Chamomile Sprig', x: 20, y: 84, w: 80, h: 80, rotation: 12 },
+      { id: 'dec_2', motif: 'blush_rose_duo', label: 'Wildflower Bouquet', x: 80, y: 84, w: 80, h: 80, rotation: -12 }
+    ],
+    fields: { hostNames: 'Where Wildflowers Bloom, Our Story Begins', rsvp: 'RSVP by Nov 7, 2026', fullAddress: 'Highland Meadow Pavilion, Lushoto', endTime: '21:30 EAT', socialMedia: '#FreyaAndJasper' }
+  },
+  nature_pampas_romance: {
+    composition: 'asymmetrical-right',
+    textAlign: 'right',
+    padding: { top: 30, right: 26, bottom: 28, left: 118 },
+    dressCode: { wording: 'Cocktail Attire', style: 'arch_pill', icon: 'sparkles', note: 'Bohemian Desert Formal • Terracotta, Sand & Gold', x: 64, y: 79, width: 232 },
+    photoFrame: { shape: 'arch', x: 74, y: 21, w: 90, h: 112, borderWidth: 2, cornerRadius: 45, sampleStyle: 'couple_floral', label: 'Boho Arch Portrait' },
+    qrPos: { x: 78, y: 89, size: 74, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'pampas_plume', label: 'Feathery Pampas Plumes', x: 22, y: 26, w: 92, h: 92, rotation: 6 },
+      { id: 'dec_2', motif: 'pampas_plume', label: 'Lower Pampas Spray', x: 24, y: 76, w: 82, h: 82, rotation: -14 }
+    ],
+    fields: { hostNames: 'Under the Golden Desert Sunset', rsvp: 'RSVP by Nov 6, 2026', fullAddress: 'Sunset Dune Terrace & Luxury Camp', endTime: '23:00 EAT', socialMedia: '#AureliaAndCassian' }
+  },
+  nature_garden_whisper: {
+    composition: 'garland-frame',
+    textAlign: 'center',
+    padding: { top: 62, right: 32, bottom: 58, left: 32 },
+    dressCode: { wording: 'Formal Attire', style: 'floral_wreath', icon: 'floral', note: 'Secret Garden Formal • Floral Prints & Light Suits', x: 50, y: 77, width: 248 },
+    photoFrame: { shape: 'oval', x: 50, y: 25, w: 88, h: 106, borderWidth: 2, cornerRadius: 53, sampleStyle: 'couple_floral', label: 'Secret Garden Cameo' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'eucalyptus_stem', label: 'Trailing Garden Vine', x: 20, y: 16, w: 84, h: 84, rotation: -10 },
+      { id: 'dec_2', motif: 'ivory_bloom_cluster', label: 'Gardenia & Fern Cluster', x: 80, y: 84, w: 82, h: 82, rotation: 165 }
+    ],
+    fields: { hostNames: 'Amidst Trailing Vines & Fragrant Blossoms', rsvp: 'RSVP by Nov 4, 2026', fullAddress: 'The Walled Secret Garden Conservatory', endTime: '22:30 EAT', contactInfo: 'garden@linneaandtheo.com' }
+  },
+  nature_tropical_leaves: {
+    composition: 'asymmetrical-left',
+    textAlign: 'left',
+    padding: { top: 32, right: 112, bottom: 28, left: 28 },
+    dressCode: { wording: 'Smart Casual', style: 'arch_pill', icon: 'sparkles', note: 'Tropical Island Luxe • Resort Formal & Linen Guayaberas', x: 38, y: 79, width: 230 },
+    photoFrame: { shape: 'rounded', x: 28, y: 22, w: 92, h: 108, borderWidth: 2, cornerRadius: 22, sampleStyle: 'couple_floral', label: 'Island Portrait Frame' },
+    qrPos: { x: 24, y: 89, size: 74, dock: 'bottom-left', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'eucalyptus_stem', label: 'Tropical Palm & Monstera', x: 80, y: 24, w: 88, h: 88, rotation: -15 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Golden Palm Frond', x: 80, y: 78, w: 80, h: 80, rotation: 160 }
+    ],
+    fields: { hostNames: 'Island Breeze & Oceanfront Vows', rsvp: 'RSVP by Nov 2, 2026', fullAddress: 'Mnemba Island Private Beach Villa, Zanzibar', endTime: '23:30 EAT', additionalInstructions: 'Boat transfer departs Stone Town pier at 15:30' }
+  },
+  nature_greenhouse: {
+    composition: 'arch-alcove',
+    textAlign: 'center',
+    padding: { top: 50, right: 44, bottom: 38, left: 44 },
+    dressCode: { wording: 'Black Tie', style: 'arch_pill', icon: 'tuxedo', note: 'Victorian Conservatory Black Tie & Emerald Accents', x: 50, y: 78, width: 236 },
+    photoFrame: { shape: 'arch', x: 50, y: 24, w: 88, h: 110, borderWidth: 2, cornerRadius: 44, sampleStyle: 'couple_floral', label: 'Conservatory Arch Photo' },
+    qrPos: { x: 50, y: 89, size: 72, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'eucalyptus_stem', label: 'Conservatory Fern Left', x: 18, y: 82, w: 76, h: 76, rotation: 15 },
+      { id: 'dec_2', motif: 'eucalyptus_stem', label: 'Conservatory Fern Right', x: 82, y: 82, w: 76, h: 76, rotation: -15 }
+    ],
+    fields: { hostNames: 'Beneath the Wrought-Iron & Glass Dome', rsvp: 'RSVP by Nov 6, 2026', fullAddress: 'The Royal Palm Glasshouse & Orangerie', endTime: '00:00 EAT', eventWebsite: 'www.beatriceandhugo.uk' }
+  },
+  nature_lavender_dreams: {
+    composition: 'diagonal-cascade',
+    textAlign: 'center',
+    padding: { top: 40, right: 34, bottom: 40, left: 34 },
+    dressCode: { wording: 'Cocktail Attire', style: 'floral_wreath', icon: 'floral', note: 'Provence Garden Cocktail • Lavender, Lilac & Cream', x: 50, y: 78, width: 246 },
+    photoFrame: { shape: 'oval', x: 50, y: 24, w: 88, h: 106, borderWidth: 2, cornerRadius: 53, sampleStyle: 'couple_floral', label: 'Provence Cameo Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'ivory_bloom_cluster', label: 'Fragrant Lavender Bundle', x: 20, y: 80, w: 78, h: 78, rotation: 10 },
+      { id: 'dec_2', motif: 'ivory_bloom_cluster', label: 'Right Lavender Sprig', x: 80, y: 20, w: 78, h: 78, rotation: -160 }
+    ],
+    fields: { hostNames: 'Scents of Lavender & Provence Twilight', rsvp: 'RSVP by Nov 8, 2026', fullAddress: 'Château de Lavande Courtyard', endTime: '23:00 EAT', socialMedia: '#DelphineAndLuc' }
+  },
+  nature_autumn_botanicals: {
+    composition: 'diagonal-cascade',
+    textAlign: 'center',
+    padding: { top: 42, right: 34, bottom: 40, left: 34 },
+    dressCode: { wording: 'Formal Attire', style: 'luxury_serif', icon: 'floral', note: 'Autumnal Formal • Terracotta, Amber, Rust & Forest Green', x: 50, y: 78, width: 248 },
+    photoFrame: { shape: 'arch', x: 50, y: 24, w: 88, h: 108, borderWidth: 2, cornerRadius: 44, sampleStyle: 'couple_floral', label: 'Harvest Arch Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'gold_olive_sprig', label: 'Amber Maple & Oak Branch', x: 20, y: 18, w: 84, h: 84, rotation: 0 },
+      { id: 'dec_2', motif: 'pampas_plume', label: 'Autumn Harvest Plume', x: 80, y: 82, w: 84, h: 84, rotation: 170 }
+    ],
+    fields: { hostNames: 'Golden Leaves & Candlelit Harvest Feast', rsvp: 'RSVP by Oct 25, 2026', fullAddress: 'The Hearthstone Barn & Vineyard Cellars', endTime: '23:30 EAT', contactInfo: 'rsvp@hazelideon.com' }
+  },
+  nature_forest_elegance: {
+    composition: 'celebration-showcase',
+    textAlign: 'center',
+    padding: { top: 42, right: 34, bottom: 38, left: 34 },
+    dressCode: { wording: 'Black Tie', style: 'black_tie_gold', icon: 'crown', note: 'Emerald Velvet, Gold Leaf & Formal Evening Tuxedos', x: 50, y: 78, width: 250 },
+    photoFrame: { shape: 'oval', x: 50, y: 25, w: 90, h: 108, borderWidth: 2, cornerRadius: 54, sampleStyle: 'couple_floral', label: 'Enchanted Forest Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'gold_olive_sprig', label: 'Gilded Forest Fern', x: 18, y: 22, w: 82, h: 82, rotation: -10 },
+      { id: 'dec_2', motif: 'eucalyptus_stem', label: 'Deep Pine Foliage', x: 82, y: 78, w: 82, h: 82, rotation: 165 }
+    ],
+    fields: { hostNames: 'Beneath the Ancient Canopy & Starlight', rsvp: 'RSVP by Nov 3, 2026', fullAddress: 'The Emerald Woodland Lodge & Glass Pavilion', endTime: '00:00 EAT', additionalInstructions: 'Lantern-lit pathway guides guests from main gate' }
+  },
+
+  // --- COLLECTION D: LUXURY AND CLASSIC (31-38) ---
+  classic_black_gold_royale: {
+    composition: 'royal-medallion',
+    textAlign: 'center',
+    padding: { top: 44, right: 36, bottom: 38, left: 36 },
+    dressCode: { wording: 'Black Tie', style: 'black_tie_gold', icon: 'crown', note: 'Strict Black Tie & Sovereign Gold Evening Gowns', x: 50, y: 78, width: 254 },
+    photoFrame: { shape: 'octagon', x: 50, y: 25, w: 92, h: 92, borderWidth: 2.5, cornerRadius: 14, sampleStyle: 'couple_floral', label: 'Royal Gold Medallion' },
+    qrPos: { x: 50, y: 89, size: 76, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'baroque_corner', label: '24k Gold Baroque Corner TL', x: 16, y: 14, w: 72, h: 72, rotation: 0 },
+      { id: 'dec_2', motif: 'royal_crest_emblem', label: 'Imperial Sovereign Crest', x: 50, y: 12, w: 62, h: 62, rotation: 0 }
+    ],
+    fields: { hostNames: 'By Command of The Royal Families', rsvp: 'Protocol RSVP Required by Oct 28', fullAddress: 'The Imperial Ballroom, Kilimanjaro Kempinski', endTime: '01:00 EAT', additionalInstructions: 'Admittance strictly by verified QR Pass & VVIP Seal' }
+  },
+  classic_royal_champagne: {
+    composition: 'royal-medallion',
+    textAlign: 'center',
+    padding: { top: 44, right: 36, bottom: 38, left: 36 },
+    dressCode: { wording: 'White Tie', style: 'monogram_scroll', icon: 'crown', note: 'White Tie, Tiara & Champagne Couture Requested', x: 50, y: 78, width: 250 },
+    photoFrame: { shape: 'oval', x: 50, y: 25, w: 90, h: 110, borderWidth: 2.5, cornerRadius: 55, sampleStyle: 'couple_floral', label: 'Royal Cameo Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'royal_crest_emblem', label: 'Royal Crown & Laurel', x: 50, y: 13, w: 66, h: 66, rotation: 0 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Champagne Gold Laurel', x: 80, y: 80, w: 74, h: 74, rotation: 160 }
+    ],
+    fields: { hostNames: 'Their Royal Highnesses & Families', rsvp: 'RSVP to the Lord Chamberlain Office', fullAddress: 'Palace Versailles Hall & Grand Terrace', endTime: '00:30 EAT', contactInfo: 'chancery@royalchampagne.org' }
+  },
+  classic_marble_luxury: {
+    composition: 'minimalist-grid',
+    textAlign: 'center',
+    padding: { top: 38, right: 34, bottom: 34, left: 34 },
+    dressCode: { wording: 'Black Tie', style: 'corporate_minimal', icon: 'diamond', note: 'Carrara White, Gold Foil & Formal Black Tie', x: 50, y: 79, width: 246 },
+    photoFrame: { shape: 'octagon', x: 50, y: 24, w: 92, h: 92, borderWidth: 2, cornerRadius: 10, sampleStyle: 'couple_floral', label: 'Marble & Gold Frame' },
+    qrPos: { x: 78, y: 89, size: 74, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'sunburst_medallion', label: 'Geometric Gold Foil Star', x: 20, y: 18, w: 68, h: 68, rotation: 15 }
+    ],
+    fields: { hostNames: 'Architectural Luxury & Fine Dining', rsvp: 'RSVP by Nov 6, 2026', fullAddress: 'The Carrara Marble Rotunda & Gallery', endTime: '23:55 EAT', eventWebsite: 'www.anastasiaandnikolai.luxury' }
+  },
+  classic_ornamental_heritage: {
+    composition: 'celebration-showcase',
+    textAlign: 'center',
+    padding: { top: 44, right: 38, bottom: 40, left: 38 },
+    dressCode: { wording: 'White Tie', style: 'monogram_scroll', icon: 'bowtie', note: 'Classical Baroque Formal & Heritage Evening Attire', x: 50, y: 78, width: 250 },
+    photoFrame: { shape: 'oval', x: 50, y: 25, w: 88, h: 108, borderWidth: 2.5, cornerRadius: 54, sampleStyle: 'couple_floral', label: 'Baroque Portrait Frame' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'baroque_corner', label: 'Renaissance Scrollwork', x: 18, y: 16, w: 76, h: 76, rotation: 0 },
+      { id: 'dec_2', motif: 'baroque_corner', label: 'Lower Scrollwork', x: 82, y: 84, w: 76, h: 76, rotation: 180 }
+    ],
+    fields: { hostNames: 'Celebrating Centuries of Heritage & Tradition', rsvp: 'RSVP by Oct 31, 2026', fullAddress: 'The Grand Opera House & gilded Foyer', endTime: '00:00 EAT', additionalInstructions: 'String quartet prelude begins at 17:30' }
+  },
+  classic_velvet_burgundy: {
+    composition: 'celebration-showcase',
+    textAlign: 'center',
+    padding: { top: 42, right: 34, bottom: 38, left: 34 },
+    dressCode: { wording: 'Black Tie', style: 'black_tie_gold', icon: 'gown', note: 'Velvet Burgundy, Deep Wine, Champagne Gold & Black Tie', x: 50, y: 78, width: 252 },
+    photoFrame: { shape: 'arch', x: 50, y: 24, w: 90, h: 110, borderWidth: 2, cornerRadius: 45, sampleStyle: 'couple_floral', label: 'Velvet Arch Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'blush_rose_duo', label: 'Crimson & Blush Velvet Roses', x: 20, y: 18, w: 84, h: 84, rotation: -12 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Antique Gold Filigree', x: 80, y: 82, w: 80, h: 80, rotation: 165 }
+    ],
+    fields: { hostNames: 'Candlelit Romance & Vintage Reserve Wine', rsvp: 'RSVP by Nov 4, 2026', fullAddress: 'Château Margaux Grand Barrel Cellar', endTime: '00:30 EAT', socialMedia: '#cressidaandsebastian' }
+  },
+  classic_pearl_elegance: {
+    composition: 'garland-frame',
+    textAlign: 'center',
+    padding: { top: 56, right: 34, bottom: 52, left: 34 },
+    dressCode: { wording: 'All White', style: 'luxury_serif', icon: 'diamond', note: 'Pearl White, Mother-of-Pearl Silk & Silver Black Tie', x: 50, y: 78, width: 248 },
+    photoFrame: { shape: 'circle', x: 50, y: 25, w: 90, h: 90, borderWidth: 2.5, cornerRadius: 45, sampleStyle: 'couple_floral', label: 'Pearl Cameo Medallion' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'ivory_bloom_cluster', label: 'Iridescent Pearl Bloom', x: 20, y: 20, w: 78, h: 78, rotation: -10 },
+      { id: 'dec_2', motif: 'diamond_rings', label: 'Pearl & Diamond Emblem', x: 80, y: 80, w: 68, h: 68, rotation: 0 }
+    ],
+    fields: { hostNames: 'Draped in Satin, Pearls & Grace', rsvp: 'RSVP by Nov 7, 2026', fullAddress: 'The Mother-of-Pearl Grand Salon', endTime: '23:30 EAT', contactInfo: 'pearls@opheliaandjulian.com' }
+  },
+  classic_golden_frame: {
+    composition: 'garland-frame',
+    textAlign: 'center',
+    padding: { top: 46, right: 36, bottom: 42, left: 36 },
+    dressCode: { wording: 'Black Tie', style: 'black_tie_gold', icon: 'tuxedo', note: 'Art Deco Black Tie, Gold Sequins & Velvet Dinner Jackets', x: 50, y: 78, width: 250 },
+    photoFrame: { shape: 'octagon', x: 50, y: 25, w: 92, h: 98, borderWidth: 2.5, cornerRadius: 12, sampleStyle: 'couple_floral', label: 'Art Deco Gold Frame' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'sunburst_medallion', label: 'Art Deco Sunburst', x: 50, y: 12, w: 64, h: 64, rotation: 0 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Golden Botanical Spray', x: 20, y: 82, w: 76, h: 76, rotation: 15 }
+    ],
+    fields: { hostNames: 'A Roaring Twenties & Golden Frame Gala', rsvp: 'RSVP by Nov 5, 2026', fullAddress: 'The Plaza Gilded Ballroom', endTime: '01:00 EAT', socialMedia: '#BeatrixAndMaverick' }
+  },
+  classic_classic_crest: {
+    composition: 'royal-medallion',
+    textAlign: 'center',
+    padding: { top: 48, right: 36, bottom: 40, left: 36 },
+    dressCode: { wording: 'White Tie', style: 'monogram_scroll', icon: 'crown', note: 'State Formal, White Tie, Medals & Diplomatic Attire', x: 50, y: 78, width: 252 },
+    photoFrame: { shape: 'arch', x: 50, y: 25, w: 88, h: 108, borderWidth: 2.5, cornerRadius: 44, sampleStyle: 'couple_floral', label: 'Heraldic Shield Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'royal_crest_emblem', label: 'Noble Family Crest', x: 50, y: 13, w: 72, h: 72, rotation: 0 }
+    ],
+    fields: { hostNames: 'The Noble Houses of Cordelia & Leopold', rsvp: 'RSVP to the Protocol Office by Oct 25', fullAddress: 'State Banquet Hall & Royal Gardens', endTime: '00:00 EAT', additionalInstructions: 'Diplomatic & VVIP motorcade entrance via Gate A' }
+  },
+
+  // --- COLLECTION E: AFRICAN LUXURY (39-45) ---
+  african_african_royalty: {
+    composition: 'royal-medallion',
+    textAlign: 'center',
+    padding: { top: 46, right: 34, bottom: 42, left: 34 },
+    dressCode: { wording: 'African Formal Attire', style: 'african_ornament', icon: 'african_shield', note: 'Regal Aso-Oke, Agbada, Kente, Kitenge Couture or Black Tie', x: 50, y: 78, width: 256 },
+    photoFrame: { shape: 'octagon', x: 50, y: 25, w: 94, h: 94, borderWidth: 2.5, cornerRadius: 16, sampleStyle: 'african_royalty', label: 'Royal African Portrait' },
+    qrPos: { x: 50, y: 89, size: 76, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'african_diamond_seal', label: 'Sovereign Star Emblem', x: 50, y: 13, w: 68, h: 68, rotation: 0 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Gold Leaf Accents', x: 20, y: 80, w: 74, h: 74, rotation: 15 }
+    ],
+    fields: { hostNames: 'The Royal Families of Asante & Okafor', rsvp: 'RSVP by Nov 1, 2026', fullAddress: 'Royal Pavilion, Kempinski Hotel Dar es Salaam', endTime: '01:00 EAT', socialMedia: '#AmaraWedsKwame2026' }
+  },
+  african_kitenge_elegance: {
+    composition: 'african-tapestry',
+    textAlign: 'center',
+    padding: { top: 50, right: 34, bottom: 48, left: 34 },
+    dressCode: { wording: 'Traditional African Wear', style: 'african_ornament', icon: 'african_shield', note: 'Bespoke Kitenge, Ankara Gold & East African Couture', x: 50, y: 77, width: 254 },
+    photoFrame: { shape: 'octagon', x: 50, y: 25, w: 92, h: 92, borderWidth: 2.5, cornerRadius: 14, sampleStyle: 'african_royalty', label: 'Kitenge Frame Portrait' },
+    qrPos: { x: 78, y: 88, size: 74, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'african_diamond_seal', label: 'Kitenge Geometric Medallion', x: 20, y: 20, w: 68, h: 68, rotation: 0 },
+      { id: 'dec_2', motif: 'african_diamond_seal', label: 'Lower Tapestry Seal', x: 22, y: 86, w: 64, h: 64, rotation: 45 }
+    ],
+    fields: { hostNames: 'Familia ya Mwakasege na Macharia inakualika', rsvp: 'Thibitisha kabla ya Nov 5, 2026', fullAddress: 'Mlimani City Grand Conference Hall, Dar es Salaam', endTime: '00:00 EAT', contactInfo: '+255 754 888 999 • kamati@zuriabaraka.co.tz' }
+  },
+  african_swahili_heritage: {
+    composition: 'arch-alcove',
+    textAlign: 'center',
+    padding: { top: 54, right: 44, bottom: 38, left: 44 },
+    dressCode: { wording: 'Cultural Attire', style: 'african_ornament', icon: 'crown', note: 'Swahili Coastal Elegance • Kanzu, Dirac, Silk Abaya & Gold', x: 50, y: 78, width: 238 },
+    photoFrame: { shape: 'arch', x: 50, y: 25, w: 88, h: 108, borderWidth: 2.5, cornerRadius: 44, sampleStyle: 'african_royalty', label: 'Swahili Arch Portrait' },
+    qrPos: { x: 50, y: 89, size: 72, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'sunburst_medallion', label: 'Zanzibar Brass Rosette', x: 50, y: 12, w: 62, h: 62, rotation: 0 }
+    ],
+    fields: { hostNames: 'Karibu Katika Harusi ya Heshima ya Pwani', rsvp: 'RSVP kufikia Nov 8, 2026', fullAddress: 'Forodhani Old Fort & Serena Courtyard, Stone Town', endTime: '23:30 EAT', additionalInstructions: 'Taarab Orchestra & Coastal Banquet served at 19:30' }
+  },
+  african_african_botanical: {
+    composition: 'asymmetrical-right',
+    textAlign: 'right',
+    padding: { top: 30, right: 26, bottom: 28, left: 118 },
+    dressCode: { wording: 'African Formal Attire', style: 'floral_wreath', icon: 'floral', note: 'Savannah Terracotta, Protea Coral & Contemporary African Formal', x: 64, y: 79, width: 232 },
+    photoFrame: { shape: 'arch', x: 74, y: 21, w: 90, h: 110, borderWidth: 2, cornerRadius: 45, sampleStyle: 'african_royalty', label: 'Protea Arch Portrait' },
+    qrPos: { x: 78, y: 89, size: 74, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'ivory_bloom_cluster', label: 'King Protea & Acacia', x: 22, y: 26, w: 90, h: 90, rotation: 8 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Savannah Gold Foliage', x: 24, y: 78, w: 78, h: 78, rotation: -12 }
+    ],
+    fields: { hostNames: 'Celebrating Love Beneath the African Skies', rsvp: 'RSVP by Nov 6, 2026', fullAddress: 'Four Seasons Safari Lodge Terrace, Serengeti', endTime: '23:30 EAT', socialMedia: '#NiaAndJabari2026' }
+  },
+  african_zanzibar_romance: {
+    composition: 'arch-alcove',
+    textAlign: 'center',
+    padding: { top: 48, right: 42, bottom: 44, left: 42 },
+    dressCode: { wording: 'All White', style: 'arch_pill', icon: 'sparkles', note: 'Zanzibar Sunset All-White Linen, Silk & Turquoise Jewels', x: 50, y: 77, width: 240 },
+    photoFrame: { shape: 'arch', x: 50, y: 24, w: 88, h: 108, borderWidth: 2, cornerRadius: 44, sampleStyle: 'african_royalty', label: 'Zanzibar Sunset Portrait' },
+    qrPos: { x: 50, y: 89, size: 72, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'sunburst_medallion', label: 'Indian Ocean Sun', x: 78, y: 18, w: 64, h: 64, rotation: 0 },
+      { id: 'dec_2', motif: 'eucalyptus_stem', label: 'Coastal Palm Frond', x: 20, y: 20, w: 76, h: 76, rotation: 15 }
+    ],
+    fields: { hostNames: 'Where Turquoise Waters Meet Spice Island Breezes', rsvp: 'RSVP by Nov 4, 2026', fullAddress: 'Kendwa Rocks Sunset Pier, Zanzibar', endTime: '00:00 EAT', additionalInstructions: 'Sunset Dhow Cruise departs at 17:00 sharp' }
+  },
+  african_african_gold: {
+    composition: 'african-tapestry',
+    textAlign: 'center',
+    padding: { top: 48, right: 34, bottom: 46, left: 34 },
+    dressCode: { wording: 'African Formal Attire', style: 'black_tie_gold', icon: 'african_shield', note: '24k Gold Ashanti Kente, Espresso Velvet & Regal Black Tie', x: 50, y: 78, width: 254 },
+    photoFrame: { shape: 'octagon', x: 50, y: 25, w: 92, h: 92, borderWidth: 2.5, cornerRadius: 14, sampleStyle: 'african_royalty', label: 'Golden Heritage Portrait' },
+    qrPos: { x: 50, y: 89, size: 76, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'african_diamond_seal', label: 'Ashanti Gold Medallion', x: 50, y: 14, w: 68, h: 68, rotation: 0 },
+      { id: 'dec_2', motif: 'baroque_corner', label: 'Gilded Tapestry Corner', x: 18, y: 82, w: 66, h: 66, rotation: -90 }
+    ],
+    fields: { hostNames: 'Honouring Our Ancestors, Celebrating Our Future', rsvp: 'RSVP by Nov 1, 2026', fullAddress: 'The Golden Baobab Grand Banquet Hall', endTime: '01:00 EAT', socialMedia: '#AdaezeAndChukwudi' }
+  },
+  african_kanga_celebration: {
+    composition: 'african-tapestry',
+    textAlign: 'center',
+    padding: { top: 52, right: 38, bottom: 50, left: 38 },
+    dressCode: { wording: 'Traditional African Wear', style: 'african_ornament', icon: 'sparkles', note: 'Vibrant Kanga, Vitenge, Gold Jewellery & Festive Attire', x: 50, y: 77, width: 248 },
+    photoFrame: { shape: 'circle', x: 50, y: 25, w: 90, h: 90, borderWidth: 2.5, cornerRadius: 45, sampleStyle: 'african_royalty', label: 'Kanga Medallion Photo' },
+    qrPos: { x: 50, y: 88, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'african_diamond_seal', label: 'Kanga Paisley Seal Left', x: 20, y: 20, w: 64, h: 64, rotation: -15 },
+      { id: 'dec_2', motif: 'african_diamond_seal', label: 'Kanga Paisley Seal Right', x: 80, y: 20, w: 64, h: 64, rotation: 15 }
+    ],
+    fields: { hostNames: 'Furaha, Upendo na Baraka tele Katika Nyumba Yetu', rsvp: 'Thibitisha kabla ya Nov 10, 2026', fullAddress: 'Diamond Jubilee VIP Hall, Dar es Salaam', endTime: '00:30 EAT', contactInfo: 'Mwenyekiti wa Kamati: +255 713 222 333' }
+  },
+
+  // --- COLLECTION F: MODERN CELEBRATIONS (46-50) ---
+  modern_birthday_luxe: {
+    composition: 'celebration-showcase',
+    textAlign: 'center',
+    padding: { top: 40, right: 32, bottom: 36, left: 32 },
+    dressCode: { wording: 'Cocktail Attire', style: 'birthday_festive', icon: 'sparkles', note: 'Champagne Glam, Rose Gold Sequins & Designer Cocktail', x: 50, y: 78, width: 252 },
+    photoFrame: { shape: 'arch', x: 50, y: 25, w: 94, h: 112, borderWidth: 2.5, cornerRadius: 47, sampleStyle: 'celebrant_portrait', label: 'Celebrant Hero Portrait' },
+    qrPos: { x: 78, y: 89, size: 74, dock: 'bottom-right', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'sunburst_medallion', label: 'Golden Birthday Sparkle', x: 20, y: 18, w: 68, h: 68, rotation: 0 },
+      { id: 'dec_2', motif: 'ivory_bloom_cluster', label: 'Champagne Rose Cluster', x: 82, y: 22, w: 74, h: 74, rotation: 15 }
+    ],
+    fields: { celebrantName: 'Lady Zara Nyerere — 30th Milestone Soirée', hostNames: 'Join Us for Champagne Towers & Live Jazz', rsvp: 'VIP Guestlist RSVP by Nov 12, 2026', fullAddress: 'Level 24 Sky Lounge & Infinity Terrace', endTime: '02:00 EAT', socialMedia: '#ZaraTurns30Luxe' }
+  },
+  modern_graduation_prestige: {
+    composition: 'celebration-showcase',
+    textAlign: 'center',
+    padding: { top: 42, right: 34, bottom: 36, left: 34 },
+    dressCode: { wording: 'Smart Casual', style: 'corporate_minimal', icon: 'crown', note: 'Academic Regalia, Smart Formal Suits & Cocktail Dresses', x: 50, y: 78, width: 250 },
+    photoFrame: { shape: 'rounded', x: 50, y: 25, w: 92, h: 108, borderWidth: 2.5, cornerRadius: 18, sampleStyle: 'corporate_speaker', label: 'Graduate Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'royal_crest_emblem', label: 'University Honours Crest', x: 50, y: 12, w: 64, h: 64, rotation: 0 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Victory Laurel Branch', x: 20, y: 80, w: 72, h: 72, rotation: 15 }
+    ],
+    fields: { celebrantName: 'Dr. Kelvin Msuya, Ph.D. — Class of 2026', hostNames: 'Academic Convocation & Honours Banquet', rsvp: 'RSVP by Nov 9, 2026', fullAddress: 'Nkrumah Great Hall & Serena Banquet Suite', endTime: '22:00 EAT', contactInfo: 'family@msuyahonours.com' }
+  },
+  modern_corporate_prestige: {
+    composition: 'editorial-magazine',
+    textAlign: 'center',
+    padding: { top: 34, right: 30, bottom: 32, left: 30 },
+    dressCode: { wording: 'Formal Attire', style: 'corporate_minimal', icon: 'tuxedo', note: 'Executive Business Formal or Diplomatic Black Tie', x: 50, y: 79, width: 256 },
+    photoFrame: { shape: 'rounded', x: 50, y: 24, w: 94, h: 98, borderWidth: 2, cornerRadius: 14, sampleStyle: 'corporate_speaker', label: 'Keynote / Guest of Honour Photo' },
+    qrPos: { x: 80, y: 89, size: 74, dock: 'bottom-right', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'royal_crest_emblem', label: 'Executive Summit Seal', x: 20, y: 16, w: 58, h: 58, rotation: 0 }
+    ],
+    fields: { guestOfHonour: 'Keynote by H.E. Amb. Dr. Asha-Rose Migiro', hostNames: 'The Board of Directors & Executive Council', rsvp: 'Accreditation Closes Nov 10, 2026', fullAddress: 'Julius Nyerere International Convention Centre (JNICC)', endTime: '22:30 EAT', eventWebsite: 'www.eastafricaleadershipforum.org' }
+  },
+  modern_gala_night: {
+    composition: 'royal-medallion',
+    textAlign: 'center',
+    padding: { top: 44, right: 34, bottom: 38, left: 34 },
+    dressCode: { wording: 'Black Tie', style: 'black_tie_gold', icon: 'bowtie', note: 'Strict Black Tie, Velvet Tuxedos & Floor-Length Gowns', x: 50, y: 78, width: 254 },
+    photoFrame: { shape: 'octagon', x: 50, y: 25, w: 92, h: 96, borderWidth: 2, cornerRadius: 14, sampleStyle: 'corporate_speaker', label: 'Gala Honouree Portrait' },
+    qrPos: { x: 50, y: 89, size: 76, dock: 'bottom-center', category: 'VVIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'sunburst_medallion', label: 'Starlight Gold Sunburst', x: 50, y: 14, w: 72, h: 72, rotation: 0 },
+      { id: 'dec_2', motif: 'gold_olive_sprig', label: 'Gilded Laurel Sprig', x: 82, y: 82, w: 72, h: 72, rotation: 165 }
+    ],
+    fields: { guestOfHonour: 'Honouring Philanthropic Leaders of East Africa', hostNames: 'The Royal Philanthropy Foundation', rsvp: 'Table Reservations Close Nov 5, 2026', fullAddress: 'Grand Starlight Ballroom, Hyatt Regency', endTime: '01:00 EAT', additionalInstructions: 'Red carpet arrivals & champagne reception from 18:00' }
+  },
+  modern_engagement_romance: {
+    composition: 'arch-alcove',
+    textAlign: 'center',
+    padding: { top: 46, right: 38, bottom: 38, left: 38 },
+    dressCode: { wording: 'Cocktail Attire', style: 'floral_wreath', icon: 'diamond', note: 'Romantic Blush, Champagne Silk & Cocktail Elegance', x: 50, y: 78, width: 246 },
+    photoFrame: { shape: 'circle', x: 50, y: 25, w: 92, h: 92, borderWidth: 2.5, cornerRadius: 46, sampleStyle: 'couple_floral', label: 'Engaged Couple Portrait' },
+    qrPos: { x: 50, y: 89, size: 74, dock: 'bottom-center', category: 'VIP' },
+    motifs: [
+      { id: 'dec_1', motif: 'diamond_rings', label: 'Interlocked Diamond Rings', x: 50, y: 12, w: 62, h: 62, rotation: 0 },
+      { id: 'dec_2', motif: 'blush_rose_duo', label: 'Blush Rose Garland', x: 20, y: 82, w: 78, h: 78, rotation: 12 }
+    ],
+    fields: { hostNames: 'We Said Yes to Forever!', rsvp: 'RSVP by Nov 8, 2026', fullAddress: 'The Rose Terrace Lounge & Rooftop Garden', endTime: '23:30 EAT', socialMedia: '#NaomiAndEmmanuelEngaged' }
+  }
+};
+
+// Populate original SVG decorativeArtwork AND structured layoutConfig on all 50 templates
 function hydrateAllTemplatesArtwork() {
   Object.keys(TEMPLATES_LIBRARY).forEach((id) => {
     const tpl = TEMPLATES_LIBRARY[id];
-    if (tpl && !tpl.decorativeArtwork) {
+    if (!tpl) return;
+    if (!tpl.decorativeArtwork) {
       tpl.decorativeArtwork = generateTemplateArtworkSvg(id, tpl.accentColor);
     }
+    const spec = TEMPLATE_LAYOUT_SPECS[id] || TEMPLATE_LAYOUT_SPECS.wedding_ivory_bloom;
+    const dc = spec.dressCode || {};
+    const pf = spec.photoFrame || {};
+    const qr = spec.qrPos || {};
+    const flds = spec.fields || {};
+
+    // 1. Dress Code Properties per Template
+    tpl.showDressCode = true;
+    tpl.dressCode = tpl.dressCode || dc.wording || 'Formal Attire';
+    tpl.dressCodeStyle = tpl.dressCodeStyle || dc.style || 'luxury_serif';
+    tpl.dressCodeIcon = tpl.dressCodeIcon || dc.icon || 'tuxedo';
+    tpl.dressCodeNote = tpl.dressCodeNote || dc.note || tpl.footer || 'Formal Evening Attire Requested';
+    tpl.dressCodeFont = tpl.dressCodeFont || tpl.titleFont || tpl.fontFamily;
+    tpl.dressCodeColor = tpl.dressCodeColor || tpl.accentColor;
+    tpl.dressCodeScale = tpl.dressCodeScale || 100;
+    tpl.dressCodeX = tpl.dressCodeX !== undefined ? tpl.dressCodeX : (dc.x || 50);
+    tpl.dressCodeY = tpl.dressCodeY !== undefined ? tpl.dressCodeY : (dc.y || 78);
+    tpl.dressCodeWidth = tpl.dressCodeWidth || dc.width || 245;
+
+    // 2. Editable Photographs & Image Frames per Template
+    const sampleImg = (typeof LuxeArt !== 'undefined' && typeof LuxeArt.samplePortraitDataUrl === 'function')
+      ? LuxeArt.samplePortraitDataUrl(pf.sampleStyle || 'couple_floral', tpl.accentColor, tpl.headerColor2 || tpl.bodyBg)
+      : '';
+    tpl.showPhotoFrame = tpl.showPhotoFrame !== undefined ? tpl.showPhotoFrame : true;
+    tpl.photoLayers = tpl.photoLayers || [
+      {
+        id: `photo_${id}_main`,
+        label: pf.label || 'Featured Portrait',
+        src: sampleImg,
+        isSample: true,
+        x: pf.x !== undefined ? pf.x : 50,
+        y: pf.y !== undefined ? pf.y : 24,
+        w: pf.w || 92,
+        h: pf.h || 108,
+        shape: pf.shape || 'arch',
+        borderColor: tpl.accentColor,
+        borderWidth: pf.borderWidth !== undefined ? pf.borderWidth : 2,
+        cornerRadius: pf.cornerRadius !== undefined ? pf.cornerRadius : 24,
+        rotation: 0,
+        opacity: 100,
+        brightness: 100,
+        contrast: 100,
+        cropZoom: 100,
+        cropX: 50,
+        cropY: 50,
+        zIndex: 5,
+        locked: false,
+        visible: true
+      }
+    ];
+
+    // 3. Independent QR Code & Guest Category Placement per Template
+    tpl.studioQrX = tpl.studioQrX !== undefined ? tpl.studioQrX : (qr.x || 50);
+    tpl.studioQrY = tpl.studioQrY !== undefined ? tpl.studioQrY : (qr.y || 89);
+    tpl.studioQrSize = tpl.studioQrSize || qr.size || 76;
+    tpl.studioQrRotation = tpl.studioQrRotation || 0;
+    tpl.studioQrDock = tpl.studioQrDock || qr.dock || 'bottom-center';
+    tpl.showQrCategoryLabel = tpl.showQrCategoryLabel !== undefined ? tpl.showQrCategoryLabel : true;
+    tpl.guestCategory = tpl.guestCategory || qr.category || 'VIP';
+    tpl.qrBorderColor = tpl.qrBorderColor || tpl.accentColor;
+
+    // 4. Independently Editable Decorative Vector Objects per Template
+    tpl.decorativeObjects = tpl.decorativeObjects || (spec.motifs || []).map((m, idx) => ({
+      id: m.id || `motif_${idx + 1}`,
+      type: m.motif || m.type || 'ivory_bloom_cluster',
+      motif: m.motif || m.type || 'ivory_bloom_cluster',
+      label: m.label || 'Decorative Botanical',
+      x: m.x !== undefined ? m.x : 20,
+      y: m.y !== undefined ? m.y : 20,
+      size: m.w || m.size || 76,
+      w: m.w || m.size || 76,
+      h: m.h || m.size || 76,
+      rotation: m.rotation || 0,
+      opacity: 95,
+      color: tpl.accentColor,
+      secondaryColor: tpl.headerColor2 || '#F5ECE0',
+      locked: false,
+      visible: true
+    }));
+
+    // 5. Flexible 19-Field Invitation Content & Visibility Map per Template
+    tpl.title = tpl.title || tpl.sampleTitle || 'The Grand Celebration';
+    tpl.subtitle = tpl.subtitle || 'Cordially Invited';
+    tpl.date = tpl.date || tpl.sampleDate || 'Saturday, Nov 21, 2026';
+    tpl.time = tpl.time || tpl.sampleTime || '18:00 EAT';
+    tpl.venue = tpl.venue || tpl.sampleVenue || 'Serena Grand Ballroom';
+    tpl.seat = tpl.seat || tpl.sampleSeat || 'Table 04 • VIP Gate 1';
+    tpl.hostNames = tpl.hostNames || flds.hostNames || 'Together with their families';
+    tpl.celebrantName = tpl.celebrantName || flds.celebrantName || 'Lady Victoria Sterling';
+    tpl.guestOfHonour = tpl.guestOfHonour || flds.guestOfHonour || 'H.E. Amb. Dr. Amina Kenyatta';
+    tpl.endTime = tpl.endTime || flds.endTime || '23:30 EAT';
+    tpl.fullAddress = tpl.fullAddress || flds.fullAddress || 'Dar es Salaam, Tanzania';
+    tpl.rsvp = tpl.rsvp || flds.rsvp || 'RSVP by November 10, 2026';
+    tpl.contactInfo = tpl.contactInfo || flds.contactInfo || '+255 754 000 111';
+    tpl.additionalInstructions = tpl.additionalInstructions || flds.additionalInstructions || 'Valet parking available at main gate';
+    tpl.eventWebsite = tpl.eventWebsite || flds.eventWebsite || 'www.leulaevents.com';
+    tpl.socialMedia = tpl.socialMedia || flds.socialMedia || '#LeulaLuxuryEvents';
+
+    const isCeleb = !!flds.celebrantName;
+    const isCorp = !!flds.guestOfHonour;
+    tpl.defaultVisibleFields = {
+      badge: true,
+      hostNames: true,
+      sampleCouple: !isCeleb && !isCorp,
+      celebrantName: isCeleb,
+      guestOfHonour: isCorp,
+      title: true,
+      subtitle: false,
+      quote: true,
+      guest: true,
+      guestCategory: true,
+      date: true,
+      time: true,
+      endTime: true,
+      venue: true,
+      fullAddress: true,
+      seat: true,
+      dressCode: true,
+      rsvp: true,
+      contactInfo: !!flds.contactInfo,
+      additionalInstructions: !!flds.additionalInstructions,
+      eventWebsite: !!flds.eventWebsite,
+      socialMedia: !!flds.socialMedia,
+      footer: true
+    };
+    tpl.visibleFields = Object.assign({}, tpl.defaultVisibleFields, tpl.visibleFields || {});
+
+    // 6. Complete Structured Layout Configuration Object
+    tpl.compositionType = spec.composition || 'royal-medallion';
+    tpl.textAlign = spec.textAlign || 'center';
+    tpl.contentPadding = spec.padding || { top: 38, right: 32, bottom: 34, left: 32 };
+    tpl.layoutConfig = {
+      templateId: id,
+      canvas: { width: 420, height: 640 },
+      canvasDimensions: { width: 420, height: 640 },
+      compositionType: tpl.compositionType,
+      textAlign: tpl.textAlign,
+      contentPadding: tpl.contentPadding,
+      background: {
+        bodyBg: tpl.bodyBg,
+        headerColor1: tpl.headerColor1,
+        headerColor2: tpl.headerColor2,
+        borderColor: tpl.borderColor
+      },
+      headingPosition: { x: spec.textAlign === 'right' ? 70 : (spec.textAlign === 'left' ? 30 : 50), y: 10, align: tpl.textAlign },
+      namesPosition: { x: spec.textAlign === 'right' ? 70 : (spec.textAlign === 'left' ? 30 : 50), y: 20, align: tpl.textAlign },
+      eventTitlePosition: { x: spec.textAlign === 'right' ? 70 : (spec.textAlign === 'left' ? 30 : 50), y: 34, align: tpl.textAlign },
+      descriptionPosition: { x: spec.textAlign === 'right' ? 70 : (spec.textAlign === 'left' ? 30 : 50), y: 44, align: tpl.textAlign },
+      dateTimePosition: { x: spec.textAlign === 'right' ? 70 : (spec.textAlign === 'left' ? 30 : 50), y: 60, align: tpl.textAlign },
+      venuePosition: { x: spec.textAlign === 'right' ? 70 : (spec.textAlign === 'left' ? 30 : 50), y: 68, align: tpl.textAlign },
+      dressCodePosition: { x: tpl.dressCodeX, y: tpl.dressCodeY, width: tpl.dressCodeWidth, style: tpl.dressCodeStyle, icon: tpl.dressCodeIcon },
+      photoFrames: tpl.photoLayers,
+      logoPosition: { x: 50, y: 6, maxW: 130, maxH: 40 },
+      qrCodePosition: { x: tpl.studioQrX, y: tpl.studioQrY, size: tpl.studioQrSize, dock: tpl.studioQrDock, category: tpl.guestCategory },
+      additionalInfoPosition: { x: 50, y: 94, align: tpl.textAlign },
+      decorativeObjects: tpl.decorativeObjects,
+      textFitting: {
+        autoScaleTitle: true,
+        autoScaleCouple: true,
+        autoScaleQuote: true,
+        minScaleFactor: 0.68,
+        warnOnOverflow: true
+      }
+    };
   });
 }
 hydrateAllTemplatesArtwork();
@@ -3074,11 +3912,17 @@ function renderTemplatesLibrary(filterCat = 'all', searchQuery = '') {
     const isFav = favs.includes(tpl.id);
     const isActive = (typeof state !== 'undefined' && state && state.template === tpl.id);
     const svgArt = tpl.decorativeArtwork || generateTemplateArtworkSvg(tpl.id, tpl.accentColor);
+    const alignItems = tpl.textAlign === 'right' ? 'flex-end' : (tpl.textAlign === 'left' ? 'flex-start' : 'center');
+    const padLeft = tpl.textAlign === 'right' ? '58px' : '18px';
+    const padRight = tpl.textAlign === 'left' ? '58px' : '18px';
+    const dcIconSvg = (typeof LuxeArt !== 'undefined' && typeof LuxeArt.dressCodeIcon === 'function')
+      ? LuxeArt.dressCodeIcon(tpl.dressCodeIcon || 'tuxedo', tpl.accentColor)
+      : '';
 
     return `
       <div class="tpl-card-item ${isActive ? 'active' : ''}" onclick="customizeTemplate('${tpl.id}', event)" title="Click to customize ${tpl.name}" data-template-id="${tpl.id}">
         <!-- Full Miniature Stationery Card Preview -->
-        <div class="tpl-card-swatch tpl-stationery-preview" style="background: ${tpl.bodyBg}; color: ${tpl.textColor}; position: relative; height: 248px; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 22px 18px; text-align: center;">
+        <div class="tpl-card-swatch tpl-stationery-preview" style="background: ${tpl.bodyBg}; color: ${tpl.textColor}; position: relative; height: 256px; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: ${alignItems}; padding: 22px ${padRight} 18px ${padLeft}; text-align: ${tpl.textAlign || 'center'};">
           <div class="tpl-preview-svg-layer" style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1;">
             ${svgArt}
           </div>
@@ -3090,19 +3934,22 @@ function renderTemplatesLibrary(filterCat = 'all', searchQuery = '') {
           </button>
 
           <!-- Miniature Editorial Stationery Typography Layer -->
-          <div style="position:relative; z-index:2; max-width: 88%; display:flex; flex-direction:column; align-items:center; gap: 4px; margin-top: 12px;">
-            <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.52rem; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: ${tpl.accentColor}; opacity: 0.92;">
+          <div style="position:relative; z-index:2; max-width: 94%; display:flex; flex-direction:column; align-items:${alignItems}; gap: 3px; margin-top: 14px;">
+            <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.48rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: ${tpl.accentColor}; opacity: 0.92;">
               ${tpl.badge}
             </div>
-            <div style="font-family: ${tpl.scriptFont || "'Great Vibes', cursive"}; font-size: 1.42rem; line-height: 1.15; color: ${tpl.headingColor}; margin: 2px 0;">
-              ${tpl.sampleCouple || tpl.name}
+            <div style="font-family: ${tpl.scriptFont || "'Great Vibes', cursive"}; font-size: 1.35rem; line-height: 1.15; color: ${tpl.headingColor}; margin: 1px 0;">
+              ${tpl.celebrantName || tpl.guestOfHonour || tpl.sampleCouple || tpl.name}
             </div>
-            <div style="font-family: ${tpl.titleFont || tpl.fontFamily}; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.6px; color: ${tpl.textColor}; opacity: 0.88;">
+            <div style="font-family: ${tpl.titleFont || tpl.fontFamily}; font-size: 0.64rem; font-weight: 600; letter-spacing: 0.5px; color: ${tpl.textColor}; opacity: 0.88;">
               ${tpl.name}
             </div>
-            <div style="width: 36px; height: 1px; background: ${tpl.accentColor}; opacity: 0.55; margin: 3px 0;"></div>
-            <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.52rem; letter-spacing: 1px; text-transform: uppercase; color: ${tpl.textColor}; opacity: 0.72;">
+            <div style="width: 34px; height: 1px; background: ${tpl.accentColor}; opacity: 0.55; margin: 2px 0;"></div>
+            <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.48rem; letter-spacing: 0.9px; text-transform: uppercase; color: ${tpl.textColor}; opacity: 0.75;">
               SAT • NOV 21, 2026 • DAR ES SALAAM
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:3px; margin-top:3px; padding:2px 7px; border-radius:99px; border:1px solid ${tpl.accentColor}55; background:${tpl.accentColor}12; font-family:${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size:0.46rem; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:${tpl.accentColor};">
+              <span>DRESS CODE: ${tpl.dressCode || 'Formal Attire'}</span>
             </div>
           </div>
         </div>
@@ -3112,7 +3959,7 @@ function renderTemplatesLibrary(filterCat = 'all', searchQuery = '') {
           <div class="tpl-card-info">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:4px;">
               <div class="tpl-card-name">${tpl.name}</div>
-              <span style="font-size:0.62rem; padding:1px 6px; border-radius:99px; background:var(--surface-2); color:var(--text-muted); font-weight:600;">Portrait</span>
+              <span style="font-size:0.58rem; padding:1px 6px; border-radius:99px; background:var(--surface-2); color:var(--text-muted); font-weight:600;">${tpl.compositionType || 'Luxury'}</span>
             </div>
             <div class="tpl-card-tagline">${tpl.tagline || ''}</div>
           </div>
@@ -3173,7 +4020,7 @@ function executeCustomizeTemplate(tplId) {
   window.isDesignDirty = false;
 
   if (typeof showToast === 'function') {
-    showToast(`Loaded "${tpl.name}" into the luxury studio!`, 'success');
+    showToast(`Loaded "${tpl.name}" (${tpl.compositionType} layout) into the luxury studio!`, 'success');
   }
 }
 
@@ -3185,11 +4032,10 @@ function duplicateTemplate(tplId, e) {
 
   const copyId = `${tplId}_copy_${Date.now()}`;
   const copyName = `${source.name} (Copy)`;
-  const copyTpl = Object.assign({}, source, {
-    id: copyId,
-    name: copyName,
-    tagline: `Custom edition of ${source.name}`
-  });
+  const copyTpl = JSON.parse(JSON.stringify(source));
+  copyTpl.id = copyId;
+  copyTpl.name = copyName;
+  copyTpl.tagline = `Custom edition of ${source.name}`;
 
   Object.defineProperty(TEMPLATES_LIBRARY, copyId, {
     value: copyTpl, writable: true, configurable: true, enumerable: false
@@ -3218,7 +4064,7 @@ function saveCurrentDesignAsTemplate() {
     ? `${state.customTitle.trim()} (Saved)`
     : `${baseTpl.name} (Custom)`;
 
-  const newTpl = Object.assign({}, baseTpl, JSON.parse(JSON.stringify(state)), {
+  const newTpl = Object.assign({}, JSON.parse(JSON.stringify(baseTpl)), JSON.parse(JSON.stringify(state)), {
     id: customId,
     name: customName,
     catName: 'Saved Custom',
@@ -3255,53 +4101,79 @@ function previewTemplateModal(tplId, e) {
   if (!modal || !body) return;
 
   const svgArt = tpl.decorativeArtwork || generateTemplateArtworkSvg(tpl.id, tpl.accentColor);
+  const pad = tpl.contentPadding || { top: 36, right: 32, bottom: 32, left: 32 };
+  const dcIcon = (typeof LuxeArt !== 'undefined' && typeof LuxeArt.dressCodeIcon === 'function')
+    ? LuxeArt.dressCodeIcon(tpl.dressCodeIcon || 'tuxedo', tpl.accentColor)
+    : '';
+  const mainPhoto = (tpl.photoLayers && tpl.photoLayers[0]) ? tpl.photoLayers[0] : null;
+  const photoRadius = mainPhoto ? (mainPhoto.shape === 'circle' ? '50%' : (mainPhoto.shape === 'arch' ? '45px 45px 8px 8px' : (mainPhoto.shape === 'oval' ? '50%' : '12px'))) : '12px';
 
   body.innerHTML = `
-    <div style="background: ${tpl.bodyBg}; color: ${tpl.textColor}; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.32); border: 1px solid ${tpl.borderColor || '#E4E4E7'}; width: 380px; min-height: 560px; max-width: 100%; margin: 0 auto; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 42px 34px 34px;">
+    <div style="background: ${tpl.bodyBg}; color: ${tpl.textColor}; border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.32); border: 1px solid ${tpl.borderColor || '#E4E4E7'}; width: 390px; min-height: 590px; max-width: 100%; margin: 0 auto; text-align: ${tpl.textAlign || 'center'}; position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: ${pad.top}px ${pad.right}px ${pad.bottom}px ${pad.left}px;">
       <!-- Full-Card Original Vector Artwork Layer -->
       <div style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1;">
         ${svgArt}
       </div>
 
-      <!-- Top Header Section -->
+      <!-- Top Header & Portrait Frame Section -->
       <div style="position:relative; z-index:2;">
-        <div style="display:inline-block; font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 99px; color: ${tpl.accentColor}; border: 1px solid ${tpl.accentColor}55; margin-bottom: 12px;">
+        <div style="display:inline-block; font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 3px 11px; border-radius: 99px; color: ${tpl.accentColor}; border: 1px solid ${tpl.accentColor}55; margin-bottom: 6px;">
           ${tpl.badge}
         </div>
-        <div style="font-family: ${tpl.scriptFont || "'Great Vibes', cursive"}; font-size: 2.35rem; line-height: 1.15; color: ${tpl.headingColor}; margin-bottom: 6px;">
-          ${tpl.sampleCouple || tpl.name}
+        <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.64rem; opacity: 0.78; margin-bottom: 6px;">
+          ${tpl.hostNames || ''}
         </div>
-        <div style="font-family: ${tpl.titleFont || tpl.fontFamily}; font-size: 0.95rem; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: ${tpl.textColor};">
+        ${mainPhoto && mainPhoto.src ? `
+          <div style="width: 74px; height: 88px; margin: 6px ${tpl.textAlign === 'right' ? '0 8px auto' : (tpl.textAlign === 'left' ? 'auto 8px 0' : '8px auto')}; border-radius: ${photoRadius}; overflow: hidden; border: 2px solid ${tpl.accentColor}; box-shadow: 0 6px 18px rgba(0,0,0,0.14);">
+            <img src="${mainPhoto.src}" alt="Portrait" style="width:100%; height:100%; object-fit:cover; display:block;">
+          </div>
+        ` : ''}
+        <div style="font-family: ${tpl.scriptFont || "'Great Vibes', cursive"}; font-size: 2.15rem; line-height: 1.15; color: ${tpl.headingColor}; margin-bottom: 4px;">
+          ${tpl.celebrantName || tpl.guestOfHonour || tpl.sampleCouple || tpl.name}
+        </div>
+        <div style="font-family: ${tpl.titleFont || tpl.fontFamily}; font-size: 0.88rem; font-weight: 600; letter-spacing: 1.1px; text-transform: uppercase; color: ${tpl.textColor};">
           ${tpl.name}
         </div>
       </div>
 
-      <!-- Middle Editorial Body & QR -->
-      <div style="position:relative; z-index:2; my: auto;">
-        <div style="font-family: ${tpl.titleFont || tpl.fontFamily}; font-size: 0.84rem; font-style: italic; opacity: 0.88; line-height: 1.5; max-width: 270px; margin: 12px auto 14px;">
+      <!-- Middle Editorial Body, Dress Code & QR -->
+      <div style="position:relative; z-index:2; margin: 8px 0;">
+        <div style="font-family: ${tpl.titleFont || tpl.fontFamily}; font-size: 0.8rem; font-style: italic; opacity: 0.88; line-height: 1.45; margin-bottom: 10px;">
           "${tpl.quote}"
         </div>
-        <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.8px; color: ${tpl.accentColor}; margin-bottom: 3px;">
-          HONOURED GUEST
+
+        <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.4px; margin-bottom: 3px;">
+          Saturday, November 21, 2026 • 18:00 – ${tpl.endTime || '23:30 EAT'}
         </div>
-        <div style="font-family: ${tpl.titleFont || tpl.fontFamily}; font-size: 1.18rem; font-weight: 700; margin-bottom: 12px;">
-          Amb. Victoria Mwakasege
+        <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.66rem; color: ${tpl.accentColor}; font-weight: 700; margin-bottom: 10px;">
+          ${tpl.fullAddress || 'Serena Grand Ballroom • Dar es Salaam'}
         </div>
 
-        <div style="width: 104px; height: 104px; margin: 0 auto 10px; background: ${tpl.canvaQrLight || '#FFFFFF'}; border-radius: 12px; padding: 7px; box-shadow: 0 6px 20px rgba(0,0,0,0.10); border: 1px solid ${tpl.accentColor}44; display: flex; align-items: center; justify-content: center;">
-          <div id="modalMockQr_${tpl.id}"></div>
+        <!-- Dedicated Dress Code Section -->
+        <div style="padding: 7px 12px; border-radius: 10px; border: 1px solid ${tpl.accentColor}55; background: ${tpl.accentColor}10; margin-bottom: 10px; display: inline-block; max-width: 100%;">
+          <div style="display:flex; align-items:center; justify-content:center; gap:5px; font-family:${tpl.titleFont || tpl.fontFamily}; font-size:0.66rem; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color:${tpl.accentColor};">
+            ${dcIcon} <span>DRESS CODE: ${tpl.dressCode || 'Formal Attire'}</span>
+          </div>
+          <div style="font-family:${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size:0.6rem; opacity:0.82; margin-top:2px;">
+            ${tpl.dressCodeNote || ''}
+          </div>
         </div>
 
-        <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 4px;">
-          Saturday, November 21, 2026 • 18:00 EAT
-        </div>
-        <div style="font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.68rem; color: ${tpl.accentColor}; font-weight: 700;">
-          The Kilimanjaro Grand Ballroom • Table 01
+        <!-- QR & Guest Category Row -->
+        <div style="display:flex; align-items:center; justify-content:${tpl.textAlign === 'right' ? 'flex-end' : (tpl.textAlign === 'left' ? 'flex-start' : 'center')}; gap:12px; margin-top:4px;">
+          <div style="width: 82px; height: 82px; background: ${tpl.canvaQrLight || '#FFFFFF'}; border-radius: 10px; padding: 5px; box-shadow: 0 6px 16px rgba(0,0,0,0.10); border: 1px solid ${tpl.accentColor}55; display: flex; align-items: center; justify-content: center;">
+            <div id="modalMockQr_${tpl.id}"></div>
+          </div>
+          <div style="text-align:left;">
+            <span style="display:inline-block; padding:2px 8px; border-radius:99px; background:${tpl.accentColor}; color:#fff; font-size:0.56rem; font-weight:800; letter-spacing:1px; margin-bottom:3px;">${tpl.guestCategory || 'VIP'} PASS</span>
+            <div style="font-family:${tpl.titleFont || tpl.fontFamily}; font-size:0.86rem; font-weight:700;">Amb. Victoria Mwakasege</div>
+            <div style="font-size:0.6rem; opacity:0.75;">${tpl.rsvp || 'RSVP by Nov 10, 2026'}</div>
+          </div>
         </div>
       </div>
 
       <!-- Footer -->
-      <div style="position:relative; z-index:2; font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.62rem; letter-spacing: 0.8px; text-transform: uppercase; opacity: 0.72; padding-top: 8px; border-top: 1px solid ${tpl.accentColor}33;">
+      <div style="position:relative; z-index:2; font-family: ${tpl.bodyFont || "'Montserrat', sans-serif"}; font-size: 0.58rem; letter-spacing: 0.7px; text-transform: uppercase; opacity: 0.72; padding-top: 6px; border-top: 1px solid ${tpl.accentColor}33;">
         ${tpl.footer}
       </div>
     </div>
@@ -3327,8 +4199,8 @@ function previewTemplateModal(tplId, e) {
       qrContainer.innerHTML = '';
       new QRCode(qrContainer, {
         text: `https://leulaevents.com/pass.php?preview=${tpl.id}`,
-        width: 88,
-        height: 88,
+        width: 70,
+        height: 70,
         colorDark: tpl.qrDark || '#18181B',
         colorLight: tpl.canvaQrLight || '#FFFFFF',
         correctLevel: QRCode.CorrectLevel.M
@@ -3373,9 +4245,11 @@ function setDesignerLanguage(lang) {
 if (typeof window !== 'undefined') {
   window.TEMPLATES_LIBRARY = TEMPLATES_LIBRARY;
   window.TEMPLATE_CATEGORIES = TEMPLATE_CATEGORIES;
+  window.DRESS_CODE_PRESETS = DRESS_CODE_PRESETS;
+  window.TEMPLATE_LAYOUT_SPECS = TEMPLATE_LAYOUT_SPECS;
   window.generateTemplateArtworkSvg = generateTemplateArtworkSvg;
   window.saveCurrentDesignAsTemplate = saveCurrentDesignAsTemplate;
 }
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { TEMPLATES_LIBRARY, TEMPLATE_CATEGORIES, generateTemplateArtworkSvg };
+  module.exports = { TEMPLATES_LIBRARY, TEMPLATE_CATEGORIES, DRESS_CODE_PRESETS, TEMPLATE_LAYOUT_SPECS, generateTemplateArtworkSvg };
 }
