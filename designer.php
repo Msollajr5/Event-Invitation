@@ -116,11 +116,13 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Luxury Typography Fonts (Canva / Editorial Collection) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Great+Vibes&family=Inter:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,400&family=Sora:wght@600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Great+Vibes&family=Inter:wght@400;600;700;800&family=Marcellus&family=Montserrat:wght@400;600;700;800;900&family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Sora:wght@600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 
-<!-- High-Resolution Export Engine & Vector QR -->
+<!-- High-Resolution Export Engine, Vector QR & jsPDF Document Engine -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="assets/js/qrcode.min.js"></script>
+<script src="assets/js/templates_library.js?v=<?= time() ?>"></script>
 
 <!-- Canva Studio Topbar -->
 <!-- Canva Studio Responsive Topbar -->
@@ -165,7 +167,7 @@ require_once __DIR__ . '/includes/header.php';
         ✨ Canva Cloner
       </button>
       <button type="button" id="btnModeStudio" class="segment-btn" onclick="setCardMode('studio')">
-        🎨 Presets
+        🎨 50 Templates
       </button>
     </div>
 
@@ -181,9 +183,22 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Action Buttons Group -->
     <div class="designer-action-buttons">
-      <button type="button" class="btn btn-secondary btn-sm" onclick="downloadCardImage()" title="Download High-Res PNG">
-        <?= svgIcon('download', 14) ?> <span>Export PNG</span>
-      </button>
+      <div class="dropdown" style="position:relative;display:inline-block;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleExportMenu(event)" title="Export High-Res Invitation">
+          <?= svgIcon('download', 14) ?> <span>Export Pass ▾</span>
+        </button>
+        <div id="exportDropdownMenu" class="dropdown-menu" style="display:none;position:absolute;right:0;top:110%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 10px 25px rgba(0,0,0,0.22);z-index:999;min-width:175px;padding:6px 0;">
+          <a href="javascript:void(0)" class="dropdown-item" onclick="downloadCardImage('png'); toggleExportMenu();" style="display:flex;align-items:center;gap:8px;padding:8px 14px;color:var(--text-primary);text-decoration:none;font-size:0.8rem;font-weight:600;">
+            <span>🖼️</span> Export High-Res PNG
+          </a>
+          <a href="javascript:void(0)" class="dropdown-item" onclick="downloadCardImage('jpg'); toggleExportMenu();" style="display:flex;align-items:center;gap:8px;padding:8px 14px;color:var(--text-primary);text-decoration:none;font-size:0.8rem;font-weight:600;">
+            <span>📸</span> Export Standard JPG
+          </a>
+          <a href="javascript:void(0)" class="dropdown-item" onclick="downloadCardPdf(); toggleExportMenu();" style="display:flex;align-items:center;gap:8px;padding:8px 14px;color:var(--text-primary);text-decoration:none;font-size:0.8rem;font-weight:600;">
+            <span>📄</span> Export Vector PDF
+          </a>
+        </div>
+      </div>
       <button type="button" class="btn btn-secondary btn-sm" onclick="printCard()" title="Print Invitation">
         <?= svgIcon('eye', 14) ?> <span>Print</span>
       </button>
@@ -205,7 +220,7 @@ require_once __DIR__ . '/includes/header.php';
         ✨ Canva Card &amp; QR
       </button>
       <button type="button" class="tab-btn" data-tab="tabTemplates" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
-        🎨 Presets
+        🎨 50 Templates
       </button>
       <button type="button" class="tab-btn" data-tab="tabContent" data-tab-group="studio" style="padding:8px 10px;font-size:0.78rem;">
         ✍️ Content
@@ -438,108 +453,112 @@ require_once __DIR__ . '/includes/header.php';
         </div>
       </div>
 
-      <!-- TAB 2: 12 CANVA TEMPLATE PRESETS (Studio Mode) -->
+      <!-- TAB 2: 50 PREMIUM TEMPLATES LIBRARY (Studio Mode) -->
       <div class="tab-panel" data-tab-panel="tabTemplates" data-tab-group="studio">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <span style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.8px;">
-            12 Editorial Layouts
-          </span>
-          <span style="font-size:0.72rem;background:rgba(255,122,0,0.12);color:#FF7A00;font-weight:700;padding:2px 8px;border-radius:99px;">
-            Pre-Designed
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div>
+            <div style="font-size:0.88rem;font-weight:800;color:var(--text-primary);letter-spacing:-0.2px;">
+              50 Premium Invitation Templates
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">
+              Professional Canva-grade designs across 8 event categories
+            </div>
+          </div>
+          <span style="font-size:0.72rem;background:linear-gradient(135deg,#FF7A00,#E96800);color:#FFFFFF;font-weight:800;padding:3px 10px;border-radius:99px;box-shadow:0 2px 8px rgba(255,122,0,0.3);">
+            50 Templates
           </span>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div class="template-card active" onclick="applyTemplate('orange_gala')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#FF7A00,#E96800);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:0.75rem;box-shadow:0 3px 10px rgba(255,122,0,0.35);">
-              ORANGE VIP
-            </div>
-            <div class="template-name">Liquid Orange VIP</div>
-          </div>
+        <!-- Search Bar -->
+        <div class="form-group" style="margin-bottom:10px;position:relative;">
+          <input type="text" id="tplSearchInput" class="form-control" placeholder="🔍 Search 50 templates (e.g. wedding, birthday, royal, kanga)..." style="padding-left:12px;font-size:0.8rem;" oninput="onTemplateSearchInput(this.value)">
+        </div>
 
-          <div class="template-card" onclick="applyTemplate('obsidian_gold')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#18181B,#09090B);border:1.5px solid #D4AF37;display:flex;align-items:center;justify-content:center;color:#D4AF37;font-family:'Cinzel',serif;font-weight:700;font-size:0.75rem;">
-              ROYAL GOLD
-            </div>
-            <div class="template-name">Obsidian &amp; Gold</div>
-          </div>
+        <!-- Category Filter Pills Bar -->
+        <div class="tpl-filter-bar">
+          <button type="button" class="tpl-filter-pill active" data-cat="all" onclick="filterTemplatesByCategory('all')">
+            ✨ All (50)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="wedding" onclick="filterTemplatesByCategory('wedding')">
+            💍 Wedding (10)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="birthday" onclick="filterTemplatesByCategory('birthday')">
+            🎂 Birthday (8)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="corporate" onclick="filterTemplatesByCategory('corporate')">
+            💼 Corporate (6)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="graduation" onclick="filterTemplatesByCategory('graduation')">
+            🎓 Graduation (5)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="religious" onclick="filterTemplatesByCategory('religious')">
+            ⛪ Religious (5)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="celebration" onclick="filterTemplatesByCategory('celebration')">
+            🎉 Celebrations (6)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="special" onclick="filterTemplatesByCategory('special')">
+            👑 Special (5)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="african" onclick="filterTemplatesByCategory('african')">
+            🌍 African &amp; Swahili (5)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="favorites" onclick="filterTemplatesByCategory('favorites')">
+            ⭐ Favorites
+          </button>
+        </div>
 
-          <div class="template-card" onclick="applyTemplate('swahili_wedding')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#4A0E17,#721C24);border:1px solid #F6D580;display:flex;align-items:center;justify-content:center;color:#F6D580;font-family:'Great Vibes',cursive;font-size:1.15rem;">
-              Harusi Kifahari
-            </div>
-            <div class="template-name">Luxury Rose Wedding</div>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span id="tplResultsCount" style="font-size:0.72rem;font-weight:700;color:var(--text-muted);">
+            50 templates available
+          </span>
+          <span style="font-size:0.7rem;color:#FF7A00;font-weight:600;">
+            1-Click Instant Apply
+          </span>
+        </div>
 
-          <div class="template-card" onclick="applyTemplate('emerald_summit')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#064E3B,#047857);border:1px solid #A7F3D0;display:flex;align-items:center;justify-content:center;color:#A7F3D0;font-family:'Playfair Display',serif;font-weight:700;font-size:0.75rem;">
-              EMERALD GALA
-            </div>
-            <div class="template-name">Emerald Prestige</div>
-          </div>
-
-          <div class="template-card" onclick="applyTemplate('swiss_minimal')">
-            <div style="height:50px;border-radius:8px;background:#FFFFFF;border:1.5px solid #09090B;display:flex;align-items:center;justify-content:center;color:#09090B;font-family:'Montserrat',sans-serif;font-weight:800;font-size:0.75rem;">
-              SWISS MINIMAL
-            </div>
-            <div class="template-name">Swiss Modernist B&amp;W</div>
-          </div>
-
-          <div class="template-card" onclick="applyTemplate('cyberpunk_tech')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#0F172A,#312E81);border:1px solid #06B6D4;display:flex;align-items:center;justify-content:center;color:#06B6D4;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.75rem;">
-              CYBER TECH
-            </div>
-            <div class="template-name">Cyberpunk Neon</div>
-          </div>
-
-          <div class="template-card" onclick="applyTemplate('sunset_riviera')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#FF5E62,#FF9966);display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-family:'Playfair Display',serif;font-weight:700;font-size:0.75rem;">
-              SUNSET RIVIERA
-            </div>
-            <div class="template-name">Sunset Riviera Gala</div>
-          </div>
-
-          <div class="template-card" onclick="applyTemplate('nordic_frost')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#0F172A,#1E293B);border:1px solid #38BDF8;display:flex;align-items:center;justify-content:center;color:#38BDF8;font-family:'Inter',sans-serif;font-weight:700;font-size:0.75rem;">
-              NORDIC FROST
-            </div>
-            <div class="template-name">Nordic Executive Frost</div>
-          </div>
-
-          <div class="template-card" onclick="applyTemplate('botanical_garden')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#2D4739,#3F6350);border:1px solid #C4D7B2;display:flex;align-items:center;justify-content:center;color:#F5EBE0;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:0.75rem;">
-              BOTANICAL
-            </div>
-            <div class="template-name">Botanical Garden Soirée</div>
-          </div>
-
-          <div class="template-card" onclick="applyTemplate('monaco_navy')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#0A1128,#001F54);border:1.5px solid #E0A96D;display:flex;align-items:center;justify-content:center;color:#E0A96D;font-family:'Cinzel',serif;font-weight:700;font-size:0.75rem;">
-              MONACO VIP
-            </div>
-            <div class="template-name">Monaco Royal Navy</div>
-          </div>
-
-          <div class="template-card" onclick="applyTemplate('serengeti_sunset')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#A04000,#6E2C00);border:1px solid #F5B041;display:flex;align-items:center;justify-content:center;color:#FAD7A0;font-family:'Sora',sans-serif;font-weight:700;font-size:0.75rem;">
-              SERENGETI GALA
-            </div>
-            <div class="template-name">Serengeti Sunset Warmth</div>
-          </div>
-
-          <div class="template-card" onclick="applyTemplate('golden_aurora')">
-            <div style="height:50px;border-radius:8px;background:linear-gradient(135deg,#240046,#5A189A);border:1px solid #FFD166;display:flex;align-items:center;justify-content:center;color:#FFD166;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.75rem;">
-              GOLD AURORA
-            </div>
-            <div class="template-name">Golden Aurora Holographic</div>
-          </div>
+        <!-- 50 Templates Dynamic Grid Container -->
+        <div id="templatesMarketplaceGrid" class="tpl-marketplace-grid">
+          <!-- Rendered dynamically by templates_library.js -->
         </div>
       </div>
 
       <!-- TAB 3: CONTENT & TEXT EDITING -->
       <div class="tab-panel" data-tab-panel="tabContent" data-tab-group="studio">
-        <div class="form-group">
-          <label class="form-label">Pass Badge / Tier Tag</label>
+        <!-- Language Switcher Bar -->
+        <div style="background:var(--surface-3);padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:0.75rem;font-weight:700;color:var(--text-primary);text-transform:uppercase;letter-spacing:0.5px;">
+              🌐 Card Language
+            </span>
+            <div style="display:flex;gap:4px;">
+              <button type="button" id="langToggleEn" class="btn btn-sm btn-primary" onclick="setDesignerLanguage('en')" style="padding:3px 10px;font-size:0.75rem;font-weight:700;">
+                🇬🇧 English
+              </button>
+              <button type="button" id="langToggleSw" class="btn btn-sm btn-secondary" onclick="setDesignerLanguage('sw')" style="padding:3px 10px;font-size:0.75rem;font-weight:700;">
+                🇹🇿 Kiswahili
+              </button>
+            </div>
+          </div>
+          <div style="font-size:0.7rem;color:var(--text-muted);line-height:1.3;">
+            Instantly translate headers, quote phrasing, tier badges and etiquette between English and Kiswahili.
+          </div>
+        </div>
+
+        <!-- Quick VIP Tier Selectors & Custom Badge Input -->
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label" style="font-size:0.75rem;display:flex;justify-content:space-between;align-items:center;">
+            <span>Pass Badge / Tier Tag</span>
+            <span style="color:var(--text-muted);font-weight:normal;font-size:0.7rem;">Quick Select:</span>
+          </label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickTier('👑 VVIP PASS')" style="padding:2px 7px;font-size:0.7rem;">👑 VVIP</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickTier('⭐ VIP PASS')" style="padding:2px 7px;font-size:0.7rem;">⭐ VIP</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickTier('🎟️ REGULAR PASS')" style="padding:2px 7px;font-size:0.7rem;">🎟️ Regular</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickTier('🏷️ GENERAL ADMISSION')" style="padding:2px 7px;font-size:0.7rem;">🏷️ General</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickTier('💼 STAFF / CREW')" style="padding:2px 7px;font-size:0.7rem;">💼 Staff</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickTier('✨ SPECIAL GUEST')" style="padding:2px 7px;font-size:0.7rem;">✨ Special</button>
+          </div>
           <input type="text" id="cfgBadge" class="form-control" value="VIP DELEGATE PASS" oninput="renderCanvas()">
         </div>
 
@@ -599,10 +618,15 @@ require_once __DIR__ . '/includes/header.php';
             <option value="'Playfair Display', serif">Playfair Display (Luxury Editorial Serif)</option>
             <option value="'Cinzel', serif">Cinzel (Regal Imperial Roman)</option>
             <option value="'Great Vibes', cursive">Great Vibes (Romantic Calligraphy Script)</option>
+            <option value="'Alex Brush', cursive">Alex Brush (Wedding Calligraphy)</option>
             <option value="'Cormorant Garamond', serif">Cormorant Garamond (Classical Elegance)</option>
-            <option value="'Montserrat', sans-serif">Montserrat (Geometric Bold)</option>
+            <option value="'Marcellus', serif">Marcellus (Antiquity Roman)</option>
+            <option value="'Montserrat', sans-serif">Montserrat (Geometric Modern)</option>
+            <option value="'Outfit', sans-serif">Outfit (Clean Luxury)</option>
+            <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Corporate Executive)</option>
             <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech Monospace)</option>
             <option value="'Inter', sans-serif">Inter (Clean Enterprise)</option>
+            <option value="'Bebas Neue', sans-serif">Bebas Neue (Bold Display)</option>
           </select>
         </div>
 
@@ -1014,7 +1038,237 @@ require_once __DIR__ . '/includes/header.php';
   <input type="hidden" name="canvas_data" id="postCanvasData" value="{}">
 </form>
 
+<!-- Template Full Preview Modal -->
+<div id="templatePreviewModal" class="tpl-modal-backdrop" onclick="if(event.target===this) closeTemplatePreviewModal()">
+  <div class="tpl-modal-dialog">
+    <button type="button" class="tpl-modal-close" onclick="closeTemplatePreviewModal()" title="Close Preview">✕</button>
+    <div id="modalPreviewContent"></div>
+  </div>
+</div>
+
 <style>
+/* ============================================================
+   50 Premium Templates Marketplace UI Styles
+   ============================================================ */
+.tpl-filter-bar {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,122,0,0.4) transparent;
+}
+.tpl-filter-bar::-webkit-scrollbar {
+  height: 4px;
+}
+.tpl-filter-bar::-webkit-scrollbar-thumb {
+  background: rgba(255,122,0,0.4);
+  border-radius: 4px;
+}
+.tpl-filter-pill {
+  flex-shrink: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.tpl-filter-pill:hover {
+  border-color: #FF7A00;
+  color: #FF7A00;
+  background: rgba(255,122,0,0.06);
+}
+.tpl-filter-pill.active {
+  background: linear-gradient(135deg, #FF7A00, #E96800);
+  border-color: #FF7A00;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(255,122,0,0.35);
+}
+.tpl-marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  max-height: 580px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+.tpl-card-item {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.tpl-card-item:hover {
+  border-color: #FF7A00;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.tpl-card-item.active {
+  border-color: #FF7A00;
+  box-shadow: 0 0 0 2px rgba(255,122,0,0.4);
+}
+.tpl-card-swatch {
+  height: 95px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.tpl-card-category-tag {
+  align-self: flex-start;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
+  color: #FFFFFF;
+}
+.tpl-fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.tpl-fav-btn:hover {
+  transform: scale(1.2);
+}
+.tpl-fav-btn.favorited {
+  color: #FACC15;
+}
+.tpl-swatch-badge {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.tpl-swatch-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tpl-card-footer {
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.tpl-card-info {
+  flex: 1;
+  min-width: 0;
+}
+.tpl-card-name {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tpl-card-tagline {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tpl-card-actions {
+  display: flex;
+  gap: 4px;
+}
+.tpl-use-btn {
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.tpl-preview-btn {
+  padding: 3px 6px;
+  font-size: 0.7rem;
+}
+
+/* Template Preview Modal */
+.tpl-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+.tpl-modal-dialog {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  max-width: 440px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+}
+.tpl-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tpl-modal-close:hover {
+  background: var(--danger, #EF4444);
+  color: #FFFFFF;
+  border-color: var(--danger, #EF4444);
+}
+
 /* ============================================================
    Canva Direct Manipulation & QR Element Styles
    ============================================================ */
@@ -2498,30 +2752,12 @@ function toggleQrLock(locked) {
 }
 
 // ============================================================
-// TEMPLATE ENGINE (12 Editorial Presets)
+// TEMPLATE ENGINE (50 Premium Designer Templates Library)
 // ============================================================
-const TEMPLATE_PRESETS = {
-  orange_gala: {
-    name: 'Liquid Orange VIP',
-    fontFamily: "'Sora', sans-serif",
-    headerColor1: '#FF7A00',
-    headerColor2: '#E96800',
-    headingColor: '#FFFFFF',
-    bodyBg: '#FFFFFF',
-    textColor: '#09090B',
-    accentColor: '#FF7A00',
-    borderColor: '#FF7A00',
-    borderFrame: 'glass_glow',
-    seal: 'ribbon',
-    texture: 'glow',
-    qrDark: '#09090B',
-    canvaQrLight: '#FFFFFF',
-    badge: 'VIP DELEGATE PASS',
-    quote: 'Honored to request the pleasure of your company',
-    footer: 'Black Tie Required • Non-Transferable Digital QR Ticket'
-  },
-  obsidian_gold: {
-    name: 'Obsidian & Gold',
+const TEMPLATE_PRESETS = (typeof TEMPLATES_LIBRARY !== 'undefined') ? TEMPLATES_LIBRARY : {
+  wedding_royal_gold: {
+    id: 'wedding_royal_gold',
+    name: 'Royal Gold Wedding',
     fontFamily: "'Cinzel', serif",
     headerColor1: '#18181B',
     headerColor2: '#09090B',
@@ -2535,199 +2771,9 @@ const TEMPLATE_PRESETS = {
     texture: 'stardust',
     qrDark: '#18181B',
     canvaQrLight: '#F6D580',
-    badge: 'ROYAL VIP ACCREDITATION',
-    quote: 'By Royal Invitation • Formal Gala Admission',
-    footer: 'Strict Formal Black Tie • Admission with Golden QR Token'
-  },
-  swahili_wedding: {
-    name: 'Luxury Rose Wedding',
-    fontFamily: "'Playfair Display', serif",
-    headerColor1: '#4A0E17',
-    headerColor2: '#721C24',
-    headingColor: '#F6D580',
-    bodyBg: '#FFF8F6',
-    textColor: '#4A0E17',
-    accentColor: '#C53030',
-    borderColor: '#E2B2B8',
-    borderFrame: 'gold_single',
-    seal: 'ribbon',
-    texture: 'marble',
-    qrDark: '#4A0E17',
-    canvaQrLight: '#FFFFFF',
-    badge: 'HARUSI YA KIFAHARI',
-    quote: 'Tunayo furaha kubwa kukualika kusherehekea nasi siku yetu maalum',
-    footer: 'Kadi hii ni ya Mtu Mmoja • Karibu Sana Shereheni'
-  },
-  emerald_summit: {
-    name: 'Emerald Prestige',
-    fontFamily: "'Playfair Display', serif",
-    headerColor1: '#064E3B',
-    headerColor2: '#047857',
-    headingColor: '#A7F3D0',
-    bodyBg: '#F0FDF4',
-    textColor: '#064E3B',
-    accentColor: '#059669',
-    borderColor: '#059669',
-    borderFrame: 'gold_single',
-    seal: 'verified',
-    texture: 'glow',
-    qrDark: '#064E3B',
-    canvaQrLight: '#FFFFFF',
-    badge: 'EMERALD DELEGATE PASS',
-    quote: 'Leadership Forum & Executive Leadership Summit',
-    footer: 'Accredited Executive Admission • Non-Transferable'
-  },
-  swiss_minimal: {
-    name: 'Swiss Modernist B&W',
-    fontFamily: "'Montserrat', sans-serif",
-    headerColor1: '#18181B',
-    headerColor2: '#09090B',
-    headingColor: '#FFFFFF',
-    bodyBg: '#FFFFFF',
-    textColor: '#09090B',
-    accentColor: '#18181B',
-    borderColor: '#E4E4E7',
-    borderFrame: 'none',
-    seal: 'none',
-    texture: 'none',
-    qrDark: '#000000',
-    canvaQrLight: '#FFFFFF',
-    badge: 'ADMISSION ACCREDITATION',
-    quote: 'International Design & Architecture Symposium',
-    footer: 'Present QR Code at Entrance Kiosk for Fast Pass Scanning'
-  },
-  cyberpunk_tech: {
-    name: 'Cyberpunk Neon',
-    fontFamily: "'Space Grotesk', sans-serif",
-    headerColor1: '#0F172A',
-    headerColor2: '#312E81',
-    headingColor: '#06B6D4',
-    bodyBg: '#0F172A',
-    textColor: '#E2E8F0',
-    accentColor: '#06B6D4',
-    borderColor: '#06B6D4',
-    borderFrame: 'glass_glow',
-    seal: 'diamond',
-    texture: 'dots',
-    qrDark: '#0F172A',
-    canvaQrLight: '#06B6D4',
-    badge: 'TECH SUMMIT VIP ACCESS',
-    quote: 'Next-Generation Innovation & Artificial Intelligence Expo',
-    footer: 'Digital Key Required • Encrypted Gate Verification'
-  },
-  sunset_riviera: {
-    name: 'Sunset Riviera Gala',
-    fontFamily: "'Playfair Display', serif",
-    headerColor1: '#FF5E62',
-    headerColor2: '#FF9966',
-    headingColor: '#FFFFFF',
-    bodyBg: '#FFFBF5',
-    textColor: '#3E2723',
-    accentColor: '#FF5E62',
-    borderColor: '#FF9966',
-    borderFrame: 'none',
-    seal: 'ribbon',
-    texture: 'glow',
-    qrDark: '#3E2723',
-    canvaQrLight: '#FFFFFF',
-    badge: 'SUMMER RIVIERA PASS',
-    quote: 'Sunset Soirée, Cocktails & Live Orchestral Symphony',
-    footer: 'Smart Elegant Resort Attire • Gate Access via Digital Pass'
-  },
-  nordic_frost: {
-    name: 'Nordic Executive Frost',
-    fontFamily: "'Inter', sans-serif",
-    headerColor1: '#0F172A',
-    headerColor2: '#1E293B',
-    headingColor: '#38BDF8',
-    bodyBg: '#F8FAFC',
-    textColor: '#0F172A',
-    accentColor: '#0284C7',
-    borderColor: '#38BDF8',
-    borderFrame: 'none',
-    seal: 'verified',
-    texture: 'dots',
-    qrDark: '#0F172A',
-    canvaQrLight: '#FFFFFF',
-    badge: 'EXECUTIVE FORUM BADGE',
-    quote: 'Annual Global Governance & Sustainable Finance Assembly',
-    footer: 'Official Identity & QR Badge Required for Security Screening'
-  },
-  botanical_garden: {
-    name: 'Botanical Garden Soirée',
-    fontFamily: "'Cormorant Garamond', serif",
-    headerColor1: '#2D4739',
-    headerColor2: '#3F6350',
-    headingColor: '#F5EBE0',
-    bodyBg: '#FDFBF7',
-    textColor: '#2D4739',
-    accentColor: '#557A61',
-    borderColor: '#A3B899',
-    borderFrame: 'deco_corners',
-    seal: 'ribbon',
-    texture: 'marble',
-    qrDark: '#2D4739',
-    canvaQrLight: '#FFFFFF',
-    badge: 'PRIVATE GARDEN GUEST',
-    quote: 'Celebrating Nature, Art, Music & Philanthropy',
-    footer: 'Floral Cocktail Chic • Non-Transferable Private Invitation'
-  },
-  monaco_navy: {
-    name: 'Monaco Royal Navy',
-    fontFamily: "'Cinzel', serif",
-    headerColor1: '#0A1128',
-    headerColor2: '#001F54',
-    headingColor: '#E0A96D',
-    bodyBg: '#0A1128',
-    textColor: '#F6D580',
-    accentColor: '#E0A96D',
-    borderColor: '#D4AF37',
-    borderFrame: 'gold_double',
-    seal: 'crown',
-    texture: 'stardust',
-    qrDark: '#0A1128',
-    canvaQrLight: '#F6D580',
-    badge: 'ROYAL PATRON PASS',
-    quote: 'Under the High Patronage of the Royal Society Foundation',
-    footer: 'Formal Evening Wear Required • Gate Clearance via Encrypted Token'
-  },
-  serengeti_sunset: {
-    name: 'Serengeti Sunset Warmth',
-    fontFamily: "'Sora', sans-serif",
-    headerColor1: '#A04000',
-    headerColor2: '#6E2C00',
-    headingColor: '#FAD7A0',
-    bodyBg: '#FEF9E7',
-    textColor: '#4E342E',
-    accentColor: '#D35400',
-    borderColor: '#F5B041',
-    borderFrame: 'gold_single',
-    seal: 'ticket',
-    texture: 'glow',
-    qrDark: '#4E342E',
-    canvaQrLight: '#FFFFFF',
-    badge: 'SERENGETI GUEST BADGE',
-    quote: 'Celebrating Heritage, Wildlife Conservation & African Excellence',
-    footer: 'Safari Glam Attire • Present Pass for Gate Check-In'
-  },
-  golden_aurora: {
-    name: 'Golden Aurora Holographic',
-    fontFamily: "'Space Grotesk', sans-serif",
-    headerColor1: '#240046',
-    headerColor2: '#5A189A',
-    headingColor: '#FFD166',
-    bodyBg: '#10002B',
-    textColor: '#FFD166',
-    accentColor: '#9D4EDD',
-    borderColor: '#9D4EDD',
-    borderFrame: 'glass_glow',
-    seal: 'diamond',
-    texture: 'stardust',
-    qrDark: '#240046',
-    canvaQrLight: '#FFD166',
-    badge: 'AURORA SPECIAL VIP',
-    quote: 'Exclusive Aurora Gala • Music, Cinema & Creative Arts Festival',
-    footer: 'VIP Stage & Lounge Access Granted • Strictly Non-Transferable'
+    badge: 'ROYAL VIP WEDDING PASS',
+    quote: 'Request the pleasure of your company at the holy matrimony celebration',
+    footer: 'Strict Formal Black Tie & Evening Gown • Royal Invitation Only'
   }
 };
 
@@ -2744,11 +2790,13 @@ function applyTemplate(templateId) {
   // Switch to Studio mode so user immediately sees the editorial template rendered
   setCardMode('studio');
 
-  // Highlight active card
-  document.querySelectorAll('.template-card').forEach(el => {
+  // Highlight active card in both marketplace grid and classic preset lists
+  document.querySelectorAll('.tpl-card-item, .template-card').forEach(el => {
     el.classList.remove('active');
   });
-  const clickedCard = document.querySelector(`.template-card[onclick*="'${templateId}'"]`);
+  const clickedCard = document.querySelector(`[data-template-id="${templateId}"]`) || 
+                      document.querySelector(`.tpl-card-item[onclick*="'${templateId}'"]`) ||
+                      document.querySelector(`.template-card[onclick*="'${templateId}'"]`);
   if (clickedCard) clickedCard.classList.add('active');
 
   renderCanvas();
@@ -3513,30 +3561,100 @@ function setQrDarkPreset(color) {
   showToast(`QR Barcode color set to ${color}`, 'info');
 }
 
-// Download High-Res Image (Canva Export Feature)
-function downloadCardImage() {
+// Export High-Res Image (PNG / JPG) & Vector PDF Engine
+function toggleExportMenu(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('exportDropdownMenu');
+  if (menu) {
+    menu.style.display = (menu.style.display === 'block' ? 'none' : 'block');
+  }
+}
+document.addEventListener('click', () => {
+  const menu = document.getElementById('exportDropdownMenu');
+  if (menu) menu.style.display = 'none';
+});
+
+function setQuickTier(tierText) {
+  const input = document.getElementById('cfgBadge');
+  if (input) {
+    input.value = tierText;
+    state.badge = tierText;
+    renderCanvas();
+    showToast(`Pass Tier set to ${tierText}`, 'info');
+  }
+}
+
+function downloadCardImage(format = 'png') {
   selectQr(false); // Hide selection frame for clean export
 
   const target = state.cardMode === 'canva' 
     ? document.getElementById('canvaCardArtboard') 
     : document.getElementById('cardArtboard');
 
-  showToast('Generating ultra high-resolution card image (3x HD)...', 'info');
+  const isJpg = (format.toLowerCase() === 'jpg' || format.toLowerCase() === 'jpeg');
+  const mimeType = isJpg ? 'image/jpeg' : 'image/png';
+  const ext = isJpg ? 'jpg' : 'png';
+
+  showToast(`Generating ultra high-resolution card (${ext.toUpperCase()})...`, 'info');
 
   setTimeout(() => {
     html2canvas(target, {
       scale: 3, // 3x ultra-sharp resolution for printing
       useCORS: true,
-      backgroundColor: null
+      backgroundColor: isJpg ? '#FFFFFF' : null
     }).then(canvas => {
       const link = document.createElement('a');
-      link.download = `canva_invitation_pass_${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `leula_invitation_pass_${Date.now()}.${ext}`;
+      link.href = canvas.toDataURL(mimeType, 0.95);
       link.click();
-      showToast('Invitation Card downloaded successfully (PNG)!', 'success');
+      showToast(`Invitation Card downloaded successfully (${ext.toUpperCase()})!`, 'success');
       selectQr(true);
     }).catch(err => {
-      window.Toast.error('Export error: ' + err);
+      showToast('Export error: ' + err, 'error');
+      selectQr(true);
+    });
+  }, 100);
+}
+
+function downloadCardPdf() {
+  selectQr(false);
+  const target = state.cardMode === 'canva' 
+    ? document.getElementById('canvaCardArtboard') 
+    : document.getElementById('cardArtboard');
+
+  showToast('Generating print-ready PDF document...', 'info');
+
+  setTimeout(() => {
+    html2canvas(target, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: null
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const isLandscape = state.orientation === 'landscape';
+      
+      const { jsPDF } = window.jspdf || {};
+      if (!jsPDF) {
+        showToast('jsPDF library loading... please try again', 'warning');
+        selectQr(true);
+        return;
+      }
+      
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      
+      const pdf = new jsPDF({
+        orientation: isLandscape ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [imgWidth, imgHeight]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`leula_invitation_${Date.now()}.pdf`);
+      showToast('Invitation PDF exported successfully!', 'success');
+      selectQr(true);
+    }).catch(err => {
+      showToast('PDF Export error: ' + err, 'error');
       selectQr(true);
     });
   }, 100);
@@ -3718,6 +3836,9 @@ document.addEventListener('DOMContentLoaded', () => {
   setCardMode(state.cardMode || 'canva');
   selectQr(true);
   setupInlineCanvasEditing();
+  if (typeof renderTemplatesLibrary === 'function') {
+    renderTemplatesLibrary('all', '');
+  }
   if (window.innerWidth <= 992) {
     setTimeout(zoomCanvasFit, 100);
   }
