@@ -1586,8 +1586,46 @@ require_once __DIR__ . '/includes/header.php';
   height: 100%;
   border-radius: inherit;
   overflow: hidden;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
+}
+
+/* When Full Card Cover is active, remove default background colors across the whole card */
+.cover-layout-full,
+.card-cover-full-active,
+#cardArtboard.cover-layout-full,
+#cardArtboard.card-cover-full-active {
+  background: transparent !important;
+}
+.cover-layout-full .artboard-header,
+.card-cover-full-active .artboard-header {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+.cover-layout-full .artboard-body,
+.card-cover-full-active .artboard-body {
+  background: transparent !important;
+  background-image: none !important;
+}
+.cover-layout-full .card-meta-box {
+  background: rgba(0, 0, 0, 0.42) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #FFFFFF !important;
+}
+.cover-layout-full .card-meta-box span,
+.cover-layout-full .card-meta-box div {
+  color: #FFFFFF !important;
+}
+.cover-layout-full .card-guest-name,
+.cover-layout-full .card-attendee-label,
+.cover-layout-full .card-quote,
+.cover-layout-full .card-footer-note,
+.cover-layout-full .card-ref-code {
+  color: #FFFFFF !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
 }
 .card-cover-full-img {
   width: 100%;
@@ -3554,10 +3592,23 @@ function renderStudioCard() {
     artboard.style.borderColor = state.borderColor;
   }
 
-  header.style.background = `linear-gradient(135deg, ${state.headerColor1}, ${state.headerColor2})`;
-  body.style.background = state.bodyBg;
+  const isFullCover = (state.coverImgData && state.coverLayout === 'full');
+
+  if (isFullCover) {
+    header.style.background = 'transparent';
+    header.style.backgroundImage = 'none';
+    body.style.background = 'transparent';
+    body.style.backgroundImage = 'none';
+    artboard.style.background = 'transparent';
+    artboard.classList.add('cover-layout-full', 'card-cover-full-active');
+  } else {
+    header.style.background = `linear-gradient(135deg, ${state.headerColor1}, ${state.headerColor2})`;
+    body.style.background = state.bodyBg;
+    artboard.style.background = '';
+    artboard.classList.remove('cover-layout-full', 'card-cover-full-active');
+  }
   body.style.color = state.textColor;
-  guest.style.color = state.textColor;
+  guest.style.color = isFullCover ? '#FFFFFF' : state.textColor;
 
   // Cover Photo Rendering across 5 Layout Options
   const fullWrap = document.getElementById('cardCoverFullWrap');
@@ -3577,7 +3628,7 @@ function renderStudioCard() {
   const customOverlay = document.getElementById('cardCoverCustomOverlay');
 
   // Reset all layout classes
-  artboard.classList.remove('artboard-half-split', 'split-side-right', 'split-vertical', 'split-side-bottom', 'full-cover-glass', 'full-cover-shadow');
+  artboard.classList.remove('artboard-half-split', 'split-side-right', 'split-vertical', 'split-side-bottom', 'full-cover-glass', 'full-cover-shadow', 'cover-layout-full', 'card-cover-full-active');
 
   if (state.coverImgData) {
     const filterStyle = `brightness(${state.coverBrightness || 100}%) contrast(${state.coverContrast || 100}%)`;
@@ -3604,6 +3655,13 @@ function renderStudioCard() {
       if (bottomWrap) bottomWrap.style.display = 'none';
       if (customWrap) customWrap.style.display = 'none';
       header.style.minHeight = '';
+
+      header.style.background = 'transparent';
+      header.style.backgroundImage = 'none';
+      body.style.background = 'transparent';
+      body.style.backgroundImage = 'none';
+      artboard.style.background = 'transparent';
+      artboard.classList.add('cover-layout-full', 'card-cover-full-active');
 
       if (state.coverTextContrast === 'glass') artboard.classList.add('full-cover-glass');
       else if (state.coverTextContrast === 'shadow') artboard.classList.add('full-cover-shadow');

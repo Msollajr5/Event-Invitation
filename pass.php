@@ -382,8 +382,45 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       height: 100%;
       border-radius: inherit;
       overflow: hidden;
-      z-index: 1;
+      z-index: 0;
       pointer-events: none;
+    }
+
+    /* When Full Card Cover is active, remove default background colors across the whole card */
+    .cover-layout-full,
+    .card-cover-full-active,
+    .digital-pass-card-custom.cover-layout-full,
+    .digital-pass-card-custom.card-cover-full-active {
+      background: transparent !important;
+    }
+    .cover-layout-full .digital-pass-header-custom,
+    .card-cover-full-active .digital-pass-header-custom {
+      background: transparent !important;
+      background-image: none !important;
+      box-shadow: none !important;
+    }
+    .cover-layout-full .digital-pass-body-custom,
+    .card-cover-full-active .digital-pass-body-custom {
+      background: transparent !important;
+      background-image: none !important;
+    }
+    .cover-layout-full .meta-box-custom {
+      background: rgba(0, 0, 0, 0.42) !important;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      color: #FFFFFF !important;
+    }
+    .cover-layout-full .meta-box-custom div,
+    .cover-layout-full .meta-box-custom span {
+      color: #FFFFFF !important;
+    }
+    .cover-layout-full .guest-name-custom,
+    .cover-layout-full #cardAdmitBearer,
+    .cover-layout-full #cardQuoteText,
+    .cover-layout-full #cardFooterNote {
+      color: #FFFFFF !important;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
     }
     .card-cover-full-img {
       width: 100%;
@@ -575,6 +612,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       if ($borderFrame !== 'none') $extraClasses[] = 'frame-' . htmlspecialchars($borderFrame);
       if (!empty($coverImgData)) {
           if ($coverLayout === 'full') {
+              $extraClasses[] = 'cover-layout-full card-cover-full-active';
               if ($coverTextContrast === 'glass') $extraClasses[] = 'full-cover-glass';
               elseif ($coverTextContrast === 'shadow') $extraClasses[] = 'full-cover-shadow';
           } elseif ($coverLayout === 'half') {
@@ -588,7 +626,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
           }
       }
       ?>
-      <div id="targetPassCard" class="digital-pass-card-custom <?= implode(' ', $extraClasses) ?>" style="position:relative;<?= !empty($borderColor) ? 'border-color:' . htmlspecialchars($borderColor) . ';' : '' ?>">
+      <div id="targetPassCard" class="digital-pass-card-custom <?= implode(' ', $extraClasses) ?>" style="position:relative;<?= (!empty($coverImgData) && $coverLayout === 'full') ? 'background:transparent !important;' : '' ?><?= !empty($borderColor) ? 'border-color:' . htmlspecialchars($borderColor) . ';' : '' ?>">
         <div class="texture-overlay <?= $texture !== 'none' ? 'texture-' . htmlspecialchars($texture) : '' ?>"></div>
 
         <?php if (!empty($coverImgData) && $coverLayout === 'full'): ?>
@@ -610,7 +648,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
         <?php endif; ?>
 
         <!-- Pass Header -->
-        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;<?= (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')) ? (($coverLayout === 'half' ? 'flex:0 0 ' . $coverHalfRatio . '%;' : '') . 'min-height:' . $coverHeight . 'px;') : '' ?>">
+        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;<?= (!empty($coverImgData) && $coverLayout === 'full') ? 'background:transparent !important;background-image:none !important;box-shadow:none !important;' : '' ?><?= (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')) ? (($coverLayout === 'half' ? 'flex:0 0 ' . $coverHalfRatio . '%;' : '') . 'min-height:' . $coverHeight . 'px;') : '' ?>">
           <?php if (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')): ?>
             <div style="position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none;">
               <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" style="width:100%;height:100%;object-fit:<?= htmlspecialchars($coverCropFit) ?>;object-position:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;transform:scale(<?= $coverScale / 100 ?>);transform-origin:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;filter:brightness(<?= $coverBrightness ?>%) contrast(<?= $coverContrast ?>%);opacity:<?= $coverOpacity / 100 ?>;">
@@ -640,7 +678,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
         </div>
 
         <!-- Pass Body -->
-        <div class="digital-pass-body-custom" style="position:relative;z-index:2;">
+        <div class="digital-pass-body-custom" style="position:relative;z-index:2;<?= (!empty($coverImgData) && $coverLayout === 'full') ? 'background:transparent !important;' : '' ?>">
           <?php if ($seal !== 'none'): ?>
             <div style="display:flex;justify-content:center;margin-bottom:4px;">
               <span class="seal-pill-custom">
