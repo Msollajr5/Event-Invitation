@@ -118,6 +118,13 @@ $coverCustomY = (float)($designConfig['coverCustomY'] ?? 35);
 $coverCustomW = (int)($designConfig['coverCustomW'] ?? 240);
 $coverCustomH = (int)($designConfig['coverCustomH'] ?? 180);
 $coverCustomRotation = (int)($designConfig['coverCustomRotation'] ?? 0);
+$headerStyle = $designConfig['headerStyle'] ?? 'split';
+$showArtwork = !isset($designConfig['showArtwork']) || !empty($designConfig['showArtwork']);
+$artworkOpacity = (int)($designConfig['artworkOpacity'] ?? 100);
+$decorativeArtwork = $designConfig['decorativeArtwork'] ?? '';
+$sampleCouple = $designConfig['sampleCouple'] ?? '';
+$scriptFont = $designConfig['scriptFont'] ?? "'Great Vibes', cursive";
+$templateId = $designConfig['template'] ?? '';
 
 // Check if dark surface
 $isDark = false;
@@ -140,9 +147,11 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
   <!-- Luxury Typography Fonts Collection -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Marcellus&family=Montserrat:wght@400;600;700;800;900&family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Sora:wght@600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Allura&family=Bebas+Neue&family=Cinzel:wght@500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Serif+Display:ital@0;1&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Lato:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Marcellus&family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&family=Parisienne&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,900;1,400;1,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Poppins:wght@400;500;600;700&family=Sora:wght@600;700;800&family=Space+Grotesk:wght@500;700&family=Tangerine:wght@700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="assets/css/portal.css?v=<?= time() ?>">
+  <script src="assets/js/luxe_art.js?v=<?= time() ?>"></script>
+  <script src="assets/js/templates_library.js?v=<?= time() ?>"></script>
   <link rel="stylesheet" href="assets/css/notifications.css?v=<?= time() ?>">
   <script src="assets/js/notifications.js?v=<?= time() ?>"></script>
   <script src="assets/js/qrcode.min.js"></script>
@@ -609,6 +618,8 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
       <!-- ========================================== -->
       <?php
       $extraClasses = [];
+      $isUnifiedPass = ($headerStyle === 'unified') && !( !empty($coverImgData) && ($coverLayout === 'full' || $coverLayout === 'top') );
+      if ($isUnifiedPass) $extraClasses[] = 'artboard-unified';
       if ($borderFrame !== 'none') $extraClasses[] = 'frame-' . htmlspecialchars($borderFrame);
       if (!empty($coverImgData)) {
           if ($coverLayout === 'full') {
@@ -626,8 +637,24 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
           }
       }
       ?>
-      <div id="targetPassCard" class="digital-pass-card-custom <?= implode(' ', $extraClasses) ?>" style="position:relative;<?= (!empty($coverImgData) && $coverLayout === 'full') ? 'background:transparent !important;' : '' ?><?= !empty($borderColor) ? 'border-color:' . htmlspecialchars($borderColor) . ';' : '' ?>">
+      <div id="targetPassCard" class="digital-pass-card-custom <?= implode(' ', $extraClasses) ?>" style="position:relative;<?= (!empty($coverImgData) && $coverLayout === 'full') ? 'background:transparent !important;' : ($isUnifiedPass ? 'background:' . htmlspecialchars($bodyBg) . ' !important;' : '') ?><?= !empty($borderColor) ? 'border-color:' . htmlspecialchars($borderColor) . ';' : '' ?>">
         <div class="texture-overlay <?= $texture !== 'none' ? 'texture-' . htmlspecialchars($texture) : '' ?>"></div>
+
+        <?php if ($showArtwork): ?>
+          <div id="passDecorativeArtwork" class="card-decorative-artwork" data-template-id="<?= htmlspecialchars($templateId) ?>" data-accent="<?= htmlspecialchars($accentColor) ?>" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;overflow:hidden;border-radius:inherit;opacity:<?= number_format($artworkOpacity / 100, 2) ?>;">
+            <?= $decorativeArtwork ?>
+          </div>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              var artEl = document.getElementById('passDecorativeArtwork');
+              if (artEl && (!artEl.innerHTML || !artEl.innerHTML.trim()) && typeof generateTemplateArtworkSvg === 'function') {
+                var tid = artEl.getAttribute('data-template-id');
+                var acc = artEl.getAttribute('data-accent');
+                if (tid) artEl.innerHTML = generateTemplateArtworkSvg(tid, acc);
+              }
+            });
+          </script>
+        <?php endif; ?>
 
         <?php if (!empty($coverImgData) && $coverLayout === 'full'): ?>
           <!-- Layout Option 1: Full Card Background Cover -->
@@ -648,7 +675,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
         <?php endif; ?>
 
         <!-- Pass Header -->
-        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;<?= (!empty($coverImgData) && $coverLayout === 'full') ? 'background:transparent !important;background-image:none !important;box-shadow:none !important;' : '' ?><?= (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')) ? (($coverLayout === 'half' ? 'flex:0 0 ' . $coverHalfRatio . '%;' : '') . 'min-height:' . $coverHeight . 'px;') : '' ?>">
+        <div class="digital-pass-header-custom" style="position:relative;overflow:hidden;<?= ((!empty($coverImgData) && $coverLayout === 'full') || $isUnifiedPass) ? 'background:transparent !important;background-image:none !important;box-shadow:none !important;' : '' ?><?= (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')) ? (($coverLayout === 'half' ? 'flex:0 0 ' . $coverHalfRatio . '%;' : '') . 'min-height:' . $coverHeight . 'px;') : '' ?>">
           <?php if (!empty($coverImgData) && ($coverLayout === 'top' || $coverLayout === 'half')): ?>
             <div style="position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none;">
               <img src="<?= htmlspecialchars($coverImgData) ?>" alt="Cover" style="width:100%;height:100%;object-fit:<?= htmlspecialchars($coverCropFit) ?>;object-position:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;transform:scale(<?= $coverScale / 100 ?>);transform-origin:<?= $coverPositionX ?>% <?= $coverPositionY ?>%;filter:brightness(<?= $coverBrightness ?>%) contrast(<?= $coverContrast ?>%);opacity:<?= $coverOpacity / 100 ?>;">
@@ -656,7 +683,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
             </div>
           <?php endif; ?>
 
-          <div style="position:relative;z-index:2;">
+          <div style="position:relative;z-index:4;">
             <?php if (!empty($logoData)): ?>
               <div style="margin-bottom:10px;">
                 <img src="<?= htmlspecialchars($logoData) ?>" style="max-height:44px;max-width:150px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));" alt="Logo">
@@ -666,6 +693,12 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
             <span class="badge-pill-custom" style="color:<?= htmlspecialchars($headingColor) ?>;border-color:<?= htmlspecialchars($headingColor) ?>55;">
               <?= htmlspecialchars($badgeText) ?>
             </span>
+
+            <?php if (!empty($sampleCouple)): ?>
+              <div class="card-couple-script" style="font-family:<?= htmlspecialchars($scriptFont) ?>;font-size:2.1rem;line-height:1.15;margin:4px 0 6px;color:<?= htmlspecialchars($headingColor) ?>;">
+                <?= htmlspecialchars($sampleCouple) ?>
+              </div>
+            <?php endif; ?>
 
             <h1 class="event-title-custom" style="color:<?= htmlspecialchars($headingColor) ?>;">
               <?= e($pass['event_title']) ?>
@@ -678,7 +711,7 @@ if (str_starts_with($bodyBg, '#') && strlen($bodyBg) === 7) {
         </div>
 
         <!-- Pass Body -->
-        <div class="digital-pass-body-custom" style="position:relative;z-index:2;<?= (!empty($coverImgData) && $coverLayout === 'full') ? 'background:transparent !important;' : '' ?>">
+        <div class="digital-pass-body-custom" style="position:relative;z-index:4;<?= ((!empty($coverImgData) && $coverLayout === 'full') || $isUnifiedPass) ? 'background:transparent !important;' : '' ?>">
           <?php if ($seal !== 'none'): ?>
             <div style="display:flex;justify-content:center;margin-bottom:4px;">
               <span class="seal-pill-custom">

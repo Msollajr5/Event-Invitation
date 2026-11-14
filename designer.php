@@ -116,12 +116,14 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Luxury Typography Fonts (Canva / Editorial Collection) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Great+Vibes&family=Inter:wght@400;600;700;800&family=Marcellus&family=Montserrat:wght@400;600;700;800;900&family=Outfit:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Sora:wght@600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Allura&family=Bebas+Neue&family=Cinzel:wght@500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Serif+Display:ital@0;1&family=Great+Vibes&family=Inter:wght@400;500;600;700;800&family=Lato:ital,wght@0,400;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Marcellus&family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&family=Parisienne&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,900;1,400;1,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Poppins:wght@400;500;600;700&family=Sora:wght@600;700;800&family=Space+Grotesk:wght@500;700&family=Tangerine:wght@700&display=swap" rel="stylesheet">
 
-<!-- High-Resolution Export Engine, Vector QR & jsPDF Document Engine -->
+<!-- High-Resolution Export Engine, Vector QR, Fabric.js, LuxeArt SVG Engine & Templates Library -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="assets/js/vendor/fabric.min.js"></script>
 <script src="assets/js/qrcode.min.js"></script>
+<script src="assets/js/luxe_art.js?v=<?= time() ?>"></script>
 <script src="assets/js/templates_library.js?v=<?= time() ?>"></script>
 
 <!-- Canva Studio Topbar -->
@@ -480,23 +482,28 @@ require_once __DIR__ . '/includes/header.php';
 
       <!-- TAB 2: 50 PREMIUM TEMPLATES LIBRARY (Studio Mode) -->
       <div class="tab-panel" data-tab-panel="tabTemplates" data-tab-group="studio">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap;">
           <div>
             <div style="font-size:0.88rem;font-weight:800;color:var(--text-primary);letter-spacing:-0.2px;">
-              50 Premium Invitation Templates
+              50 Luxury Stationery Templates
             </div>
             <div style="font-size:0.72rem;color:var(--text-muted);">
-              Professional Canva-grade designs across 8 event categories
+              Original floral watercolor, botanical, editorial, classic &amp; African luxury artwork
             </div>
           </div>
-          <span style="font-size:0.72rem;background:linear-gradient(135deg,#FF7A00,#E96800);color:#FFFFFF;font-weight:800;padding:3px 10px;border-radius:99px;box-shadow:0 2px 8px rgba(255,122,0,0.3);">
-            50 Templates
-          </span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="saveCurrentDesignAsTemplate()" title="Save current edited card into your Template Library" style="font-size:0.7rem;padding:4px 9px;font-weight:700;">
+              💾 Save as Template
+            </button>
+            <span style="font-size:0.72rem;background:linear-gradient(135deg,#B8955A,#8F6B32);color:#FFFFFF;font-weight:800;padding:3px 10px;border-radius:99px;box-shadow:0 2px 8px rgba(184,149,90,0.3);">
+              50 Templates
+            </span>
+          </div>
         </div>
 
         <!-- Search Bar -->
         <div class="form-group" style="margin-bottom:10px;position:relative;">
-          <input type="text" id="tplSearchInput" class="form-control" placeholder="🔍 Search 50 templates (e.g. wedding, birthday, royal, kanga)..." style="padding-left:12px;font-size:0.8rem;" oninput="onTemplateSearchInput(this.value)">
+          <input type="text" id="tplSearchInput" class="form-control" placeholder="🔍 Search 50 luxury templates (e.g. Ivory Bloom, Peony, Eucalyptus, Zanzibar, Arch)..." style="padding-left:12px;font-size:0.8rem;" oninput="onTemplateSearchInput(this.value)">
         </div>
 
         <!-- Category Filter Pills Bar -->
@@ -505,40 +512,37 @@ require_once __DIR__ . '/includes/header.php';
             ✨ All (50)
           </button>
           <button type="button" class="tpl-filter-pill" data-cat="wedding" onclick="filterTemplatesByCategory('wedding')">
-            💍 Wedding (10)
+            💍 Luxury Floral Weddings (10)
           </button>
-          <button type="button" class="tpl-filter-pill" data-cat="birthday" onclick="filterTemplatesByCategory('birthday')">
-            🎂 Birthday (8)
+          <button type="button" class="tpl-filter-pill" data-cat="minimalist" onclick="filterTemplatesByCategory('minimalist')">
+            🏛️ Minimalist &amp; Editorial (10)
           </button>
-          <button type="button" class="tpl-filter-pill" data-cat="corporate" onclick="filterTemplatesByCategory('corporate')">
-            💼 Corporate (6)
+          <button type="button" class="tpl-filter-pill" data-cat="nature" onclick="filterTemplatesByCategory('nature')">
+            🌿 Botanical &amp; Nature (10)
           </button>
-          <button type="button" class="tpl-filter-pill" data-cat="graduation" onclick="filterTemplatesByCategory('graduation')">
-            🎓 Graduation (5)
-          </button>
-          <button type="button" class="tpl-filter-pill" data-cat="religious" onclick="filterTemplatesByCategory('religious')">
-            ⛪ Religious (5)
-          </button>
-          <button type="button" class="tpl-filter-pill" data-cat="celebration" onclick="filterTemplatesByCategory('celebration')">
-            🎉 Celebrations (6)
-          </button>
-          <button type="button" class="tpl-filter-pill" data-cat="special" onclick="filterTemplatesByCategory('special')">
-            👑 Special (5)
+          <button type="button" class="tpl-filter-pill" data-cat="classic" onclick="filterTemplatesByCategory('classic')">
+            👑 Luxury &amp; Classic (8)
           </button>
           <button type="button" class="tpl-filter-pill" data-cat="african" onclick="filterTemplatesByCategory('african')">
-            🌍 African &amp; Swahili (5)
+            🌍 African Luxury (7)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="celebrations" onclick="filterTemplatesByCategory('celebrations')">
+            🥂 Modern Celebrations (5)
+          </button>
+          <button type="button" class="tpl-filter-pill" data-cat="recent" onclick="filterTemplatesByCategory('recent')">
+            🕒 Recently Used
           </button>
           <button type="button" class="tpl-filter-pill" data-cat="favorites" onclick="filterTemplatesByCategory('favorites')">
-            ⭐ Favorites
+            ⭐ Favourites
           </button>
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <span id="tplResultsCount" style="font-size:0.72rem;font-weight:700;color:var(--text-muted);">
-            50 templates available
+            50 luxury templates available
           </span>
-          <span style="font-size:0.7rem;color:#FF7A00;font-weight:600;">
-            1-Click Instant Apply
+          <span style="font-size:0.7rem;color:#B8955A;font-weight:700;">
+            Vector SVG Artwork • Fully Editable
           </span>
         </div>
 
@@ -585,6 +589,11 @@ require_once __DIR__ . '/includes/header.php';
             <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickTier('✨ SPECIAL GUEST')" style="padding:2px 7px;font-size:0.7rem;">✨ Special</button>
           </div>
           <input type="text" id="cfgBadge" class="form-control" value="VIP DELEGATE PASS" oninput="renderCanvas()">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Calligraphy Names / Script Accent Line</label>
+          <input type="text" id="cfgCouple" class="form-control" value="Amelia &amp; Sebastian" placeholder="e.g. Amelia &amp; Sebastian (leave blank to hide)" oninput="renderCanvas()">
         </div>
 
         <div class="form-group">
@@ -637,21 +646,46 @@ require_once __DIR__ . '/includes/header.php';
       <!-- TAB 4: TYPOGRAPHY & COLORS -->
       <div class="tab-panel" data-tab-panel="tabStyling" data-tab-group="studio">
         <div class="form-group">
-          <label class="form-label">Headline Font Family</label>
+          <label class="form-label">Primary Headline &amp; Serif Font Family</label>
           <select id="cfgFont" class="form-control" onchange="renderCanvas()">
-            <option value="'Sora', sans-serif">Sora (Modern Futuristic Sans)</option>
-            <option value="'Playfair Display', serif">Playfair Display (Luxury Editorial Serif)</option>
-            <option value="'Cinzel', serif">Cinzel (Regal Imperial Roman)</option>
-            <option value="'Great Vibes', cursive">Great Vibes (Romantic Calligraphy Script)</option>
-            <option value="'Alex Brush', cursive">Alex Brush (Wedding Calligraphy)</option>
-            <option value="'Cormorant Garamond', serif">Cormorant Garamond (Classical Elegance)</option>
-            <option value="'Marcellus', serif">Marcellus (Antiquity Roman)</option>
-            <option value="'Montserrat', sans-serif">Montserrat (Geometric Modern)</option>
-            <option value="'Outfit', sans-serif">Outfit (Clean Luxury)</option>
-            <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Corporate Executive)</option>
-            <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech Monospace)</option>
-            <option value="'Inter', sans-serif">Inter (Clean Enterprise)</option>
-            <option value="'Bebas Neue', sans-serif">Bebas Neue (Bold Display)</option>
+            <optgroup label="Luxury Editorial Serif Fonts">
+              <option value="'Cormorant Garamond', serif">Cormorant Garamond (Classical Luxury Serif)</option>
+              <option value="'Playfair Display', serif">Playfair Display (Haute Couture Editorial Serif)</option>
+              <option value="'Cinzel', serif">Cinzel (Regal Imperial Roman)</option>
+              <option value="'Libre Baskerville', serif">Libre Baskerville (Timeless Engraved Serif)</option>
+              <option value="'DM Serif Display', serif">DM Serif Display (Architectural High-Contrast)</option>
+              <option value="'Marcellus', serif">Marcellus (Antiquity Roman)</option>
+            </optgroup>
+            <optgroup label="Calligraphy &amp; Script Fonts">
+              <option value="'Great Vibes', cursive">Great Vibes (Pointed-Pen Calligraphy)</option>
+              <option value="'Allura', cursive">Allura (Editorial Script Calligraphy)</option>
+              <option value="'Tangerine', cursive">Tangerine (Heirloom Italic Script)</option>
+              <option value="'Parisienne', cursive">Parisienne (French Couture Script)</option>
+              <option value="'Alex Brush', cursive">Alex Brush (Flowing Brush Calligraphy)</option>
+            </optgroup>
+            <optgroup label="Modern Sans-Serif Fonts">
+              <option value="'Montserrat', sans-serif">Montserrat (Geometric Modern Sans)</option>
+              <option value="'Lato', sans-serif">Lato (Warm Humanist Sans)</option>
+              <option value="'Poppins', sans-serif">Poppins (Contemporary Studio Sans)</option>
+              <option value="'Inter', sans-serif">Inter (Clean Swiss Enterprise)</option>
+              <option value="'Outfit', sans-serif">Outfit (Clean Luxury Geometric)</option>
+              <option value="'Sora', sans-serif">Sora (Modern Futuristic Sans)</option>
+              <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Corporate Executive)</option>
+              <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech Monospace)</option>
+              <option value="'Bebas Neue', sans-serif">Bebas Neue (Bold Display)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Calligraphy / Script Accent Font</label>
+          <select id="cfgScriptFont" class="form-control" onchange="renderCanvas()">
+            <option value="'Great Vibes', cursive">Great Vibes (Romantic Pointed-Pen Calligraphy)</option>
+            <option value="'Allura', cursive">Allura (Soft Flowing Editorial Script)</option>
+            <option value="'Tangerine', cursive">Tangerine (Tall Heirloom Calligraphy)</option>
+            <option value="'Parisienne', cursive">Parisienne (Parisian Couture Script)</option>
+            <option value="'Alex Brush', cursive">Alex Brush (Classic Wedding Brush Script)</option>
+            <option value="'Cormorant Garamond', serif">Cormorant Garamond Italic (Serif Italic)</option>
           </select>
         </div>
 
@@ -743,6 +777,30 @@ require_once __DIR__ . '/includes/header.php';
 
       <!-- TAB 5: ORNAMENTS & FRAMES -->
       <div class="tab-panel" data-tab-panel="tabElements" data-tab-group="studio">
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:0.78rem;font-weight:800;color:var(--text-primary);">🌸 Original Vector Artwork Layer</span>
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:700;cursor:pointer;">
+              <input type="checkbox" id="cfgShowArtwork" checked onchange="state.showArtwork = this.checked; renderCanvas(); pushHistoryState();">
+              <span>Show Artwork</span>
+            </label>
+          </div>
+          <div class="form-group" style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <label class="form-label" style="font-size:0.72rem;margin:0;">Artwork Illustration Opacity</label>
+              <span id="valArtworkOpacity" style="font-size:0.72rem;font-weight:700;color:#B8955A;">100%</span>
+            </div>
+            <input type="range" id="cfgArtworkOpacity" min="15" max="100" step="5" value="100" class="form-control" style="padding:0;" oninput="state.artworkOpacity = parseInt(this.value, 10); document.getElementById('valArtworkOpacity').textContent = this.value + '%'; renderCanvas();">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" style="font-size:0.72rem;">Stationery Architecture</label>
+            <select id="cfgHeaderStyle" class="form-control" style="font-size:0.76rem;" onchange="state.headerStyle = this.value; renderCanvas(); pushHistoryState();">
+              <option value="unified">Unified Luxury Stationery Sheet (Full-Card Artwork)</option>
+              <option value="split">Classic Split Header Banner</option>
+            </select>
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Card Border &amp; Frame Aesthetic</label>
           <select id="cfgBorderFrame" class="form-control" onchange="renderCanvas()">
@@ -1187,6 +1245,8 @@ require_once __DIR__ . '/includes/header.php';
            ============================================================ -->
       <div id="cardArtboard" class="artboard-portrait" style="display:none;">
         <div id="cardTextureOverlay" class="texture-overlay"></div>
+        <!-- Original Multi-Element Vector Artwork Layer (Flowers, Washes, Botanicals, Arches, Frames) -->
+        <div id="cardDecorativeArtwork" class="card-decorative-artwork"></div>
 
         <!-- Layout Option 1: Full Card Background Cover Wrap -->
         <div id="cardCoverFullWrap" class="card-cover-full-wrap" style="display:none;">
@@ -1220,6 +1280,7 @@ require_once __DIR__ . '/includes/header.php';
               <img id="cardLogoImg" src="" style="max-height:44px;max-width:150px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));">
             </div>
             <div id="cardBadge" class="card-badge editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit badge directly">VIP DELEGATE PASS</div>
+            <div id="cardCoupleScript" class="card-couple-script editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit calligraphy script line directly">Amelia &amp; Sebastian</div>
             <h2 id="cardTitle" class="card-title-text editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit event title directly"><?= e($event['title'] ?? 'Annual Gala & Awards') ?></h2>
             <div id="cardSubtitle" class="card-subtitle-text editable-canvas-text" contenteditable="true" spellcheck="false" title="Click to edit subtitle directly">Celebrating Technological Leadership</div>
           </div>
@@ -1576,6 +1637,46 @@ require_once __DIR__ . '/includes/header.php';
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;
+}
+
+/* Original Multi-Element Vector Artwork Layer (LuxeArt SVG) */
+.card-decorative-artwork {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.card-decorative-artwork svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.card-couple-script {
+  font-family: 'Great Vibes', cursive;
+  font-size: 2.15rem;
+  line-height: 1.15;
+  margin: 4px 0 6px;
+  font-weight: 400;
+}
+/* Unified Luxury Stationery Sheet Architecture */
+.artboard-unified .artboard-header {
+  background: transparent !important;
+  padding-top: 38px;
+  padding-bottom: 10px;
+}
+.artboard-unified .artboard-body {
+  background: transparent !important;
+  padding-top: 6px;
+  padding-bottom: 34px;
+}
+.artboard-unified .artboard-header-content,
+.artboard-unified .artboard-body {
+  position: relative;
+  z-index: 4;
 }
 
 /* Layout Option 1: Full Card Cover */
@@ -2815,8 +2916,14 @@ let qrCenterScreen = { x: 0, y: 0 };
 // Main Design State
 let state = {
   cardMode: 'canva', // 'canva' (poster clone) vs 'studio' (template)
-  template: 'orange_gala',
+  template: 'wedding_ivory_bloom',
   orientation: 'portrait',
+  headerStyle: 'unified',
+  showArtwork: true,
+  artworkOpacity: 100,
+  decorativeArtwork: '',
+  sampleCouple: 'Amelia & Sebastian',
+  scriptFont: "'Great Vibes', cursive",
   canvaBgData: null,
   
   // Normalized QR Coordinates (% relative to poster bounds)
@@ -3300,6 +3407,7 @@ function pushHistoryState() {
   updateUndoRedoButtons();
   window.isDesignDirty = true;
 }
+window.saveHistoryState = pushHistoryState;
 
 function undoState() {
   if (historyIndex > 0) {
@@ -3593,6 +3701,40 @@ function renderStudioCard() {
   }
 
   const isFullCover = (state.coverImgData && state.coverLayout === 'full');
+  const isUnified = (state.headerStyle === 'unified') && !isFullCover && !(state.coverImgData && state.coverLayout === 'top');
+
+  // Set base orientation & border frame classes FIRST so layout classes added below are preserved
+  artboard.className = (state.orientation === 'landscape' ? 'artboard-landscape' : 'artboard-portrait');
+  if (state.borderFrame === 'gold_single') artboard.classList.add('frame-gold-single');
+  else if (state.borderFrame === 'gold_double') artboard.classList.add('frame-gold-double');
+  else if (state.borderFrame === 'glass_glow') artboard.classList.add('frame-glass-glow');
+  else if (state.borderFrame === 'deco_corners') artboard.classList.add('frame-deco-corners');
+
+  // Render Calligraphy Names / Script Accent Line
+  const coupleEl = document.getElementById('cardCoupleScript');
+  if (coupleEl) {
+    if (document.activeElement !== coupleEl) coupleEl.textContent = state.sampleCouple || '';
+    coupleEl.style.display = (state.sampleCouple && state.sampleCouple.trim()) ? 'block' : 'none';
+    coupleEl.style.fontFamily = state.scriptFont || "'Great Vibes', cursive";
+    coupleEl.style.color = isFullCover ? '#FFFFFF' : (state.headingColor || state.textColor);
+  }
+
+  // Render Original Multi-Element Vector Artwork Layer (LuxeArt SVG)
+  const artLayer = document.getElementById('cardDecorativeArtwork');
+  if (artLayer) {
+    if (state.showArtwork !== false) {
+      let svgStr = state.decorativeArtwork || '';
+      if (typeof generateTemplateArtworkSvg === 'function' && state.template && typeof TEMPLATES_LIBRARY !== 'undefined' && TEMPLATES_LIBRARY[state.template]) {
+        svgStr = generateTemplateArtworkSvg(state.template, state.accentColor);
+        state.decorativeArtwork = svgStr;
+      }
+      artLayer.innerHTML = svgStr;
+      artLayer.style.display = svgStr ? 'block' : 'none';
+      artLayer.style.opacity = (((state.artworkOpacity !== undefined ? state.artworkOpacity : 100) / 100)).toFixed(2);
+    } else {
+      artLayer.style.display = 'none';
+    }
+  }
 
   if (isFullCover) {
     header.style.background = 'transparent';
@@ -3601,11 +3743,17 @@ function renderStudioCard() {
     body.style.backgroundImage = 'none';
     artboard.style.background = 'transparent';
     artboard.classList.add('cover-layout-full', 'card-cover-full-active');
+  } else if (isUnified) {
+    header.style.background = 'transparent';
+    header.style.backgroundImage = 'none';
+    body.style.background = 'transparent';
+    body.style.backgroundImage = 'none';
+    artboard.style.background = state.bodyBg || '#FAF6F0';
+    artboard.classList.add('artboard-unified');
   } else {
     header.style.background = `linear-gradient(135deg, ${state.headerColor1}, ${state.headerColor2})`;
     body.style.background = state.bodyBg;
     artboard.style.background = '';
-    artboard.classList.remove('cover-layout-full', 'card-cover-full-active');
   }
   body.style.color = state.textColor;
   guest.style.color = isFullCover ? '#FFFFFF' : state.textColor;
@@ -3626,9 +3774,6 @@ function renderStudioCard() {
   const customWrap = document.getElementById('cardCoverCustomWrap');
   const customImg = document.getElementById('cardCoverCustomImg');
   const customOverlay = document.getElementById('cardCoverCustomOverlay');
-
-  // Reset all layout classes
-  artboard.classList.remove('artboard-half-split', 'split-side-right', 'split-vertical', 'split-side-bottom', 'full-cover-glass', 'full-cover-shadow', 'cover-layout-full', 'card-cover-full-active');
 
   if (state.coverImgData) {
     const filterStyle = `brightness(${state.coverBrightness || 100}%) contrast(${state.coverContrast || 100}%)`;
@@ -3770,12 +3915,6 @@ function renderStudioCard() {
   else if (state.texture === 'marble') textureOverlay.classList.add('texture-marble');
   else if (state.texture === 'stardust') textureOverlay.classList.add('texture-stardust');
   else textureOverlay.style.backgroundImage = 'none';
-
-  artboard.className = (state.orientation === 'landscape' ? 'artboard-landscape' : 'artboard-portrait');
-  if (state.borderFrame === 'gold_single') artboard.classList.add('frame-gold-single');
-  else if (state.borderFrame === 'gold_double') artboard.classList.add('frame-gold-double');
-  else if (state.borderFrame === 'glass_glow') artboard.classList.add('frame-glass-glow');
-  else if (state.borderFrame === 'deco_corners') artboard.classList.add('frame-deco-corners');
 
   const isDark = isDarkColor(state.bodyBg);
   if (isDark) {
@@ -4578,6 +4717,9 @@ function isDarkColor(hex) {
 
 function syncStateToInputs() {
   document.getElementById('cfgBadge').value = state.badge || 'VIP DELEGATE PASS';
+  if (document.getElementById('cfgCouple')) {
+    document.getElementById('cfgCouple').value = state.sampleCouple !== undefined ? state.sampleCouple : 'Amelia & Sebastian';
+  }
   document.getElementById('cfgTitle').value = state.title || '';
   document.getElementById('cfgSubtitle').value = state.subtitle || '';
   document.getElementById('cfgGuest').value = state.guest || '';
@@ -4587,7 +4729,10 @@ function syncStateToInputs() {
   document.getElementById('cfgVenue').value = state.venue || '';
   document.getElementById('cfgSeat').value = state.seat || '';
   document.getElementById('cfgFooter').value = state.footer || '';
-  document.getElementById('cfgFont').value = state.fontFamily || "'Sora', sans-serif";
+  document.getElementById('cfgFont').value = state.fontFamily || "'Cormorant Garamond', serif";
+  if (document.getElementById('cfgScriptFont')) {
+    document.getElementById('cfgScriptFont').value = state.scriptFont || "'Great Vibes', cursive";
+  }
   document.getElementById('cfgTitleScale').value = state.titleScale || 100;
   document.getElementById('cfgGuestScale').value = state.guestScale || 100;
   updateScales();
@@ -4605,6 +4750,17 @@ function syncStateToInputs() {
   document.getElementById('cfgBorderFrame').value = state.borderFrame || 'none';
   document.getElementById('cfgSeal').value = state.seal || 'ribbon';
   document.getElementById('cfgTexture').value = state.texture || 'none';
+  if (document.getElementById('cfgShowArtwork')) {
+    document.getElementById('cfgShowArtwork').checked = (state.showArtwork !== false);
+  }
+  if (document.getElementById('cfgArtworkOpacity')) {
+    const op = state.artworkOpacity !== undefined ? state.artworkOpacity : 100;
+    document.getElementById('cfgArtworkOpacity').value = op;
+    if (document.getElementById('valArtworkOpacity')) document.getElementById('valArtworkOpacity').textContent = op + '%';
+  }
+  if (document.getElementById('cfgHeaderStyle')) {
+    document.getElementById('cfgHeaderStyle').value = state.headerStyle || 'unified';
+  }
 
   if (document.getElementById('cfgLetterSpacing')) {
     document.getElementById('cfgLetterSpacing').value = state.letterSpacing || 0;
@@ -4649,6 +4805,9 @@ function syncStateToInputs() {
 
 function pullInputsToState() {
   state.badge = document.getElementById('cfgBadge').value;
+  if (document.getElementById('cfgCouple')) {
+    state.sampleCouple = document.getElementById('cfgCouple').value;
+  }
   state.title = document.getElementById('cfgTitle').value;
   state.subtitle = document.getElementById('cfgSubtitle').value;
   state.guest = document.getElementById('cfgGuest').value;
@@ -4659,6 +4818,9 @@ function pullInputsToState() {
   state.seat = document.getElementById('cfgSeat').value;
   state.footer = document.getElementById('cfgFooter').value;
   state.fontFamily = document.getElementById('cfgFont').value;
+  if (document.getElementById('cfgScriptFont')) {
+    state.scriptFont = document.getElementById('cfgScriptFont').value;
+  }
   state.titleScale = parseInt(document.getElementById('cfgTitleScale').value, 10);
   state.guestScale = parseInt(document.getElementById('cfgGuestScale').value, 10);
   state.headerColor1 = document.getElementById('cfgHeaderColor1').value;
@@ -4675,6 +4837,15 @@ function pullInputsToState() {
   state.borderFrame = document.getElementById('cfgBorderFrame').value;
   state.seal = document.getElementById('cfgSeal').value;
   state.texture = document.getElementById('cfgTexture').value;
+  if (document.getElementById('cfgShowArtwork')) {
+    state.showArtwork = document.getElementById('cfgShowArtwork').checked;
+  }
+  if (document.getElementById('cfgArtworkOpacity')) {
+    state.artworkOpacity = parseInt(document.getElementById('cfgArtworkOpacity').value, 10);
+  }
+  if (document.getElementById('cfgHeaderStyle')) {
+    state.headerStyle = document.getElementById('cfgHeaderStyle').value;
+  }
   if (document.getElementById('cfgLetterSpacing')) {
     state.letterSpacing = parseInt(document.getElementById('cfgLetterSpacing').value, 10);
   }
@@ -4830,30 +5001,86 @@ function setQrDarkPreset(color) {
   showToast(`QR Barcode color set to ${color}`, 'info');
 }
 
-// Download High-Res Image (Canva Export Feature)
-function downloadCardImage() {
-  selectQr(false); // Hide selection frame for clean export
+// Toggle Export Dropdown Menu
+function toggleExportMenu(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('exportDropdownMenu');
+  if (!menu) return;
+  menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'block' : 'none';
+}
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('exportDropdownMenu');
+  if (menu && menu.style.display === 'block' && !e.target.closest('.dropdown')) {
+    menu.style.display = 'none';
+  }
+});
+
+// Download High-Res Image (PNG / JPG Export)
+function downloadCardImage(format = 'png') {
+  selectQr(false);
 
   const target = state.cardMode === 'canva' 
     ? document.getElementById('canvaCardArtboard') 
     : document.getElementById('cardArtboard');
 
-  showToast('Generating ultra high-resolution card image (3x HD)...', 'info');
+  const fmt = (format && format.toLowerCase() === 'jpg') ? 'jpg' : 'png';
+  showToast(`Generating ultra high-resolution ${fmt.toUpperCase()} invitation (3x HD)...`, 'info');
 
   setTimeout(() => {
     html2canvas(target, {
-      scale: 3, // 3x ultra-sharp resolution for printing
+      scale: 3,
       useCORS: true,
-      backgroundColor: null
+      backgroundColor: fmt === 'jpg' ? (state.bodyBg || '#FFFFFF') : null
     }).then(canvas => {
       const link = document.createElement('a');
-      link.download = `canva_invitation_pass_${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `leula_luxury_invitation_${Date.now()}.${fmt}`;
+      link.href = fmt === 'jpg' ? canvas.toDataURL('image/jpeg', 0.96) : canvas.toDataURL('image/png');
       link.click();
-      showToast('Invitation Card downloaded successfully (PNG)!', 'success');
+      showToast(`Invitation Card exported as ${fmt.toUpperCase()}!`, 'success');
       selectQr(true);
     }).catch(err => {
       window.Toast.error('Export error: ' + err);
+      selectQr(true);
+    });
+  }, 100);
+}
+
+// Download Print-Ready PDF (jsPDF + 3x HD Canvas)
+function downloadCardPdf() {
+  selectQr(false);
+
+  const target = state.cardMode === 'canva' 
+    ? document.getElementById('canvaCardArtboard') 
+    : document.getElementById('cardArtboard');
+
+  showToast('Generating print-ready PDF invitation pass...', 'info');
+
+  setTimeout(() => {
+    html2canvas(target, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: state.bodyBg || '#FFFFFF'
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const isLandscape = state.orientation === 'landscape';
+      const wPt = isLandscape ? 620 : 420;
+      const hPt = isLandscape ? 400 : 640;
+
+      if (window.jspdf && window.jspdf.jsPDF) {
+        const pdf = new window.jspdf.jsPDF({
+          orientation: isLandscape ? 'landscape' : 'portrait',
+          unit: 'pt',
+          format: [wPt, hPt]
+        });
+        pdf.addImage(imgData, 'PNG', 0, 0, wPt, hPt);
+        pdf.save(`leula_luxury_invitation_${Date.now()}.pdf`);
+        showToast('Print-ready PDF downloaded successfully!', 'success');
+      } else {
+        downloadCardImage('png');
+      }
+      selectQr(true);
+    }).catch(err => {
+      window.Toast.error('PDF export error: ' + err);
       selectQr(true);
     });
   }, 100);
@@ -4963,18 +5190,19 @@ function zoomCanvasFit() {
 // ============================================================
 function setupInlineCanvasEditing() {
   const bindings = [
-    { elId: 'cardBadge',         field: 'badge',    inputId: 'cfgBadge' },
-    { elId: 'cardTitle',         field: 'title',    inputId: 'cfgTitle' },
-    { elId: 'cardSubtitle',      field: 'subtitle', inputId: 'cfgSubtitle' },
-    { elId: 'cardQuote',         field: 'quote',    inputId: 'cfgQuote' },
-    { elId: 'cardGuest',         field: 'guest',    inputId: 'cfgGuest' },
-    { elId: 'cardDate',          field: 'date',     inputId: 'cfgDate' },
-    { elId: 'cardTime',          field: 'time',     inputId: 'cfgTime' },
-    { elId: 'cardVenue',         field: 'venue',    inputId: 'cfgVenue' },
-    { elId: 'cardSeat',          field: 'seat',     inputId: 'cfgSeat' },
-    { elId: 'cardFooter',        field: 'footer',   inputId: 'cfgFooter' },
-    { elId: 'canvaBadgePill',    field: 'badge',    inputId: 'cfgBadge' },
-    { elId: 'canvaAttendeeText', field: 'guest',    inputId: 'cfgGuest' }
+    { elId: 'cardBadge',         field: 'badge',        inputId: 'cfgBadge' },
+    { elId: 'cardCoupleScript',  field: 'sampleCouple', inputId: 'cfgCouple' },
+    { elId: 'cardTitle',         field: 'title',        inputId: 'cfgTitle' },
+    { elId: 'cardSubtitle',      field: 'subtitle',     inputId: 'cfgSubtitle' },
+    { elId: 'cardQuote',         field: 'quote',        inputId: 'cfgQuote' },
+    { elId: 'cardGuest',         field: 'guest',        inputId: 'cfgGuest' },
+    { elId: 'cardDate',          field: 'date',         inputId: 'cfgDate' },
+    { elId: 'cardTime',          field: 'time',         inputId: 'cfgTime' },
+    { elId: 'cardVenue',         field: 'venue',        inputId: 'cfgVenue' },
+    { elId: 'cardSeat',          field: 'seat',         inputId: 'cfgSeat' },
+    { elId: 'cardFooter',        field: 'footer',       inputId: 'cfgFooter' },
+    { elId: 'canvaBadgePill',    field: 'badge',        inputId: 'cfgBadge' },
+    { elId: 'canvaAttendeeText', field: 'guest',        inputId: 'cfgGuest' }
   ];
 
   bindings.forEach(({ elId, field, inputId }) => {
@@ -5031,10 +5259,14 @@ window.addEventListener('resize', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (typeof renderTemplatesLibrary === 'function') {
+    renderTemplatesLibrary('all', '');
+  }
   syncStateToInputs();
   setCardMode(state.cardMode || 'canva');
   selectQr(true);
   setupInlineCanvasEditing();
+  pushHistoryState();
   if (window.innerWidth <= 992) {
     setTimeout(zoomCanvasFit, 100);
   }
